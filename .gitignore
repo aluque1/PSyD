@@ -51,6 +51,7 @@ Module.symvers
 Mkfile.old
 dkms.conf
 
-/.metadata/
-/RemoteSystemsTempFiles/
+# Folders
+.metadata/
+RemoteSystemsTempFiles/
 
