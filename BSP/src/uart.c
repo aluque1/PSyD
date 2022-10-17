@@ -99,5 +99,18 @@ int32 uart0_getint( void )
 
 uint32 uart0_gethex( void )
 {
-	return 10;
+    char buf[8 + 1];
+    char num = buf;
+    int32 resul = 0;
+
+    uart0_gets(num);
+
+    while(num[0] != '\0'){
+        resul= 16;
+        if(num[0] > 70) num[0] -= 32;
+        if(num[0] > 57) num[0] -= 7;
+        resul += (num++[0] - 48);
+    }
+
+    return resul;
 }
