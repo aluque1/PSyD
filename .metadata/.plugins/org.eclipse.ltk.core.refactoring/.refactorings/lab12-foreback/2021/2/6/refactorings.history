@@ -1,3 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<session version="1.0">&#x0A;<refactoring comment="Rename resource &apos;lab12-foreback/lab12-cyclic.c&apos; to &apos;lab12-foreback.c&apos;" description="Rename resource &apos;lab12-cyclic.c&apos;" flags="7" id="org.eclipse.ltk.core.refactoring.rename.resource" input="lab12-cyclic.c" name="lab12-foreback.c" stamp="1612883976330" updateReferences="true"/>&#x0A;<refactoring comment="Rename resource &apos;lab12-foreback/lab12-cyclic.ld&apos; to &apos;lab12-foreback.ld&apos;" description="Rename resource &apos;lab12-cyclic.ld&apos;" flags="7" id="org.eclipse.ltk.core.refactoring.rename.resource" input="lab12-cyclic.ld" name="lab12-foreback.ld" stamp="1612883988079" updateReferences="true"/>
-</session>
