@@ -14,7 +14,7 @@ static void port_init( void )
     PUPC  = 0x94FB;
 
     PDATD = ~0;
-    PCOND =  0xAAAA;
+    PCOND = 0xAAAA;
     PUPD  = 0xFF;
     
     PDATE = ~0;
@@ -22,12 +22,12 @@ static void port_init( void )
     PUPE  = 0xFB;
 
     PDATF = ~0;
-    PCONF =  0x251A;
+    PCONF = 0x251A;
     PUPF  = 0x74;
     
     PDATG = ~0;
     PCONG = 0xF5FF;
-    PUPG  =  0x30;
+    PUPG  = 0x30;
 
     SPUCR = 0x7;
     
@@ -46,7 +46,7 @@ void sys_init( void )
     
     SBUSCON = 0x8000001B;
     
-    SYSCFG =  0x0;
+    SYSCFG = 0x0;
        
     port_init();    
 }
