@@ -1,0 +1,7 @@
+12:42:29 **** Clean-only build of configuration Debug for project lab3 ****
+cs-make clean 
+cs-rm -rf  lab3.siz  ./lab3.o ./systemLab3.o  ./lab3.d ./systemLab3.d  lab3.hex  lab3.lst  lab3.elf
+' '
+
+12:42:29 Build Finished (took 164ms)
+

@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<section name="Workbench">
+	<section name="EXPORT_DIALOG">
+		<item value="0x0c402000" key="End"/>
+		<item value="0xc400000" key="Start"/>
+		<item value="PlainTextExporter" key="SELECTED_EXPORTER"/>
+		<item value="C:\Users\Mendi\Documents\DOCENCIA\PSyD\laboratorios\version 2013 (Eclipse Juno)\lab9\wav16b16K\dtmf0 - copia.wav" key="File"/>
+		<item value="0xc400000" key="Initial address"/>
+	</section>
+	<section name="IMPORT_DIALOG">
+		<item value="0xc400000" key="Start"/>
+		<item value="C:\Users\Mendi\Documents\DOCENCIA\PSyD\laboratorios\version 2013 (Eclipse Juno)\lab9\wav16b16K\dtmf0.wav" key="File"/>
+		<item value="0xc400000" key="Initial address"/>
+		<item value="false" key="CustomStartAddress"/>
+		<item value="PlainTextImporter" key="SELECTED_IMPORTER"/>
+		<item value="false" key="ScrollToStart"/>
+	</section>
+</section>

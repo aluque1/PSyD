@@ -1,0 +1,95 @@
+
+lab1.elf:     file format elf32-littlearm
+
+Sections:
+Idx Name          Size      VMA       LMA       File off  Algn
+  0 .text         00000088  0c100000  0c100000  00008000  2**2
+                  CONTENTS, ALLOC, LOAD, READONLY, CODE
+  1 .rodata       00000010  0c100088  0c100088  00008088  2**2
+                  CONTENTS, ALLOC, LOAD, READONLY, DATA
+  2 .debug_abbrev 00000082  00000000  00000000  00008098  2**0
+                  CONTENTS, READONLY, DEBUGGING
+  3 .debug_info   000000a3  00000000  00000000  0000811a  2**0
+                  CONTENTS, READONLY, DEBUGGING
+  4 .debug_line   00000052  00000000  00000000  000081bd  2**0
+                  CONTENTS, READONLY, DEBUGGING
+  5 .debug_macinfo 0000212d  00000000  00000000  0000820f  2**0
+                  CONTENTS, READONLY, DEBUGGING
+  6 .debug_loc    0000002c  00000000  00000000  0000a33c  2**0
+                  CONTENTS, READONLY, DEBUGGING
+  7 .debug_pubnames 00000028  00000000  00000000  0000a368  2**0
+                  CONTENTS, READONLY, DEBUGGING
+  8 .debug_aranges 00000020  00000000  00000000  0000a390  2**0
+                  CONTENTS, READONLY, DEBUGGING
+  9 .debug_str    00000073  00000000  00000000  0000a3b0  2**0
+                  CONTENTS, READONLY, DEBUGGING
+ 10 .comment      0000002a  00000000  00000000  0000a423  2**0
+                  CONTENTS, READONLY
+ 11 .ARM.attributes 00000032  00000000  00000000  0000a44d  2**0
+                  CONTENTS, READONLY
+ 12 .debug_frame  00000030  00000000  00000000  0000a480  2**2
+                  CONTENTS, READONLY, DEBUGGING
+
+Disassembly of section .text:
+
+0c100000 <main>:
+
+const unsigned char hex2segs[16] = {0x12, 0x9F, 0x31, 0x15, 0x9C, 0x54, 0x50, 0x1F,
+									0x10, 0x14, 0x18, 0xD0, 0x72, 0x91, 0x70, 0x78};
+
+void main(void) 
+{
+ c100000:	e1a0c00d 	mov	ip, sp
+ c100004:	e92dd800 	push	{fp, ip, lr, pc}
+ c100008:	e24cb004 	sub	fp, ip, #4
+ c10000c:	e24dd008 	sub	sp, sp, #8
+
+    unsigned char i;
+    unsigned int j;
+
+    SEGS = 0xff;
+ c100010:	e3a03785 	mov	r3, #34865152	; 0x2140000
+ c100014:	e3e02000 	mvn	r2, #0
+ c100018:	e5c32000 	strb	r2, [r3]
+    while( 1 )
+        for( i=0; i<16; i++ )
+ c10001c:	e3a03000 	mov	r3, #0
+ c100020:	e54b300d 	strb	r3, [fp, #-13]
+ c100024:	ea000011 	b	c100070 <main+0x70>
+        {
+            for( j=0; j<300000; j++ );
+ c100028:	e3a03000 	mov	r3, #0
+ c10002c:	e50b3014 	str	r3, [fp, #-20]	; 0xffffffec
+ c100030:	ea000002 	b	c100040 <main+0x40>
+ c100034:	e51b3014 	ldr	r3, [fp, #-20]	; 0xffffffec
+ c100038:	e2833001 	add	r3, r3, #1
+ c10003c:	e50b3014 	str	r3, [fp, #-20]	; 0xffffffec
+ c100040:	e51b2014 	ldr	r2, [fp, #-20]	; 0xffffffec
+ c100044:	e59f3034 	ldr	r3, [pc, #52]	; c100080 <main+0x80>
+ c100048:	e1520003 	cmp	r2, r3
+ c10004c:	9afffff8 	bls	c100034 <main+0x34>
+                SEGS = hex2segs[i];
+ c100050:	e3a03785 	mov	r3, #34865152	; 0x2140000
+ c100054:	e55b200d 	ldrb	r2, [fp, #-13]
+ c100058:	e59f1024 	ldr	r1, [pc, #36]	; c100084 <main+0x84>
+ c10005c:	e7d12002 	ldrb	r2, [r1, r2]
+ c100060:	e5c32000 	strb	r2, [r3]
+    unsigned char i;
+    unsigned int j;
+
+    SEGS = 0xff;
+    while( 1 )
+        for( i=0; i<16; i++ )
+ c100064:	e55b300d 	ldrb	r3, [fp, #-13]
+ c100068:	e2833001 	add	r3, r3, #1
+ c10006c:	e54b300d 	strb	r3, [fp, #-13]
+ c100070:	e55b300d 	ldrb	r3, [fp, #-13]
+ c100074:	e353000f 	cmp	r3, #15
+ c100078:	9affffea 	bls	c100028 <main+0x28>
+        {
+            for( j=0; j<300000; j++ );
+                SEGS = hex2segs[i];
+        }
+ c10007c:	eaffffe6 	b	c10001c <main+0x1c>
+ c100080:	000493df 	.word	0x000493df
+ c100084:	0c100088 	.word	0x0c100088

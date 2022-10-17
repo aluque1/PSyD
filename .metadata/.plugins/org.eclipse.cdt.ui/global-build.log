@@ -1,0 +1,56 @@
+22:53:36 **** Build of configuration Debug for project lab4 ****
+cs-make all 
+'Building file: ../lab4.c'
+'Invoking: ARM Sourcery Windows GCC C Compiler'
+arm-none-eabi-gcc -I..\..\BSP\include -O0 -Wall -Wa,-adhlns="lab4.o.lst" -c -fmessage-length=0 -mapcs-frame -MMD -MP -MF"lab4.d" -MT"lab4.d" -mcpu=arm7tdmi -g3 -gdwarf-2 -o "lab4.o" "../lab4.c"
+../lab4.c:21:6: warning: return type of 'main' is not 'int'
+'Finished building: ../lab4.c'
+' '
+'Building file: ../systemLab4.c'
+'Invoking: ARM Sourcery Windows GCC C Compiler'
+arm-none-eabi-gcc -I..\..\BSP\include -O0 -Wall -Wa,-adhlns="systemLab4.o.lst" -c -fmessage-length=0 -mapcs-frame -MMD -MP -MF"systemLab4.d" -MT"systemLab4.d" -mcpu=arm7tdmi -g3 -gdwarf-2 -o "systemLab4.o" "../systemLab4.c"
+'Finished building: ../systemLab4.c'
+' '
+'Building target: lab4.elf'
+'Invoking: ARM Sourcery Windows GCC C Linker'
+arm-none-eabi-gcc -T"../lab4.ld" -nostartfiles -L../../BSP/Debug -Wl,-Map,lab4.map -mcpu=arm7tdmi -g3 -gdwarf-2 -o "lab4.elf"  ./lab4.o ./systemLab4.o   -lBSP
+'Finished building target: lab4.elf'
+' '
+'Invoking: ARM Sourcery Windows GNU Create Flash Image'
+arm-none-eabi-objcopy -O binary lab4.elf  "lab4.hex"
+'Finished building: lab4.hex'
+' '
+'Invoking: ARM Sourcery Windows GNU Create Listing'
+arm-none-eabi-objdump -h -S lab4.elf > "lab4.lst"
+'Finished building: lab4.lst'
+' '
+'Invoking: ARM Sourcery Windows GNU Print Size'
+arm-none-eabi-size  --format=berkeley lab4.elf
+   text	   data	    bss	    dec	    hex	filename
+   3008	      0	      0	   3008	    bc0	lab4.elf
+'Finished building: lab4.siz'
+' '
+22:53:47 **** Incremental Build of configuration Debug for project lab4 ****
+cs-make all 
+'Invoking: ARM Sourcery Windows GNU Print Size'
+arm-none-eabi-size  --format=berkeley lab4.elf
+   text	   data	    bss	    dec	    hex	filename
+   3008	      0	      0	   3008	    bc0	lab4.elf
+'Finished building: lab4.siz'
+' '
+22:54:47 **** Incremental Build of configuration Debug for project lab4 ****
+cs-make all 
+'Invoking: ARM Sourcery Windows GNU Print Size'
+arm-none-eabi-size  --format=berkeley lab4.elf
+   text	   data	    bss	    dec	    hex	filename
+   3008	      0	      0	   3008	    bc0	lab4.elf
+'Finished building: lab4.siz'
+' '
+22:55:02 **** Incremental Build of configuration Debug for project lab4 ****
+cs-make all 
+'Invoking: ARM Sourcery Windows GNU Print Size'
+arm-none-eabi-size  --format=berkeley lab4.elf
+   text	   data	    bss	    dec	    hex	filename
+   3008	      0	      0	   3008	    bc0	lab4.elf
+'Finished building: lab4.siz'
+' '

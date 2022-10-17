@@ -1,0 +1,111 @@
+22:53:23 **** Build of configuration Debug for project BSP ****
+cs-make all 
+'Building file: ../src/adc.c'
+'Invoking: ARM Sourcery Windows GCC C Compiler'
+arm-none-eabi-gcc -I..\..\BSP\include -O0 -Wall -Wa,-adhlns="src/adc.o.lst" -c -fmessage-length=0 -mapcs-frame -fno-builtin -MMD -MP -MF"src/adc.d" -MT"src/adc.d" -mcpu=arm7tdmi -g3 -gdwarf-2 -o "src/adc.o" "../src/adc.c"
+'Finished building: ../src/adc.c'
+' '
+'Building file: ../src/at24C04.c'
+'Invoking: ARM Sourcery Windows GCC C Compiler'
+arm-none-eabi-gcc -I..\..\BSP\include -O0 -Wall -Wa,-adhlns="src/at24C04.o.lst" -c -fmessage-length=0 -mapcs-frame -fno-builtin -MMD -MP -MF"src/at24C04.d" -MT"src/at24C04.d" -mcpu=arm7tdmi -g3 -gdwarf-2 -o "src/at24C04.o" "../src/at24C04.c"
+'Finished building: ../src/at24C04.c'
+' '
+'Building file: ../src/dma.c'
+'Invoking: ARM Sourcery Windows GCC C Compiler'
+arm-none-eabi-gcc -I..\..\BSP\include -O0 -Wall -Wa,-adhlns="src/dma.o.lst" -c -fmessage-length=0 -mapcs-frame -fno-builtin -MMD -MP -MF"src/dma.d" -MT"src/dma.d" -mcpu=arm7tdmi -g3 -gdwarf-2 -o "src/dma.o" "../src/dma.c"
+'Finished building: ../src/dma.c'
+' '
+'Building file: ../src/font8x16.c'
+'Invoking: ARM Sourcery Windows GCC C Compiler'
+arm-none-eabi-gcc -I..\..\BSP\include -O0 -Wall -Wa,-adhlns="src/font8x16.o.lst" -c -fmessage-length=0 -mapcs-frame -fno-builtin -MMD -MP -MF"src/font8x16.d" -MT"src/font8x16.d" -mcpu=arm7tdmi -g3 -gdwarf-2 -o "src/font8x16.o" "../src/font8x16.c"
+'Finished building: ../src/font8x16.c'
+' '
+'Building file: ../src/iic.c'
+'Invoking: ARM Sourcery Windows GCC C Compiler'
+arm-none-eabi-gcc -I..\..\BSP\include -O0 -Wall -Wa,-adhlns="src/iic.o.lst" -c -fmessage-length=0 -mapcs-frame -fno-builtin -MMD -MP -MF"src/iic.d" -MT"src/iic.d" -mcpu=arm7tdmi -g3 -gdwarf-2 -o "src/iic.o" "../src/iic.c"
+'Finished building: ../src/iic.c'
+' '
+'Building file: ../src/iis.c'
+'Invoking: ARM Sourcery Windows GCC C Compiler'
+arm-none-eabi-gcc -I..\..\BSP\include -O0 -Wall -Wa,-adhlns="src/iis.o.lst" -c -fmessage-length=0 -mapcs-frame -fno-builtin -MMD -MP -MF"src/iis.d" -MT"src/iis.d" -mcpu=arm7tdmi -g3 -gdwarf-2 -o "src/iis.o" "../src/iis.c"
+'Finished building: ../src/iis.c'
+' '
+'Building file: ../src/keypad.c'
+'Invoking: ARM Sourcery Windows GCC C Compiler'
+arm-none-eabi-gcc -I..\..\BSP\include -O0 -Wall -Wa,-adhlns="src/keypad.o.lst" -c -fmessage-length=0 -mapcs-frame -fno-builtin -MMD -MP -MF"src/keypad.d" -MT"src/keypad.d" -mcpu=arm7tdmi -g3 -gdwarf-2 -o "src/keypad.o" "../src/keypad.c"
+'Finished building: ../src/keypad.c'
+' '
+'Building file: ../src/l3.c'
+'Invoking: ARM Sourcery Windows GCC C Compiler'
+arm-none-eabi-gcc -I..\..\BSP\include -O0 -Wall -Wa,-adhlns="src/l3.o.lst" -c -fmessage-length=0 -mapcs-frame -fno-builtin -MMD -MP -MF"src/l3.d" -MT"src/l3.d" -mcpu=arm7tdmi -g3 -gdwarf-2 -o "src/l3.o" "../src/l3.c"
+'Finished building: ../src/l3.c'
+' '
+'Building file: ../src/lcd.c'
+'Invoking: ARM Sourcery Windows GCC C Compiler'
+arm-none-eabi-gcc -I..\..\BSP\include -O0 -Wall -Wa,-adhlns="src/lcd.o.lst" -c -fmessage-length=0 -mapcs-frame -fno-builtin -MMD -MP -MF"src/lcd.d" -MT"src/lcd.d" -mcpu=arm7tdmi -g3 -gdwarf-2 -o "src/lcd.o" "../src/lcd.c"
+'Finished building: ../src/lcd.c'
+' '
+'Building file: ../src/leds.c'
+'Invoking: ARM Sourcery Windows GCC C Compiler'
+arm-none-eabi-gcc -I..\..\BSP\include -O0 -Wall -Wa,-adhlns="src/leds.o.lst" -c -fmessage-length=0 -mapcs-frame -fno-builtin -MMD -MP -MF"src/leds.d" -MT"src/leds.d" -mcpu=arm7tdmi -g3 -gdwarf-2 -o "src/leds.o" "../src/leds.c"
+'Finished building: ../src/leds.c'
+' '
+'Building file: ../src/pbs.c'
+'Invoking: ARM Sourcery Windows GCC C Compiler'
+arm-none-eabi-gcc -I..\..\BSP\include -O0 -Wall -Wa,-adhlns="src/pbs.o.lst" -c -fmessage-length=0 -mapcs-frame -fno-builtin -MMD -MP -MF"src/pbs.d" -MT"src/pbs.d" -mcpu=arm7tdmi -g3 -gdwarf-2 -o "src/pbs.o" "../src/pbs.c"
+'Finished building: ../src/pbs.c'
+' '
+'Building file: ../src/rtc.c'
+'Invoking: ARM Sourcery Windows GCC C Compiler'
+arm-none-eabi-gcc -I..\..\BSP\include -O0 -Wall -Wa,-adhlns="src/rtc.o.lst" -c -fmessage-length=0 -mapcs-frame -fno-builtin -MMD -MP -MF"src/rtc.d" -MT"src/rtc.d" -mcpu=arm7tdmi -g3 -gdwarf-2 -o "src/rtc.o" "../src/rtc.c"
+'Finished building: ../src/rtc.c'
+' '
+'Building file: ../src/segs.c'
+'Invoking: ARM Sourcery Windows GCC C Compiler'
+arm-none-eabi-gcc -I..\..\BSP\include -O0 -Wall -Wa,-adhlns="src/segs.o.lst" -c -fmessage-length=0 -mapcs-frame -fno-builtin -MMD -MP -MF"src/segs.d" -MT"src/segs.d" -mcpu=arm7tdmi -g3 -gdwarf-2 -o "src/segs.o" "../src/segs.c"
+'Finished building: ../src/segs.c'
+' '
+'Building file: ../src/system.c'
+'Invoking: ARM Sourcery Windows GCC C Compiler'
+arm-none-eabi-gcc -I..\..\BSP\include -O0 -Wall -Wa,-adhlns="src/system.o.lst" -c -fmessage-length=0 -mapcs-frame -fno-builtin -MMD -MP -MF"src/system.d" -MT"src/system.d" -mcpu=arm7tdmi -g3 -gdwarf-2 -o "src/system.o" "../src/system.c"
+'Finished building: ../src/system.c'
+' '
+'Building file: ../src/timers.c'
+'Invoking: ARM Sourcery Windows GCC C Compiler'
+arm-none-eabi-gcc -I..\..\BSP\include -O0 -Wall -Wa,-adhlns="src/timers.o.lst" -c -fmessage-length=0 -mapcs-frame -fno-builtin -MMD -MP -MF"src/timers.d" -MT"src/timers.d" -mcpu=arm7tdmi -g3 -gdwarf-2 -o "src/timers.o" "../src/timers.c"
+'Finished building: ../src/timers.c'
+' '
+'Building file: ../src/ts.c'
+'Invoking: ARM Sourcery Windows GCC C Compiler'
+arm-none-eabi-gcc -I..\..\BSP\include -O0 -Wall -Wa,-adhlns="src/ts.o.lst" -c -fmessage-length=0 -mapcs-frame -fno-builtin -MMD -MP -MF"src/ts.d" -MT"src/ts.d" -mcpu=arm7tdmi -g3 -gdwarf-2 -o "src/ts.o" "../src/ts.c"
+'Finished building: ../src/ts.c'
+' '
+'Building file: ../src/uart.c'
+'Invoking: ARM Sourcery Windows GCC C Compiler'
+arm-none-eabi-gcc -I..\..\BSP\include -O0 -Wall -Wa,-adhlns="src/uart.o.lst" -c -fmessage-length=0 -mapcs-frame -fno-builtin -MMD -MP -MF"src/uart.d" -MT"src/uart.d" -mcpu=arm7tdmi -g3 -gdwarf-2 -o "src/uart.o" "../src/uart.c"
+'Finished building: ../src/uart.c'
+' '
+'Building file: ../src/uda1341ts.c'
+'Invoking: ARM Sourcery Windows GCC C Compiler'
+arm-none-eabi-gcc -I..\..\BSP\include -O0 -Wall -Wa,-adhlns="src/uda1341ts.o.lst" -c -fmessage-length=0 -mapcs-frame -fno-builtin -MMD -MP -MF"src/uda1341ts.d" -MT"src/uda1341ts.d" -mcpu=arm7tdmi -g3 -gdwarf-2 -o "src/uda1341ts.o" "../src/uda1341ts.c"
+'Finished building: ../src/uda1341ts.c'
+' '
+'Building file: ../include/s3c44b0x.asm'
+'Invoking: ARM Sourcery Windows GCC Assembler'
+arm-none-eabi-gcc -x assembler-with-cpp -I..\..\BSP\include -Wall -Wa,-adhlns="include/s3c44b0x.o.lst" -c -fmessage-length=0 -MMD -MP -MF"include/s3c44b0x.d" -MT"include/s3c44b0x.d" -mcpu=arm7tdmi -g3 -gdwarf-2 -o "include/s3c44b0x.o" "../include/s3c44b0x.asm"
+'Finished building: ../include/s3c44b0x.asm'
+' '
+'Building file: ../include/s3cev40.asm'
+'Invoking: ARM Sourcery Windows GCC Assembler'
+arm-none-eabi-gcc -x assembler-with-cpp -I..\..\BSP\include -Wall -Wa,-adhlns="include/s3cev40.o.lst" -c -fmessage-length=0 -MMD -MP -MF"include/s3cev40.d" -MT"include/s3cev40.d" -mcpu=arm7tdmi -g3 -gdwarf-2 -o "include/s3cev40.o" "../include/s3cev40.asm"
+'Finished building: ../include/s3cev40.asm'
+' '
+'Building target: libBSP.a'
+'Invoking: ARM Sourcery Windows GCC Archiver'
+arm-none-eabi-ar -r  "libBSP.a"  ./src/adc.o ./src/at24C04.o ./src/dma.o ./src/font8x16.o ./src/iic.o ./src/iis.o ./src/keypad.o ./src/l3.o ./src/lcd.o ./src/leds.o ./src/pbs.o ./src/rtc.o ./src/segs.o ./src/system.o ./src/timers.o ./src/ts.o ./src/uart.o ./src/uda1341ts.o  ./include/s3c44b0x.o ./include/s3cev40.o   
+arm-none-eabi-ar: creating libBSP.a
+'Finished building target: libBSP.a'
+' '
+
+22:53:28 Build Finished (took 5s.133ms)
+
