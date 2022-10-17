@@ -1,0 +1,110 @@
+   1              		.cpu arm7tdmi
+   2              		.fpu softvfp
+   3              		.eabi_attribute 20, 1
+   4              		.eabi_attribute 21, 1
+   5              		.eabi_attribute 23, 3
+   6              		.eabi_attribute 24, 1
+   7              		.eabi_attribute 25, 1
+   8              		.eabi_attribute 26, 1
+   9              		.eabi_attribute 30, 6
+  10              		.eabi_attribute 18, 4
+  11              		.file	"lab2.c"
+  21              	.Ltext0:
+  22              		.file 1 "../lab2.c"
+ 980              		.align	2
+ 981              		.global	main
+ 983              	main:
+ 984              	.LFB0:
+   1:../lab2.c     **** /*-------------------------------------------------------------------
+   2:../lab2.c     **** **
+   3:../lab2.c     **** **  Fichero:
+   4:../lab2.c     **** **    lab2.c  14/3/2016
+   5:../lab2.c     **** **
+   6:../lab2.c     **** **    (c) J.M. Mendias
+   7:../lab2.c     **** **    Programación de Sistemas y Dispositivos
+   8:../lab2.c     **** **    Facultad de Informática. Universidad Complutense de Madrid
+   9:../lab2.c     **** **
+  10:../lab2.c     **** **  Propósito:
+  11:../lab2.c     **** **    Test del laboratorio 2
+  12:../lab2.c     **** **
+  13:../lab2.c     **** **  Notas de diseño:
+  14:../lab2.c     **** **    Presupone que todo el SoC ha sido previamente configurado
+  15:../lab2.c     **** **    por el programa residente en ROM que se ejecuta tras reset
+  16:../lab2.c     **** **
+  17:../lab2.c     **** **-----------------------------------------------------------------*/
+  18:../lab2.c     **** 
+  19:../lab2.c     **** #define PCONB (*(volatile unsigned int *)0x01D20008)
+  20:../lab2.c     **** #define PDATB (*(volatile unsigned int *)0x01D2000C)
+  21:../lab2.c     **** 
+  22:../lab2.c     **** #define PCONG (*(volatile unsigned int *)0x01D20040)
+  23:../lab2.c     **** #define PDATG (*(volatile unsigned int *)0x01D20044)
+  24:../lab2.c     **** #define PUPG  (*(volatile unsigned int *)0x01D20048)
+  25:../lab2.c     ****     
+  26:../lab2.c     **** void main(void) 
+  27:../lab2.c     **** {
+ 985              		.loc 1 27 0
+ 986              		.cfi_startproc
+ 987              		@ Function supports interworking.
+ 988              		@ args = 0, pretend = 0, frame = 0
+ 989              		@ frame_needed = 1, uses_anonymous_args = 0
+ 990 0000 0DC0A0E1 		mov	ip, sp
+ 991              	.LCFI0:
+ 992              		.cfi_def_cfa_register 12
+ 993 0004 00D82DE9 		stmfd	sp!, {fp, ip, lr, pc}
+ 994 0008 04B04CE2 		sub	fp, ip, #4
+ 995              		.cfi_offset 14, -8
+ 996              		.cfi_offset 13, -12
+ 997              		.cfi_offset 11, -16
+ 998              	.LCFI1:
+ 999              		.cfi_def_cfa 11, 4
+  28:../lab2.c     ****     PCONB &= ~( (1<<10) | (1<<9) );  // PB[10] = out, PF[9] = out
+ 1000              		.loc 1 28 0
+ 1001 000c 4C309FE5 		ldr	r3, .L3
+ 1002 0010 48209FE5 		ldr	r2, .L3
+ 1003 0014 002092E5 		ldr	r2, [r2, #0]
+ 1004 0018 062CC2E3 		bic	r2, r2, #1536
+ 1005 001c 002083E5 		str	r2, [r3, #0]
+  29:../lab2.c     ****     PCONG &= ~( (3<<14) | (3<<16) );  // PG[7] = in, PG[6] = in
+ 1006              		.loc 1 29 0
+ 1007 0020 3C309FE5 		ldr	r3, .L3+4
+ 1008 0024 38209FE5 		ldr	r2, .L3+4
+ 1009 0028 002092E5 		ldr	r2, [r2, #0]
+ 1010 002c 0F29C2E3 		bic	r2, r2, #245760
+ 1011 0030 002083E5 		str	r2, [r3, #0]
+  30:../lab2.c     ****     PUPG  |= (3<<6);                 // Deshabilita pull-up de PG[7] y PG[6]
+ 1012              		.loc 1 30 0
+ 1013 0034 2C309FE5 		ldr	r3, .L3+8
+ 1014 0038 28209FE5 		ldr	r2, .L3+8
+ 1015 003c 002092E5 		ldr	r2, [r2, #0]
+ 1016 0040 C02082E3 		orr	r2, r2, #192
+ 1017 0044 002083E5 		str	r2, [r3, #0]
+ 1018              	.L2:
+  31:../lab2.c     **** 
+  32:../lab2.c     ****     while( 1 )
+  33:../lab2.c     ****         PDATB = PDATG << 3;    // PB[10:9] = PG[7:6]
+ 1019              		.loc 1 33 0 discriminator 1
+ 1020 0048 1C309FE5 		ldr	r3, .L3+12
+ 1021 004c 1C209FE5 		ldr	r2, .L3+16
+ 1022 0050 002092E5 		ldr	r2, [r2, #0]
+ 1023 0054 8221A0E1 		mov	r2, r2, asl #3
+ 1024 0058 002083E5 		str	r2, [r3, #0]
+ 1025 005c F9FFFFEA 		b	.L2
+ 1026              	.L4:
+ 1027              		.align	2
+ 1028              	.L3:
+ 1029 0060 0800D201 		.word	30539784
+ 1030 0064 4000D201 		.word	30539840
+ 1031 0068 4800D201 		.word	30539848
+ 1032 006c 0C00D201 		.word	30539788
+ 1033 0070 4400D201 		.word	30539844
+ 1034              		.cfi_endproc
+ 1035              	.LFE0:
+ 1037              	.Letext0:
+DEFINED SYMBOLS
+                            *ABS*:00000000 lab2.c
+C:\Users\alv\AppData\Local\Temp\ccKIlxId.s:980    .text:00000000 $a
+C:\Users\alv\AppData\Local\Temp\ccKIlxId.s:983    .text:00000000 main
+C:\Users\alv\AppData\Local\Temp\ccKIlxId.s:1029   .text:00000060 $d
+                     .debug_frame:00000010 $d
+
+NO UNDEFINED SYMBOLS

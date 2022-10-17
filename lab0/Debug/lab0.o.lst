@@ -1,0 +1,245 @@
+   1              		.cpu arm7tdmi
+   2              		.fpu softvfp
+   3              		.eabi_attribute 20, 1
+   4              		.eabi_attribute 21, 1
+   5              		.eabi_attribute 23, 3
+   6              		.eabi_attribute 24, 1
+   7              		.eabi_attribute 25, 1
+   8              		.eabi_attribute 26, 1
+   9              		.eabi_attribute 30, 6
+  10              		.eabi_attribute 18, 4
+  11              		.file	"lab0.c"
+  21              	.Ltext0:
+  22              		.file 1 "../lab0.c"
+ 971              		.align	2
+ 972              		.global	main
+ 974              	main:
+ 975              	.LFB0:
+   1:../lab0.c     **** /*-------------------------------------------------------------------
+   2:../lab0.c     **** **
+   3:../lab0.c     **** **  Fichero:
+   4:../lab0.c     **** **    lab0.c  13/3/2014
+   5:../lab0.c     **** **
+   6:../lab0.c     **** **    (c) J.M. Mendias
+   7:../lab0.c     **** **    Programación de Sistemas y Dispositivos
+   8:../lab0.c     **** **    Facultad de Informática. Universidad Complutense de Madrid
+   9:../lab0.c     **** **
+  10:../lab0.c     **** **  Propósito:
+  11:../lab0.c     **** **    Test del laboratorio 0
+  12:../lab0.c     **** **
+  13:../lab0.c     **** **  Notas de diseño:
+  14:../lab0.c     **** **    Presupone que todo el SoC ha sido previamente configurado
+  15:../lab0.c     **** **    por el programa residente en ROM que se ejecuta tras reset
+  16:../lab0.c     **** **
+  17:../lab0.c     **** **-----------------------------------------------------------------*/
+  18:../lab0.c     **** 
+  19:../lab0.c     **** void main( void )
+  20:../lab0.c     **** {
+ 976              		.loc 1 20 0
+ 977              		.cfi_startproc
+ 978              		@ Function supports interworking.
+ 979              		@ args = 0, pretend = 0, frame = 56
+ 980              		@ frame_needed = 1, uses_anonymous_args = 0
+ 981 0000 0DC0A0E1 		mov	ip, sp
+ 982              	.LCFI0:
+ 983              		.cfi_def_cfa_register 12
+ 984 0004 10D82DE9 		stmfd	sp!, {r4, fp, ip, lr, pc}
+ 985 0008 04B04CE2 		sub	fp, ip, #4
+ 986              		.cfi_offset 14, -8
+ 987              		.cfi_offset 13, -12
+ 988              		.cfi_offset 11, -16
+ 989              		.cfi_offset 4, -20
+ 990              	.LCFI1:
+ 991              		.cfi_def_cfa 11, 4
+ 992 000c 3CD04DE2 		sub	sp, sp, #60
+  21:../lab0.c     ****     int a, b, c;             // 32 bits
+  22:../lab0.c     ****     long long la, lb, lc;    // 64 bits
+  23:../lab0.c     ****     float fa, fb, fc;        // 32 bits
+  24:../lab0.c     **** 
+  25:../lab0.c     ****     a = 0xabcd;
+ 993              		.loc 1 25 0
+ 994 0010 BC319FE5 		ldr	r3, .L3
+ 995 0014 18300BE5 		str	r3, [fp, #-24]
+  26:../lab0.c     ****     b = 0x3;
+ 996              		.loc 1 26 0
+ 997 0018 0330A0E3 		mov	r3, #3
+ 998 001c 1C300BE5 		str	r3, [fp, #-28]
+  27:../lab0.c     **** 
+  28:../lab0.c     ****     la = 0xabcdabcd;
+ 999              		.loc 1 28 0
+ 1000 0020 2B3BA0E3 		mov	r3, #44032
+ 1001 0024 333043E2 		sub	r3, r3, #51
+ 1002 0028 033883E1 		orr	r3, r3, r3, asl #16
+ 1003 002c 0040A0E3 		mov	r4, #0
+ 1004 0030 24300BE5 		str	r3, [fp, #-36]
+ 1005 0034 20400BE5 		str	r4, [fp, #-32]
+  29:../lab0.c     ****     lb = 0x3;
+ 1006              		.loc 1 29 0
+ 1007 0038 0330A0E3 		mov	r3, #3
+ 1008 003c 0040A0E3 		mov	r4, #0
+ 1009 0040 2C300BE5 		str	r3, [fp, #-44]
+ 1010 0044 28400BE5 		str	r4, [fp, #-40]
+  30:../lab0.c     **** 
+  31:../lab0.c     ****     fa = 8235.3456;
+ 1011              		.loc 1 31 0
+ 1012 0048 88319FE5 		ldr	r3, .L3+4	@ float
+ 1013 004c 30300BE5 		str	r3, [fp, #-48]	@ float
+  32:../lab0.c     ****     fb = 235.3456656;
+ 1014              		.loc 1 32 0
+ 1015 0050 84319FE5 		ldr	r3, .L3+8	@ float
+ 1016 0054 34300BE5 		str	r3, [fp, #-52]	@ float
+  33:../lab0.c     **** 
+  34:../lab0.c     ****     c = a + b;
+ 1017              		.loc 1 34 0
+ 1018 0058 18201BE5 		ldr	r2, [fp, #-24]
+ 1019 005c 1C301BE5 		ldr	r3, [fp, #-28]
+ 1020 0060 033082E0 		add	r3, r2, r3
+ 1021 0064 38300BE5 		str	r3, [fp, #-56]
+  35:../lab0.c     ****     c = a - b;
+ 1022              		.loc 1 35 0
+ 1023 0068 18201BE5 		ldr	r2, [fp, #-24]
+ 1024 006c 1C301BE5 		ldr	r3, [fp, #-28]
+ 1025 0070 023063E0 		rsb	r3, r3, r2
+ 1026 0074 38300BE5 		str	r3, [fp, #-56]
+  36:../lab0.c     ****     c = a * b;
+ 1027              		.loc 1 36 0
+ 1028 0078 18301BE5 		ldr	r3, [fp, #-24]
+ 1029 007c 1C201BE5 		ldr	r2, [fp, #-28]
+ 1030 0080 920303E0 		mul	r3, r2, r3
+ 1031 0084 38300BE5 		str	r3, [fp, #-56]
+  37:../lab0.c     ****     c = a / b;
+ 1032              		.loc 1 37 0
+ 1033 0088 18001BE5 		ldr	r0, [fp, #-24]
+ 1034 008c 1C101BE5 		ldr	r1, [fp, #-28]
+ 1035 0090 FEFFFFEB 		bl	__aeabi_idiv
+ 1036 0094 0030A0E1 		mov	r3, r0
+ 1037 0098 38300BE5 		str	r3, [fp, #-56]
+  38:../lab0.c     ****     c = a >> 2;
+ 1038              		.loc 1 38 0
+ 1039 009c 18301BE5 		ldr	r3, [fp, #-24]
+ 1040 00a0 4331A0E1 		mov	r3, r3, asr #2
+ 1041 00a4 38300BE5 		str	r3, [fp, #-56]
+  39:../lab0.c     ****     c = a >> b;
+ 1042              		.loc 1 39 0
+ 1043 00a8 18201BE5 		ldr	r2, [fp, #-24]
+ 1044 00ac 1C301BE5 		ldr	r3, [fp, #-28]
+ 1045 00b0 5233A0E1 		mov	r3, r2, asr r3
+ 1046 00b4 38300BE5 		str	r3, [fp, #-56]
+  40:../lab0.c     **** 
+  41:../lab0.c     ****     lc = la + lb;
+ 1047              		.loc 1 41 0
+ 1048 00b8 24204BE2 		sub	r2, fp, #36
+ 1049 00bc 060092E8 		ldmia	r2, {r1-r2}
+ 1050 00c0 2C404BE2 		sub	r4, fp, #44
+ 1051 00c4 180094E8 		ldmia	r4, {r3-r4}
+ 1052 00c8 013093E0 		adds	r3, r3, r1
+ 1053 00cc 0240A4E0 		adc	r4, r4, r2
+ 1054 00d0 44300BE5 		str	r3, [fp, #-68]
+ 1055 00d4 40400BE5 		str	r4, [fp, #-64]
+  42:../lab0.c     ****     lc = la - lb;
+ 1056              		.loc 1 42 0
+ 1057 00d8 24204BE2 		sub	r2, fp, #36
+ 1058 00dc 060092E8 		ldmia	r2, {r1-r2}
+ 1059 00e0 2C404BE2 		sub	r4, fp, #44
+ 1060 00e4 180094E8 		ldmia	r4, {r3-r4}
+ 1061 00e8 033051E0 		subs	r3, r1, r3
+ 1062 00ec 0440C2E0 		sbc	r4, r2, r4
+ 1063 00f0 44300BE5 		str	r3, [fp, #-68]
+ 1064 00f4 40400BE5 		str	r4, [fp, #-64]
+  43:../lab0.c     ****     lc = la * lb;
+ 1065              		.loc 1 43 0
+ 1066 00f8 20301BE5 		ldr	r3, [fp, #-32]
+ 1067 00fc 2C201BE5 		ldr	r2, [fp, #-44]
+ 1068 0100 930202E0 		mul	r2, r3, r2
+ 1069 0104 28301BE5 		ldr	r3, [fp, #-40]
+ 1070 0108 24101BE5 		ldr	r1, [fp, #-36]
+ 1071 010c 910303E0 		mul	r3, r1, r3
+ 1072 0110 032082E0 		add	r2, r2, r3
+ 1073 0114 24001BE5 		ldr	r0, [fp, #-36]
+ 1074 0118 2C101BE5 		ldr	r1, [fp, #-44]
+ 1075 011c 903184E0 		umull	r3, r4, r0, r1
+ 1076 0120 042082E0 		add	r2, r2, r4
+ 1077 0124 0240A0E1 		mov	r4, r2
+ 1078 0128 44300BE5 		str	r3, [fp, #-68]
+ 1079 012c 40400BE5 		str	r4, [fp, #-64]
+ 1080 0130 44300BE5 		str	r3, [fp, #-68]
+ 1081 0134 40400BE5 		str	r4, [fp, #-64]
+  44:../lab0.c     ****     lc = la / lb;
+ 1082              		.loc 1 44 0
+ 1083 0138 24104BE2 		sub	r1, fp, #36
+ 1084 013c 030091E8 		ldmia	r1, {r0-r1}
+ 1085 0140 2C304BE2 		sub	r3, fp, #44
+ 1086 0144 0C0093E8 		ldmia	r3, {r2-r3}
+ 1087 0148 FEFFFFEB 		bl	__aeabi_ldivmod
+ 1088 014c 0030A0E1 		mov	r3, r0
+ 1089 0150 0140A0E1 		mov	r4, r1
+ 1090 0154 44300BE5 		str	r3, [fp, #-68]
+ 1091 0158 40400BE5 		str	r4, [fp, #-64]
+  45:../lab0.c     ****     lc = la >> 2;
+ 1092              		.loc 1 45 0
+ 1093 015c 20301BE5 		ldr	r3, [fp, #-32]
+ 1094 0160 033FA0E1 		mov	r3, r3, asl #30
+ 1095 0164 24201BE5 		ldr	r2, [fp, #-36]
+ 1096 0168 2221A0E1 		mov	r2, r2, lsr #2
+ 1097 016c 033082E1 		orr	r3, r2, r3
+ 1098 0170 44300BE5 		str	r3, [fp, #-68]
+ 1099 0174 20301BE5 		ldr	r3, [fp, #-32]
+ 1100 0178 4331A0E1 		mov	r3, r3, asr #2
+ 1101 017c 40300BE5 		str	r3, [fp, #-64]
+  46:../lab0.c     **** 
+  47:../lab0.c     ****     fc = fa + fb;
+ 1102              		.loc 1 47 0
+ 1103 0180 30001BE5 		ldr	r0, [fp, #-48]	@ float
+ 1104 0184 34101BE5 		ldr	r1, [fp, #-52]	@ float
+ 1105 0188 FEFFFFEB 		bl	__aeabi_fadd
+ 1106 018c 0030A0E1 		mov	r3, r0
+ 1107 0190 48300BE5 		str	r3, [fp, #-72]	@ float
+  48:../lab0.c     ****     fc = fa - fb;
+ 1108              		.loc 1 48 0
+ 1109 0194 30001BE5 		ldr	r0, [fp, #-48]	@ float
+ 1110 0198 34101BE5 		ldr	r1, [fp, #-52]	@ float
+ 1111 019c FEFFFFEB 		bl	__aeabi_fsub
+ 1112 01a0 0030A0E1 		mov	r3, r0
+ 1113 01a4 48300BE5 		str	r3, [fp, #-72]	@ float
+  49:../lab0.c     ****     fc = fa * fb;
+ 1114              		.loc 1 49 0
+ 1115 01a8 30001BE5 		ldr	r0, [fp, #-48]	@ float
+ 1116 01ac 34101BE5 		ldr	r1, [fp, #-52]	@ float
+ 1117 01b0 FEFFFFEB 		bl	__aeabi_fmul
+ 1118 01b4 0030A0E1 		mov	r3, r0
+ 1119 01b8 48300BE5 		str	r3, [fp, #-72]	@ float
+  50:../lab0.c     ****     fc = fa / fb;
+ 1120              		.loc 1 50 0
+ 1121 01bc 30001BE5 		ldr	r0, [fp, #-48]	@ float
+ 1122 01c0 34101BE5 		ldr	r1, [fp, #-52]	@ float
+ 1123 01c4 FEFFFFEB 		bl	__aeabi_fdiv
+ 1124 01c8 0030A0E1 		mov	r3, r0
+ 1125 01cc 48300BE5 		str	r3, [fp, #-72]	@ float
+ 1126              	.L2:
+  51:../lab0.c     **** 
+  52:../lab0.c     ****     while( 1 );
+ 1127              		.loc 1 52 0 discriminator 1
+ 1128 01d0 FEFFFFEA 		b	.L2
+ 1129              	.L4:
+ 1130              		.align	2
+ 1131              	.L3:
+ 1132 01d4 CDAB0000 		.word	43981
+ 1133 01d8 62AD0046 		.word	1174449506
+ 1134 01dc 7E586B43 		.word	1131108478
+ 1135              		.cfi_endproc
+ 1136              	.LFE0:
+ 1138              	.Letext0:
+DEFINED SYMBOLS
+                            *ABS*:00000000 lab0.c
+C:\Users\alv\AppData\Local\Temp\ccIspBik.s:971    .text:00000000 $a
+C:\Users\alv\AppData\Local\Temp\ccIspBik.s:974    .text:00000000 main
+C:\Users\alv\AppData\Local\Temp\ccIspBik.s:1132   .text:000001d4 $d
+                     .debug_frame:00000010 $d
+
+UNDEFINED SYMBOLS
+__aeabi_idiv
+__aeabi_ldivmod
+__aeabi_fadd
+__aeabi_fsub
+__aeabi_fmul
+__aeabi_fdiv

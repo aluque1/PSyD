@@ -1,0 +1,480 @@
+   1              	# 1 "../include/s3c44b0x.asm"
+   1              	#-----------------------------------------------------------------
+   0              	
+   0              	
+   0              	
+   2              	#
+   3              	#  Fichero:
+   4              	#    s3c44b0x.asm  24/4/2013
+   5              	#
+   6              	#    (c) J.M. Mendias
+   7              	#    Programación de Sistemas y Dispositivos
+   8              	#    Facultad de Informática. Universidad Complutense de Madrid
+   9              	#
+  10              	#  Propósito:
+  11              	#    Creación de nemotécnicos para los registros de los
+  12              	#    controladores de dispositivos internos del chip S3C44BOX
+  13              	#
+  14              	#  Notas de diseño:
+  15              	#    Las direcciones usadas asumen un alineamiento little-endian
+  16              	#
+  17              	#-----------------------------------------------------------------
+  18              	
+  19              	/* Controlador de memoria */
+  20              	.equ BWSCON,    0x1c80000
+  21              	.equ BANKCON0,  0x1c80004
+  22              	.equ BANKCON1,  0x1c80008
+  23              	.equ BANKCON2,  0x1c8000c
+  24              	.equ BANKCON3,  0x1c80010
+  25              	.equ BANKCON4,  0x1c80014
+  26              	.equ BANKCON5,  0x1c80018
+  27              	.equ BANKCON6,  0x1c8001c
+  28              	.equ BANKCON7,  0x1c80020
+  29              	.equ REFRESH,   0x1c80024
+  30              	.equ BANKSIZE,  0x1c80028
+  31              	.equ MRSRB6,    0x1c8002c
+  32              	.equ MRSRB7,    0x1c80030
+  33              	
+  34              	/* Gestor de reloj y energía */
+  35              	.equ PLLCON,    0x1d80000
+  36              	.equ CLKCON,    0x1d80004
+  37              	.equ CLKSLOW,   0x1d80008
+  38              	.equ LOCKTIME,  0x1d8000c
+  39              	
+  40              	/* Controlador de cache */
+  41              	.equ SYSCFG,    0x1c00000
+  42              	.equ NCACHBE0,  0x1c00004
+  43              	.equ NCACHBE1,  0x1c00008
+  44              	
+  45              	/* Árbitro de bus */
+  46              	.equ SBUSCON,   0x1c40000
+  47              	 
+  48              	/* Controlador de DMA */ 
+  49              	.equ ZDCON0,    0x1e80000 /* canal ZDMA 0 */
+  50              	.equ ZDISRC0,   0x1e80004
+  51              	.equ ZDIDES0,   0x1e80008
+  52              	.equ ZDICNT0,   0x1e8000c
+  53              	.equ ZDCSRC0,   0x1e80010
+  54              	.equ ZDCDES0,   0x1e80014
+  55              	.equ ZDCCNT0,   0x1e80018
+  56              	.equ ZDCON1,    0x1e80020 /* canal ZDMA 1 */
+  57              	.equ ZDISRC1,   0x1e80024
+  58              	.equ ZDIDES1,   0x1e80028
+  59              	.equ ZDICNT1,   0x1e8002c
+  60              	.equ ZDCSRC1,   0x1e80030
+  61              	.equ ZDCDES1,   0x1e80034
+  62              	.equ ZDCCNT1,   0x1e80038
+  63              	.equ BDCON0,    0x1f80000 /* canal BDMA 0 */
+  64              	.equ BDISRC0,   0x1f80004
+  65              	.equ BDIDES0,   0x1f80008
+  66              	.equ BDICNT0,   0x1f8000c
+  67              	.equ BDCSRC0,   0x1f80010
+  68              	.equ BDCDES0,   0x1f80014
+  69              	.equ BDCCNT0,   0x1f80018
+  70              	.equ BDCON1,    0x1f80020 /* canal BDMA 1 */
+  71              	.equ BDISRC1,   0x1f80024
+  72              	.equ BDIDES1,   0x1f80028
+  73              	.equ BDICNT1,   0x1f8002c
+  74              	.equ BDCSRC1,   0x1f80030
+  75              	.equ BDCDES1,   0x1f80034
+  76              	.equ BDCCNT1,   0x1f80038
+  77              	
+  78              	/* Controlador de puertos de E/S */
+  79              	.equ SPUCR,     0x1d2004c
+  80              	.equ PCONA,     0x1d20000 /* puerto A */
+  81              	.equ PDATA,     0x1d20004
+  82              	.equ PCONB,     0x1d20008 /* puerto B */
+  83              	.equ PDATB,     0x1d2000c
+  84              	.equ PCONC,     0x1d20010 /* puerto C */
+  85              	.equ PDATC,     0x1d20014
+  86              	.equ PUPC,      0x1d20018
+  87              	.equ PCOND,     0x1d2001c /* puerto D */
+  88              	.equ PDATD,     0x1d20020
+  89              	.equ PUPD,      0x1d20024
+  90              	.equ PCONE,     0x1d20028 /* puerto E */
+  91              	.equ PDATE,     0x1d2002c
+  92              	.equ PUPE,      0x1d20030
+  93              	.equ PCONF,     0x1d20034 /* puerto F */
+  94              	.equ PDATF,     0x1d20038
+  95              	.equ PUPF,      0x1d2003c
+  96              	.equ PCONG,     0x1d20040 /* puerto G */
+  97              	.equ PDATG,     0x1d20044
+  98              	.equ PUPG,      0x1d20048
+  99              	.equ EXTINT,    0x1d20050
+ 100              	.equ EXTINTPND, 0x1d20054
+ 101              	 
+ 102              	/* Bits de EXTINTPND */
+ 103              	.equ BIT_EINT4,  (1<<0)
+ 104              	.equ BIT_EINT5,  (1<<1)
+ 105              	.equ BIT_EINT6,  (1<<2)
+ 106              	.equ BIT_EINT7,  (1<<3)
+ 107              	
+ 108              	/* Temporizadores */
+ 109              	.equ TCFG0,     0x1d50000 
+ 110              	.equ TCFG1,     0x1d50004
+ 111              	.equ TCON,      0x1d50008
+ 112              	.equ TCNTB0,    0x1d5000c /* temporizador 0 */
+ 113              	.equ TCMPB0,    0x1d50010
+ 114              	.equ TCNTO0,    0x1d50014
+ 115              	.equ TCNTB1,    0x1d50018 /* temporizador 1 */
+ 116              	.equ TCMPB1,    0x1d5001c
+ 117              	.equ TCNTO1,    0x1d50020
+ 118              	.equ TCNTB2,    0x1d50024 /* temporizador 2 */
+ 119              	.equ TCMPB2,    0x1d50028
+ 120              	.equ TCNTO2,    0x1d5002c
+ 121              	.equ TCNTB3,    0x1d50030 /* temporizador 3 */
+ 122              	.equ TCMPB3,    0x1d50034
+ 123              	.equ TCNTO3,    0x1d50038
+ 124              	.equ TCNTB4,    0x1d5003c /* temporizador 4 */
+ 125              	.equ TCMPB4,    0x1d50040
+ 126              	.equ TCNTO4,    0x1d50044
+ 127              	.equ TCNTB5,    0x1d50048 /* temporizador 5 */
+ 128              	.equ TCNTO5,    0x1d5004c
+ 129              	 
+ 130              	/* UART */
+ 131              	.equ ULCON0,    0x1d00000 /* canal 0 */
+ 132              	.equ UCON0,     0x1d00004
+ 133              	.equ UFCON0,    0x1d00008
+ 134              	.equ UMCON0,    0x1d0000c
+ 135              	.equ UTRSTAT0,  0x1d00010
+ 136              	.equ UERSTAT0,  0x1d00014
+ 137              	.equ UFSTAT0,   0x1d00018
+ 138              	.equ UMSTAT0,   0x1d0001c
+ 139              	.equ UTXH0,     0x1d00020
+ 140              	.equ URXH0,     0x1d00024
+ 141              	.equ UBRDIV0,   0x1d00028
+ 142              	.equ ULCON1,    0x1d04000 /* canal 1 */
+ 143              	.equ UCON1,     0x1d04004
+ 144              	.equ UFCON1,    0x1d04008
+ 145              	.equ UMCON1,    0x1d0400c
+ 146              	.equ UTRSTAT1,  0x1d04010
+ 147              	.equ UERSTAT1,  0x1d04014
+ 148              	.equ UFSTAT1,   0x1d04018
+ 149              	.equ UMSTAT1,   0x1d0401c
+ 150              	.equ UTXH1,     0x1d04020
+ 151              	.equ URXH1,     0x1d04024
+ 152              	.equ UBRDIV1,   0x1d04028
+ 153              	
+ 154              	/* Controlador de interrupciones */
+ 155              	.equ INTCON,    0x1e00000
+ 156              	.equ INTPND,    0x1e00004
+ 157              	.equ INTMOD,    0x1e00008
+ 158              	.equ INTMSK,    0x1e0000c
+ 159              	.equ I_PSLV,    0x1e00010
+ 160              	.equ I_PMST,    0x1e00014
+ 161              	.equ I_CSLV,    0x1e00018
+ 162              	.equ I_CMST,    0x1e0001c
+ 163              	.equ I_ISPR,    0x1e00020
+ 164              	.equ I_ISPC,    0x1e00024
+ 165              	.equ F_ISPC,    0x1e0003c
+ 166              	
+ 167              	/* Bits de INTMASK, I_ISPC/F_ISPC y I_ISPR */
+ 168              	.equ BIT_ADC,    (1<<0)
+ 169              	.equ BIT_RTC,    (1<<1)
+ 170              	.equ BIT_UTXD1,  (1<<2)
+ 171              	.equ BIT_UTXD0,  (1<<3)
+ 172              	.equ BIT_SIO,    (1<<4)
+ 173              	.equ BIT_IIC,    (1<<5)
+ 174              	.equ BIT_URXD1,  (1<<6)
+ 175              	.equ BIT_URXD0,  (1<<7)
+ 176              	.equ BIT_TIMER5, (1<<8)
+ 177              	.equ BIT_TIMER4, (1<<9)
+ 178              	.equ BIT_TIMER3, (1<<10)
+ 179              	.equ BIT_TIMER2, (1<<11)
+ 180              	.equ BIT_TIMER1, (1<<12)
+ 181              	.equ BIT_TIMER0, (1<<13)
+ 182              	.equ BIT_UERR01, (1<<14)
+ 183              	.equ BIT_WDT,    (1<<15)
+ 184              	.equ BIT_BDMA1,  (1<<16)
+ 185              	.equ BIT_BDMA0,  (1<<17)
+ 186              	.equ BIT_ZDMA1,  (1<<18)
+ 187              	.equ BIT_ZDMA0,  (1<<19)
+ 188              	.equ BIT_TICK,   (1<<20)
+ 189              	.equ BIT_EINT4567, (1<<21)
+ 190              	.equ BIT_EINT3,  (1<<22)
+ 191              	.equ BIT_EINT2,  (1<<23)
+ 192              	.equ BIT_EINT1,  (1<<24)
+ 193              	.equ BIT_EINT0,  (1<<25)
+ 194              	.equ BIT_GLOBAL, (1<<26)
+ 195              	
+ 196              	/* Controlador de LCD */
+ 197              	.equ LCDCON1,   0x1f00000
+ 198              	.equ LCDCON2,   0x1f00004
+ 199              	.equ LCDCON3,   0x1f00040
+ 200              	.equ LCDSADDR1, 0x1f00008
+ 201              	.equ LCDSADDR2, 0x1f0000c
+ 202              	.equ LCDSADDR3, 0x1f00010
+ 203              	.equ REDLUT,    0x1f00014
+ 204              	.equ GREENLUT,  0x1f00018
+ 205              	.equ BLUELUT,   0x1f0001c
+ 206              	.equ DP1_2,     0x1f00020
+ 207              	.equ DP4_7,     0x1f00024
+ 208              	.equ DP3_5,     0x1f00028
+ 209              	.equ DP2_3,     0x1f0002c
+ 210              	.equ DP5_7,     0x1f00030
+ 211              	.equ DP3_4,     0x1f00034
+ 212              	.equ DP4_5,     0x1f00038
+ 213              	.equ DP6_7,     0x1f0003c
+ 214              	.equ DITHMODE,  0x1f00044
+ 215              	
+ 216              	/* Conversor analógico digital */
+ 217              	.equ ADCCON,    0x1d40000
+ 218              	.equ ADCPSR,    0x1d40004
+ 219              	.equ ADCDAT,    0x1d40008
+ 220              	
+ 221              	/* Reloj de tiempo real */
+ 222              	.equ RTCCON,    0x1d70040
+ 223              	.equ RTCALM,    0x1d70050
+ 224              	.equ ALMSEC,    0x1d70054
+ 225              	.equ ALMMIN,    0x1d70058
+ 226              	.equ ALMHOUR,   0x1d7005c
+ 227              	.equ ALMDAY,    0x1d70060
+ 228              	.equ ALMMON,    0x1d70064
+ 229              	.equ ALMYEAR,   0x1d70068
+ 230              	.equ RTCRST,    0x1d7006c
+ 231              	.equ BCDSEC,    0x1d70070
+ 232              	.equ BCDMIN,    0x1d70074
+ 233              	.equ BCDHOUR,   0x1d70078
+ 234              	.equ BCDDAY,    0x1d7007c
+ 235              	.equ BCDDATE,   0x1d70080
+ 236              	.equ BCDMON,    0x1d70084
+ 237              	.equ BCDYEAR,   0x1d70088
+ 238              	.equ TICNT,     0x1d7008c
+ 239              	
+ 240              	/* Watchdog timer */
+ 241              	.equ WTCON,     0x1d30000
+ 242              	.equ WTDAT,     0x1d30004
+ 243              	.equ WTCNT,     0x1d30008
+ 244              	
+ 245              	/* Controlador de IIC */
+ 246              	.equ IICCON,    0x1d60000
+ 247              	.equ IICSTAT,   0x1d60004
+ 248              	.equ IICADD,    0x1d60008
+ 249              	.equ IICDS,     0x1d6000c
+ 250              	
+ 251              	/* Controlador de IIS */
+ 252              	.equ IISCON,    0x1d18000
+ 253              	.equ IISMOD,    0x1d18004
+ 254              	.equ IISPSR,    0x1d18008
+ 255              	.equ IISFCON,   0x1d1800c
+ 256              	.equ IISFIF,    0x1d18010
+ 257              	
+ 258              	/* Controlador de SIO */
+ 259              	.equ SIOCON,    0x1d14000
+ 260              	.equ SIODAT,    0x1d14004
+ 261              	.equ SBRDR,     0x1d14008
+ 262              	.equ IVTCNT,    0x1d1400c
+ 263              	.equ DCNTZ,     0x1d14010
+DEFINED SYMBOLS
+../include/s3c44b0x.asm:20     *ABS*:01c80000 BWSCON
+../include/s3c44b0x.asm:21     *ABS*:01c80004 BANKCON0
+../include/s3c44b0x.asm:22     *ABS*:01c80008 BANKCON1
+../include/s3c44b0x.asm:23     *ABS*:01c8000c BANKCON2
+../include/s3c44b0x.asm:24     *ABS*:01c80010 BANKCON3
+../include/s3c44b0x.asm:25     *ABS*:01c80014 BANKCON4
+../include/s3c44b0x.asm:26     *ABS*:01c80018 BANKCON5
+../include/s3c44b0x.asm:27     *ABS*:01c8001c BANKCON6
+../include/s3c44b0x.asm:28     *ABS*:01c80020 BANKCON7
+../include/s3c44b0x.asm:29     *ABS*:01c80024 REFRESH
+../include/s3c44b0x.asm:30     *ABS*:01c80028 BANKSIZE
+../include/s3c44b0x.asm:31     *ABS*:01c8002c MRSRB6
+../include/s3c44b0x.asm:32     *ABS*:01c80030 MRSRB7
+../include/s3c44b0x.asm:35     *ABS*:01d80000 PLLCON
+../include/s3c44b0x.asm:36     *ABS*:01d80004 CLKCON
+../include/s3c44b0x.asm:37     *ABS*:01d80008 CLKSLOW
+../include/s3c44b0x.asm:38     *ABS*:01d8000c LOCKTIME
+../include/s3c44b0x.asm:41     *ABS*:01c00000 SYSCFG
+../include/s3c44b0x.asm:42     *ABS*:01c00004 NCACHBE0
+../include/s3c44b0x.asm:43     *ABS*:01c00008 NCACHBE1
+../include/s3c44b0x.asm:46     *ABS*:01c40000 SBUSCON
+../include/s3c44b0x.asm:49     *ABS*:01e80000 ZDCON0
+../include/s3c44b0x.asm:50     *ABS*:01e80004 ZDISRC0
+../include/s3c44b0x.asm:51     *ABS*:01e80008 ZDIDES0
+../include/s3c44b0x.asm:52     *ABS*:01e8000c ZDICNT0
+../include/s3c44b0x.asm:53     *ABS*:01e80010 ZDCSRC0
+../include/s3c44b0x.asm:54     *ABS*:01e80014 ZDCDES0
+../include/s3c44b0x.asm:55     *ABS*:01e80018 ZDCCNT0
+../include/s3c44b0x.asm:56     *ABS*:01e80020 ZDCON1
+../include/s3c44b0x.asm:57     *ABS*:01e80024 ZDISRC1
+../include/s3c44b0x.asm:58     *ABS*:01e80028 ZDIDES1
+../include/s3c44b0x.asm:59     *ABS*:01e8002c ZDICNT1
+../include/s3c44b0x.asm:60     *ABS*:01e80030 ZDCSRC1
+../include/s3c44b0x.asm:61     *ABS*:01e80034 ZDCDES1
+../include/s3c44b0x.asm:62     *ABS*:01e80038 ZDCCNT1
+../include/s3c44b0x.asm:63     *ABS*:01f80000 BDCON0
+../include/s3c44b0x.asm:64     *ABS*:01f80004 BDISRC0
+../include/s3c44b0x.asm:65     *ABS*:01f80008 BDIDES0
+../include/s3c44b0x.asm:66     *ABS*:01f8000c BDICNT0
+../include/s3c44b0x.asm:67     *ABS*:01f80010 BDCSRC0
+../include/s3c44b0x.asm:68     *ABS*:01f80014 BDCDES0
+../include/s3c44b0x.asm:69     *ABS*:01f80018 BDCCNT0
+../include/s3c44b0x.asm:70     *ABS*:01f80020 BDCON1
+../include/s3c44b0x.asm:71     *ABS*:01f80024 BDISRC1
+../include/s3c44b0x.asm:72     *ABS*:01f80028 BDIDES1
+../include/s3c44b0x.asm:73     *ABS*:01f8002c BDICNT1
+../include/s3c44b0x.asm:74     *ABS*:01f80030 BDCSRC1
+../include/s3c44b0x.asm:75     *ABS*:01f80034 BDCDES1
+../include/s3c44b0x.asm:76     *ABS*:01f80038 BDCCNT1
+../include/s3c44b0x.asm:79     *ABS*:01d2004c SPUCR
+../include/s3c44b0x.asm:80     *ABS*:01d20000 PCONA
+../include/s3c44b0x.asm:81     *ABS*:01d20004 PDATA
+../include/s3c44b0x.asm:82     *ABS*:01d20008 PCONB
+../include/s3c44b0x.asm:83     *ABS*:01d2000c PDATB
+../include/s3c44b0x.asm:84     *ABS*:01d20010 PCONC
+../include/s3c44b0x.asm:85     *ABS*:01d20014 PDATC
+../include/s3c44b0x.asm:86     *ABS*:01d20018 PUPC
+../include/s3c44b0x.asm:87     *ABS*:01d2001c PCOND
+../include/s3c44b0x.asm:88     *ABS*:01d20020 PDATD
+../include/s3c44b0x.asm:89     *ABS*:01d20024 PUPD
+../include/s3c44b0x.asm:90     *ABS*:01d20028 PCONE
+../include/s3c44b0x.asm:91     *ABS*:01d2002c PDATE
+../include/s3c44b0x.asm:92     *ABS*:01d20030 PUPE
+../include/s3c44b0x.asm:93     *ABS*:01d20034 PCONF
+../include/s3c44b0x.asm:94     *ABS*:01d20038 PDATF
+../include/s3c44b0x.asm:95     *ABS*:01d2003c PUPF
+../include/s3c44b0x.asm:96     *ABS*:01d20040 PCONG
+../include/s3c44b0x.asm:97     *ABS*:01d20044 PDATG
+../include/s3c44b0x.asm:98     *ABS*:01d20048 PUPG
+../include/s3c44b0x.asm:99     *ABS*:01d20050 EXTINT
+../include/s3c44b0x.asm:100    *ABS*:01d20054 EXTINTPND
+../include/s3c44b0x.asm:103    *ABS*:00000001 BIT_EINT4
+../include/s3c44b0x.asm:104    *ABS*:00000002 BIT_EINT5
+../include/s3c44b0x.asm:105    *ABS*:00000004 BIT_EINT6
+../include/s3c44b0x.asm:106    *ABS*:00000008 BIT_EINT7
+../include/s3c44b0x.asm:109    *ABS*:01d50000 TCFG0
+../include/s3c44b0x.asm:110    *ABS*:01d50004 TCFG1
+../include/s3c44b0x.asm:111    *ABS*:01d50008 TCON
+../include/s3c44b0x.asm:112    *ABS*:01d5000c TCNTB0
+../include/s3c44b0x.asm:113    *ABS*:01d50010 TCMPB0
+../include/s3c44b0x.asm:114    *ABS*:01d50014 TCNTO0
+../include/s3c44b0x.asm:115    *ABS*:01d50018 TCNTB1
+../include/s3c44b0x.asm:116    *ABS*:01d5001c TCMPB1
+../include/s3c44b0x.asm:117    *ABS*:01d50020 TCNTO1
+../include/s3c44b0x.asm:118    *ABS*:01d50024 TCNTB2
+../include/s3c44b0x.asm:119    *ABS*:01d50028 TCMPB2
+../include/s3c44b0x.asm:120    *ABS*:01d5002c TCNTO2
+../include/s3c44b0x.asm:121    *ABS*:01d50030 TCNTB3
+../include/s3c44b0x.asm:122    *ABS*:01d50034 TCMPB3
+../include/s3c44b0x.asm:123    *ABS*:01d50038 TCNTO3
+../include/s3c44b0x.asm:124    *ABS*:01d5003c TCNTB4
+../include/s3c44b0x.asm:125    *ABS*:01d50040 TCMPB4
+../include/s3c44b0x.asm:126    *ABS*:01d50044 TCNTO4
+../include/s3c44b0x.asm:127    *ABS*:01d50048 TCNTB5
+../include/s3c44b0x.asm:128    *ABS*:01d5004c TCNTO5
+../include/s3c44b0x.asm:131    *ABS*:01d00000 ULCON0
+../include/s3c44b0x.asm:132    *ABS*:01d00004 UCON0
+../include/s3c44b0x.asm:133    *ABS*:01d00008 UFCON0
+../include/s3c44b0x.asm:134    *ABS*:01d0000c UMCON0
+../include/s3c44b0x.asm:135    *ABS*:01d00010 UTRSTAT0
+../include/s3c44b0x.asm:136    *ABS*:01d00014 UERSTAT0
+../include/s3c44b0x.asm:137    *ABS*:01d00018 UFSTAT0
+../include/s3c44b0x.asm:138    *ABS*:01d0001c UMSTAT0
+../include/s3c44b0x.asm:139    *ABS*:01d00020 UTXH0
+../include/s3c44b0x.asm:140    *ABS*:01d00024 URXH0
+../include/s3c44b0x.asm:141    *ABS*:01d00028 UBRDIV0
+../include/s3c44b0x.asm:142    *ABS*:01d04000 ULCON1
+../include/s3c44b0x.asm:143    *ABS*:01d04004 UCON1
+../include/s3c44b0x.asm:144    *ABS*:01d04008 UFCON1
+../include/s3c44b0x.asm:145    *ABS*:01d0400c UMCON1
+../include/s3c44b0x.asm:146    *ABS*:01d04010 UTRSTAT1
+../include/s3c44b0x.asm:147    *ABS*:01d04014 UERSTAT1
+../include/s3c44b0x.asm:148    *ABS*:01d04018 UFSTAT1
+../include/s3c44b0x.asm:149    *ABS*:01d0401c UMSTAT1
+../include/s3c44b0x.asm:150    *ABS*:01d04020 UTXH1
+../include/s3c44b0x.asm:151    *ABS*:01d04024 URXH1
+../include/s3c44b0x.asm:152    *ABS*:01d04028 UBRDIV1
+../include/s3c44b0x.asm:155    *ABS*:01e00000 INTCON
+../include/s3c44b0x.asm:156    *ABS*:01e00004 INTPND
+../include/s3c44b0x.asm:157    *ABS*:01e00008 INTMOD
+../include/s3c44b0x.asm:158    *ABS*:01e0000c INTMSK
+../include/s3c44b0x.asm:159    *ABS*:01e00010 I_PSLV
+../include/s3c44b0x.asm:160    *ABS*:01e00014 I_PMST
+../include/s3c44b0x.asm:161    *ABS*:01e00018 I_CSLV
+../include/s3c44b0x.asm:162    *ABS*:01e0001c I_CMST
+../include/s3c44b0x.asm:163    *ABS*:01e00020 I_ISPR
+../include/s3c44b0x.asm:164    *ABS*:01e00024 I_ISPC
+../include/s3c44b0x.asm:165    *ABS*:01e0003c F_ISPC
+../include/s3c44b0x.asm:168    *ABS*:00000001 BIT_ADC
+../include/s3c44b0x.asm:169    *ABS*:00000002 BIT_RTC
+../include/s3c44b0x.asm:170    *ABS*:00000004 BIT_UTXD1
+../include/s3c44b0x.asm:171    *ABS*:00000008 BIT_UTXD0
+../include/s3c44b0x.asm:172    *ABS*:00000010 BIT_SIO
+../include/s3c44b0x.asm:173    *ABS*:00000020 BIT_IIC
+../include/s3c44b0x.asm:174    *ABS*:00000040 BIT_URXD1
+../include/s3c44b0x.asm:175    *ABS*:00000080 BIT_URXD0
+../include/s3c44b0x.asm:176    *ABS*:00000100 BIT_TIMER5
+../include/s3c44b0x.asm:177    *ABS*:00000200 BIT_TIMER4
+../include/s3c44b0x.asm:178    *ABS*:00000400 BIT_TIMER3
+../include/s3c44b0x.asm:179    *ABS*:00000800 BIT_TIMER2
+../include/s3c44b0x.asm:180    *ABS*:00001000 BIT_TIMER1
+../include/s3c44b0x.asm:181    *ABS*:00002000 BIT_TIMER0
+../include/s3c44b0x.asm:182    *ABS*:00004000 BIT_UERR01
+../include/s3c44b0x.asm:183    *ABS*:00008000 BIT_WDT
+../include/s3c44b0x.asm:184    *ABS*:00010000 BIT_BDMA1
+../include/s3c44b0x.asm:185    *ABS*:00020000 BIT_BDMA0
+../include/s3c44b0x.asm:186    *ABS*:00040000 BIT_ZDMA1
+../include/s3c44b0x.asm:187    *ABS*:00080000 BIT_ZDMA0
+../include/s3c44b0x.asm:188    *ABS*:00100000 BIT_TICK
+../include/s3c44b0x.asm:189    *ABS*:00200000 BIT_EINT4567
+../include/s3c44b0x.asm:190    *ABS*:00400000 BIT_EINT3
+../include/s3c44b0x.asm:191    *ABS*:00800000 BIT_EINT2
+../include/s3c44b0x.asm:192    *ABS*:01000000 BIT_EINT1
+../include/s3c44b0x.asm:193    *ABS*:02000000 BIT_EINT0
+../include/s3c44b0x.asm:194    *ABS*:04000000 BIT_GLOBAL
+../include/s3c44b0x.asm:197    *ABS*:01f00000 LCDCON1
+../include/s3c44b0x.asm:198    *ABS*:01f00004 LCDCON2
+../include/s3c44b0x.asm:199    *ABS*:01f00040 LCDCON3
+../include/s3c44b0x.asm:200    *ABS*:01f00008 LCDSADDR1
+../include/s3c44b0x.asm:201    *ABS*:01f0000c LCDSADDR2
+../include/s3c44b0x.asm:202    *ABS*:01f00010 LCDSADDR3
+../include/s3c44b0x.asm:203    *ABS*:01f00014 REDLUT
+../include/s3c44b0x.asm:204    *ABS*:01f00018 GREENLUT
+../include/s3c44b0x.asm:205    *ABS*:01f0001c BLUELUT
+../include/s3c44b0x.asm:206    *ABS*:01f00020 DP1_2
+../include/s3c44b0x.asm:207    *ABS*:01f00024 DP4_7
+../include/s3c44b0x.asm:208    *ABS*:01f00028 DP3_5
+../include/s3c44b0x.asm:209    *ABS*:01f0002c DP2_3
+../include/s3c44b0x.asm:210    *ABS*:01f00030 DP5_7
+../include/s3c44b0x.asm:211    *ABS*:01f00034 DP3_4
+../include/s3c44b0x.asm:212    *ABS*:01f00038 DP4_5
+../include/s3c44b0x.asm:213    *ABS*:01f0003c DP6_7
+../include/s3c44b0x.asm:214    *ABS*:01f00044 DITHMODE
+../include/s3c44b0x.asm:217    *ABS*:01d40000 ADCCON
+../include/s3c44b0x.asm:218    *ABS*:01d40004 ADCPSR
+../include/s3c44b0x.asm:219    *ABS*:01d40008 ADCDAT
+../include/s3c44b0x.asm:222    *ABS*:01d70040 RTCCON
+../include/s3c44b0x.asm:223    *ABS*:01d70050 RTCALM
+../include/s3c44b0x.asm:224    *ABS*:01d70054 ALMSEC
+../include/s3c44b0x.asm:225    *ABS*:01d70058 ALMMIN
+../include/s3c44b0x.asm:226    *ABS*:01d7005c ALMHOUR
+../include/s3c44b0x.asm:227    *ABS*:01d70060 ALMDAY
+../include/s3c44b0x.asm:228    *ABS*:01d70064 ALMMON
+../include/s3c44b0x.asm:229    *ABS*:01d70068 ALMYEAR
+../include/s3c44b0x.asm:230    *ABS*:01d7006c RTCRST
+../include/s3c44b0x.asm:231    *ABS*:01d70070 BCDSEC
+../include/s3c44b0x.asm:232    *ABS*:01d70074 BCDMIN
+../include/s3c44b0x.asm:233    *ABS*:01d70078 BCDHOUR
+../include/s3c44b0x.asm:234    *ABS*:01d7007c BCDDAY
+../include/s3c44b0x.asm:235    *ABS*:01d70080 BCDDATE
+../include/s3c44b0x.asm:236    *ABS*:01d70084 BCDMON
+../include/s3c44b0x.asm:237    *ABS*:01d70088 BCDYEAR
+../include/s3c44b0x.asm:238    *ABS*:01d7008c TICNT
+../include/s3c44b0x.asm:241    *ABS*:01d30000 WTCON
+../include/s3c44b0x.asm:242    *ABS*:01d30004 WTDAT
+../include/s3c44b0x.asm:243    *ABS*:01d30008 WTCNT
+../include/s3c44b0x.asm:246    *ABS*:01d60000 IICCON
+../include/s3c44b0x.asm:247    *ABS*:01d60004 IICSTAT
+../include/s3c44b0x.asm:248    *ABS*:01d60008 IICADD
+../include/s3c44b0x.asm:249    *ABS*:01d6000c IICDS
+../include/s3c44b0x.asm:252    *ABS*:01d18000 IISCON
+../include/s3c44b0x.asm:253    *ABS*:01d18004 IISMOD
+../include/s3c44b0x.asm:254    *ABS*:01d18008 IISPSR
+../include/s3c44b0x.asm:255    *ABS*:01d1800c IISFCON
+../include/s3c44b0x.asm:256    *ABS*:01d18010 IISFIF
+../include/s3c44b0x.asm:259    *ABS*:01d14000 SIOCON
+../include/s3c44b0x.asm:260    *ABS*:01d14004 SIODAT
+../include/s3c44b0x.asm:261    *ABS*:01d14008 SBRDR
+../include/s3c44b0x.asm:262    *ABS*:01d1400c IVTCNT
+../include/s3c44b0x.asm:263    *ABS*:01d14010 DCNTZ
+
+NO UNDEFINED SYMBOLS

@@ -1,0 +1,625 @@
+   1              		.cpu arm7tdmi
+   2              		.fpu softvfp
+   3              		.eabi_attribute 20, 1
+   4              		.eabi_attribute 21, 1
+   5              		.eabi_attribute 23, 3
+   6              		.eabi_attribute 24, 1
+   7              		.eabi_attribute 25, 1
+   8              		.eabi_attribute 26, 1
+   9              		.eabi_attribute 30, 6
+  10              		.eabi_attribute 18, 4
+  11              		.file	"lab4.c"
+  21              	.Ltext0:
+  22              		.file 1 "../lab4.c"
+ 1103              		.align	2
+ 1104              	.LC0:
+ 1105 0000 0A0A4573 		.ascii	"\012\012Este programa fue compilado el dia \000"
+ 1105      74652070 
+ 1105      726F6772 
+ 1105      616D6120 
+ 1105      66756520 
+ 1106 0026 0000     		.align	2
+ 1107              	.LC1:
+ 1108 0028 4F637420 		.ascii	"Oct  9 2022\000"
+ 1108      20392032 
+ 1108      30323200 
+ 1109              		.align	2
+ 1110              	.LC2:
+ 1111 0034 2061206C 		.ascii	" a las \000"
+ 1111      61732000 
+ 1112              		.align	2
+ 1113              	.LC3:
+ 1114 003c 32323A35 		.ascii	"22:53:36\000"
+ 1114      333A3336 
+ 1114      00
+ 1115 0045 000000   		.align	2
+ 1116              	.LC4:
+ 1117 0048 0A0A00   		.ascii	"\012\012\000"
+ 1118 004b 00       		.align	2
+ 1119              	.LC5:
+ 1120 004c 4573746F 		.ascii	"Esto es una cadena\012\000"
+ 1120      20657320 
+ 1120      756E6120 
+ 1120      63616465 
+ 1120      6E610A00 
+ 1121              		.align	2
+ 1122              	.LC6:
+ 1123 0060 4573746F 		.ascii	"Esto es el entero 0:                           \000"
+ 1123      20657320 
+ 1123      656C2065 
+ 1123      6E746572 
+ 1123      6F20303A 
+ 1124              		.align	2
+ 1125              	.LC7:
+ 1126 0090 4573746F 		.ascii	"Esto es el entero positivo peque\361o 25:         \000"
+ 1126      20657320 
+ 1126      656C2065 
+ 1126      6E746572 
+ 1126      6F20706F 
+ 1127              		.align	2
+ 1128              	.LC8:
+ 1129 00c0 4573746F 		.ascii	"Esto es el entero positivo grande 987654321:   \000"
+ 1129      20657320 
+ 1129      656C2065 
+ 1129      6E746572 
+ 1129      6F20706F 
+ 1130              		.align	2
+ 1131              	.LC9:
+ 1132 00f0 4573746F 		.ascii	"Esto es el entero negativo peque\361o -25:       \000"
+ 1132      20657320 
+ 1132      656C2065 
+ 1132      6E746572 
+ 1132      6F206E65 
+ 1133 011f 00       		.align	2
+ 1134              	.LC10:
+ 1135 0120 4573746F 		.ascii	"Esto es el entero negativo grande -987654321: \000"
+ 1135      20657320 
+ 1135      656C2065 
+ 1135      6E746572 
+ 1135      6F206E65 
+ 1136 014f 00       		.align	2
+ 1137              	.LC11:
+ 1138 0150 4573746F 		.ascii	"Esto es el hexadecimal 0:                      \000"
+ 1138      20657320 
+ 1138      656C2068 
+ 1138      65786164 
+ 1138      6563696D 
+ 1139              		.align	2
+ 1140              	.LC12:
+ 1141 0180 4573746F 		.ascii	"Esto es el hexadecimal peque\361o AB:             \000"
+ 1141      20657320 
+ 1141      656C2068 
+ 1141      65786164 
+ 1141      6563696D 
+ 1142              		.align	2
+ 1143              	.LC13:
+ 1144 01b0 4573746F 		.ascii	"Esto es el entero positivo grande FEDCBA98:    \000"
+ 1144      20657320 
+ 1144      656C2065 
+ 1144      6E746572 
+ 1144      6F20706F 
+ 1145              		.align	2
+ 1146              	.LC14:
+ 1147 01e0 45736372 		.ascii	"Escriba su nombre: \000"
+ 1147      69626120 
+ 1147      7375206E 
+ 1147      6F6D6272 
+ 1147      653A2000 
+ 1148              		.align	2
+ 1149              	.LC15:
+ 1150 01f4 45737465 		.ascii	"Este es su nombre: \000"
+ 1150      20657320 
+ 1150      7375206E 
+ 1150      6F6D6272 
+ 1150      653A2000 
+ 1151              		.align	2
+ 1152              	.LC16:
+ 1153 0208 45736372 		.ascii	"Escriba 0: \000"
+ 1153      69626120 
+ 1153      303A2000 
+ 1154              		.align	2
+ 1155              	.LC17:
+ 1156 0214 4552524F 		.ascii	"ERROR en uart0_getint()\012\000"
+ 1156      5220656E 
+ 1156      20756172 
+ 1156      74305F67 
+ 1156      6574696E 
+ 1157 022d 000000   		.align	2
+ 1158              	.LC18:
+ 1159 0230 45736372 		.ascii	"Escriba 25: \000"
+ 1159      69626120 
+ 1159      32353A20 
+ 1159      00
+ 1160 023d 000000   		.align	2
+ 1161              	.LC19:
+ 1162 0240 45736372 		.ascii	"Escriba 987654321: \000"
+ 1162      69626120 
+ 1162      39383736 
+ 1162      35343332 
+ 1162      313A2000 
+ 1163              		.align	2
+ 1164              	.LC20:
+ 1165 0254 45736372 		.ascii	"Escriba -25: \000"
+ 1165      69626120 
+ 1165      2D32353A 
+ 1165      2000
+ 1166 0262 0000     		.align	2
+ 1167              	.LC21:
+ 1168 0264 45736372 		.ascii	"Escriba -987654321: \000"
+ 1168      69626120 
+ 1168      2D393837 
+ 1168      36353433 
+ 1168      32313A20 
+ 1169 0279 000000   		.align	2
+ 1170              	.LC22:
+ 1171 027c 4552524F 		.ascii	"ERROR en uart0_gethex()\012\000"
+ 1171      5220656E 
+ 1171      20756172 
+ 1171      74305F67 
+ 1171      65746865 
+ 1172 0295 000000   		.align	2
+ 1173              	.LC23:
+ 1174 0298 45736372 		.ascii	"Escriba AB: \000"
+ 1174      69626120 
+ 1174      41423A20 
+ 1174      00
+ 1175 02a5 000000   		.align	2
+ 1176              	.LC24:
+ 1177 02a8 45736372 		.ascii	"Escriba ab: \000"
+ 1177      69626120 
+ 1177      61623A20 
+ 1177      00
+ 1178 02b5 000000   		.align	2
+ 1179              	.LC25:
+ 1180 02b8 45736372 		.ascii	"Escriba FEDCBA98: \000"
+ 1180      69626120 
+ 1180      46454443 
+ 1180      42413938 
+ 1180      3A2000
+ 1181 02cb 00       		.align	2
+ 1182              	.LC26:
+ 1183 02cc 45736372 		.ascii	"Escriba fedcba98: \000"
+ 1183      69626120 
+ 1183      66656463 
+ 1183      62613938 
+ 1183      3A2000
+ 1184 02df 00       		.text
+ 1185              		.align	2
+ 1186              		.global	main
+ 1188              	main:
+ 1189              	.LFB0:
+   1:../lab4.c     **** /*-------------------------------------------------------------------
+   2:../lab4.c     **** **
+   3:../lab4.c     **** **  Fichero:
+   4:../lab4.c     **** **    lab4.c  29/1/2021
+   5:../lab4.c     **** **
+   6:../lab4.c     **** **    (c) J.M. Mendias
+   7:../lab4.c     **** **    Programación de Sistemas y Dispositivos
+   8:../lab4.c     **** **    Facultad de Informática. Universidad Complutense de Madrid
+   9:../lab4.c     **** **
+  10:../lab4.c     **** **  Propósito:
+  11:../lab4.c     **** **    Test del laboratorio 4
+  12:../lab4.c     **** **
+  13:../lab4.c     **** **  Notas de diseño:
+  14:../lab4.c     **** **
+  15:../lab4.c     **** **-----------------------------------------------------------------*/
+  16:../lab4.c     **** 
+  17:../lab4.c     **** #include <common_types.h>
+  18:../lab4.c     **** #include "system.h"
+  19:../lab4.c     **** #include <uart.h>
+  20:../lab4.c     **** 
+  21:../lab4.c     **** void main( void )
+  22:../lab4.c     **** {
+ 1190              		.loc 1 22 0
+ 1191              		.cfi_startproc
+ 1192              		@ Function supports interworking.
+ 1193              		@ args = 0, pretend = 0, frame = 256
+ 1194              		@ frame_needed = 1, uses_anonymous_args = 0
+ 1195 0000 0DC0A0E1 		mov	ip, sp
+ 1196              	.LCFI0:
+ 1197              		.cfi_def_cfa_register 12
+ 1198 0004 00D82DE9 		stmfd	sp!, {fp, ip, lr, pc}
+ 1199 0008 04B04CE2 		sub	fp, ip, #4
+ 1200              		.cfi_offset 14, -8
+ 1201              		.cfi_offset 13, -12
+ 1202              		.cfi_offset 11, -16
+ 1203              	.LCFI1:
+ 1204              		.cfi_def_cfa 11, 4
+ 1205 000c 01DC4DE2 		sub	sp, sp, #256
+  23:../lab4.c     **** 	char   s[256];
+  24:../lab4.c     **** 
+  25:../lab4.c     **** 	sys_init();
+ 1206              		.loc 1 25 0
+ 1207 0010 FEFFFFEB 		bl	sys_init
+  26:../lab4.c     **** 	uart0_init();
+ 1208              		.loc 1 26 0
+ 1209 0014 FEFFFFEB 		bl	uart0_init
+  27:../lab4.c     **** 
+  28:../lab4.c     ****     /************************************/
+  29:../lab4.c     **** 
+  30:../lab4.c     **** 	uart0_puts( "\n\nEste programa fue compilado el dia " );
+ 1210              		.loc 1 30 0
+ 1211 0018 94029FE5 		ldr	r0, .L13
+ 1212 001c FEFFFFEB 		bl	uart0_puts
+  31:../lab4.c     **** 	uart0_puts( __DATE__ );
+ 1213              		.loc 1 31 0
+ 1214 0020 90029FE5 		ldr	r0, .L13+4
+ 1215 0024 FEFFFFEB 		bl	uart0_puts
+  32:../lab4.c     **** 	uart0_puts( " a las " );
+ 1216              		.loc 1 32 0
+ 1217 0028 8C029FE5 		ldr	r0, .L13+8
+ 1218 002c FEFFFFEB 		bl	uart0_puts
+  33:../lab4.c     **** 	uart0_puts( __TIME__ );
+ 1219              		.loc 1 33 0
+ 1220 0030 88029FE5 		ldr	r0, .L13+12
+ 1221 0034 FEFFFFEB 		bl	uart0_puts
+  34:../lab4.c     **** 	uart0_puts( "\n\n" );
+ 1222              		.loc 1 34 0
+ 1223 0038 84029FE5 		ldr	r0, .L13+16
+ 1224 003c FEFFFFEB 		bl	uart0_puts
+ 1225              	.L12:
+  35:../lab4.c     **** 
+  36:../lab4.c     ****     /************************************/
+  37:../lab4.c     **** 
+  38:../lab4.c     **** 	while( 1 )
+  39:../lab4.c     ****     {
+  40:../lab4.c     **** 
+  41:../lab4.c     ****         uart0_puts( "Esto es una cadena\n" );
+ 1226              		.loc 1 41 0
+ 1227 0040 80029FE5 		ldr	r0, .L13+20
+ 1228 0044 FEFFFFEB 		bl	uart0_puts
+  42:../lab4.c     ****         uart0_putchar( '\n' );
+ 1229              		.loc 1 42 0
+ 1230 0048 0A00A0E3 		mov	r0, #10
+ 1231 004c FEFFFFEB 		bl	uart0_putchar
+  43:../lab4.c     **** 
+  44:../lab4.c     ****         uart0_puts( "Esto es el entero 0:                           " );
+ 1232              		.loc 1 44 0
+ 1233 0050 74029FE5 		ldr	r0, .L13+24
+ 1234 0054 FEFFFFEB 		bl	uart0_puts
+  45:../lab4.c     ****         uart0_putint( 0 );
+ 1235              		.loc 1 45 0
+ 1236 0058 0000A0E3 		mov	r0, #0
+ 1237 005c FEFFFFEB 		bl	uart0_putint
+  46:../lab4.c     ****         uart0_putchar( '\n' );
+ 1238              		.loc 1 46 0
+ 1239 0060 0A00A0E3 		mov	r0, #10
+ 1240 0064 FEFFFFEB 		bl	uart0_putchar
+  47:../lab4.c     ****         uart0_puts( "Esto es el entero positivo pequeño 25:         " );
+ 1241              		.loc 1 47 0
+ 1242 0068 60029FE5 		ldr	r0, .L13+28
+ 1243 006c FEFFFFEB 		bl	uart0_puts
+  48:../lab4.c     ****         uart0_putint( 25 );
+ 1244              		.loc 1 48 0
+ 1245 0070 1900A0E3 		mov	r0, #25
+ 1246 0074 FEFFFFEB 		bl	uart0_putint
+  49:../lab4.c     ****         uart0_putchar( '\n' );
+ 1247              		.loc 1 49 0
+ 1248 0078 0A00A0E3 		mov	r0, #10
+ 1249 007c FEFFFFEB 		bl	uart0_putchar
+  50:../lab4.c     ****         uart0_puts( "Esto es el entero positivo grande 987654321:   " );
+ 1250              		.loc 1 50 0
+ 1251 0080 4C029FE5 		ldr	r0, .L13+32
+ 1252 0084 FEFFFFEB 		bl	uart0_puts
+  51:../lab4.c     ****         uart0_putint( 987654321 );
+ 1253              		.loc 1 51 0
+ 1254 0088 48029FE5 		ldr	r0, .L13+36
+ 1255 008c FEFFFFEB 		bl	uart0_putint
+  52:../lab4.c     ****         uart0_putchar( '\n' );
+ 1256              		.loc 1 52 0
+ 1257 0090 0A00A0E3 		mov	r0, #10
+ 1258 0094 FEFFFFEB 		bl	uart0_putchar
+  53:../lab4.c     ****         uart0_puts( "Esto es el entero negativo pequeño -25:       " );
+ 1259              		.loc 1 53 0
+ 1260 0098 3C029FE5 		ldr	r0, .L13+40
+ 1261 009c FEFFFFEB 		bl	uart0_puts
+  54:../lab4.c     ****         uart0_putint( -25 );
+ 1262              		.loc 1 54 0
+ 1263 00a0 1800E0E3 		mvn	r0, #24
+ 1264 00a4 FEFFFFEB 		bl	uart0_putint
+  55:../lab4.c     ****         uart0_putchar( '\n' );
+ 1265              		.loc 1 55 0
+ 1266 00a8 0A00A0E3 		mov	r0, #10
+ 1267 00ac FEFFFFEB 		bl	uart0_putchar
+  56:../lab4.c     ****         uart0_puts( "Esto es el entero negativo grande -987654321: " );
+ 1268              		.loc 1 56 0
+ 1269 00b0 28029FE5 		ldr	r0, .L13+44
+ 1270 00b4 FEFFFFEB 		bl	uart0_puts
+  57:../lab4.c     ****         uart0_putint( -987654321 );
+ 1271              		.loc 1 57 0
+ 1272 00b8 24029FE5 		ldr	r0, .L13+48
+ 1273 00bc FEFFFFEB 		bl	uart0_putint
+  58:../lab4.c     ****         uart0_putchar( '\n' );
+ 1274              		.loc 1 58 0
+ 1275 00c0 0A00A0E3 		mov	r0, #10
+ 1276 00c4 FEFFFFEB 		bl	uart0_putchar
+  59:../lab4.c     **** 
+  60:../lab4.c     ****         uart0_puts( "Esto es el hexadecimal 0:                      " );
+ 1277              		.loc 1 60 0
+ 1278 00c8 18029FE5 		ldr	r0, .L13+52
+ 1279 00cc FEFFFFEB 		bl	uart0_puts
+  61:../lab4.c     ****         uart0_puthex( 0 );
+ 1280              		.loc 1 61 0
+ 1281 00d0 0000A0E3 		mov	r0, #0
+ 1282 00d4 FEFFFFEB 		bl	uart0_puthex
+  62:../lab4.c     ****         uart0_putchar( '\n' );
+ 1283              		.loc 1 62 0
+ 1284 00d8 0A00A0E3 		mov	r0, #10
+ 1285 00dc FEFFFFEB 		bl	uart0_putchar
+  63:../lab4.c     ****         uart0_puts( "Esto es el hexadecimal pequeño AB:             " );
+ 1286              		.loc 1 63 0
+ 1287 00e0 04029FE5 		ldr	r0, .L13+56
+ 1288 00e4 FEFFFFEB 		bl	uart0_puts
+  64:../lab4.c     ****         uart0_puthex( 0xAB );
+ 1289              		.loc 1 64 0
+ 1290 00e8 AB00A0E3 		mov	r0, #171
+ 1291 00ec FEFFFFEB 		bl	uart0_puthex
+  65:../lab4.c     ****         uart0_putchar( '\n' );
+ 1292              		.loc 1 65 0
+ 1293 00f0 0A00A0E3 		mov	r0, #10
+ 1294 00f4 FEFFFFEB 		bl	uart0_putchar
+  66:../lab4.c     ****         uart0_puts( "Esto es el entero positivo grande FEDCBA98:    " );
+ 1295              		.loc 1 66 0
+ 1296 00f8 F0019FE5 		ldr	r0, .L13+60
+ 1297 00fc FEFFFFEB 		bl	uart0_puts
+  67:../lab4.c     ****         uart0_puthex( 0xFEDCBA98 );
+ 1298              		.loc 1 67 0
+ 1299 0100 EC019FE5 		ldr	r0, .L13+64
+ 1300 0104 FEFFFFEB 		bl	uart0_puthex
+  68:../lab4.c     ****         uart0_putchar( '\n' );
+ 1301              		.loc 1 68 0
+ 1302 0108 0A00A0E3 		mov	r0, #10
+ 1303 010c FEFFFFEB 		bl	uart0_putchar
+  69:../lab4.c     ****         uart0_putchar( '\n' );
+ 1304              		.loc 1 69 0
+ 1305 0110 0A00A0E3 		mov	r0, #10
+ 1306 0114 FEFFFFEB 		bl	uart0_putchar
+  70:../lab4.c     **** 
+  71:../lab4.c     ****         uart0_puts( "Escriba su nombre: " );
+ 1307              		.loc 1 71 0
+ 1308 0118 D8019FE5 		ldr	r0, .L13+68
+ 1309 011c FEFFFFEB 		bl	uart0_puts
+  72:../lab4.c     ****         uart0_gets( s );
+ 1310              		.loc 1 72 0
+ 1311 0120 433F4BE2 		sub	r3, fp, #268
+ 1312 0124 0300A0E1 		mov	r0, r3
+ 1313 0128 FEFFFFEB 		bl	uart0_gets
+  73:../lab4.c     ****         uart0_puts( "Este es su nombre: " );
+ 1314              		.loc 1 73 0
+ 1315 012c C8019FE5 		ldr	r0, .L13+72
+ 1316 0130 FEFFFFEB 		bl	uart0_puts
+  74:../lab4.c     ****         uart0_puts( s );
+ 1317              		.loc 1 74 0
+ 1318 0134 433F4BE2 		sub	r3, fp, #268
+ 1319 0138 0300A0E1 		mov	r0, r3
+ 1320 013c FEFFFFEB 		bl	uart0_puts
+  75:../lab4.c     ****         uart0_putchar( '\n' );
+ 1321              		.loc 1 75 0
+ 1322 0140 0A00A0E3 		mov	r0, #10
+ 1323 0144 FEFFFFEB 		bl	uart0_putchar
+  76:../lab4.c     ****         uart0_putchar( '\n' );
+ 1324              		.loc 1 76 0
+ 1325 0148 0A00A0E3 		mov	r0, #10
+ 1326 014c FEFFFFEB 		bl	uart0_putchar
+  77:../lab4.c     **** 
+  78:../lab4.c     ****         uart0_puts( "Escriba 0: " );
+ 1327              		.loc 1 78 0
+ 1328 0150 A8019FE5 		ldr	r0, .L13+76
+ 1329 0154 FEFFFFEB 		bl	uart0_puts
+  79:../lab4.c     ****         if( uart0_getint() != 0 )
+ 1330              		.loc 1 79 0
+ 1331 0158 FEFFFFEB 		bl	uart0_getint
+ 1332 015c 0030A0E1 		mov	r3, r0
+ 1333 0160 000053E3 		cmp	r3, #0
+ 1334 0164 0100000A 		beq	.L2
+  80:../lab4.c     ****            uart0_puts( "ERROR en uart0_getint()\n" );
+ 1335              		.loc 1 80 0
+ 1336 0168 94019FE5 		ldr	r0, .L13+80
+ 1337 016c FEFFFFEB 		bl	uart0_puts
+ 1338              	.L2:
+  81:../lab4.c     ****         uart0_puts( "Escriba 25: " );
+ 1339              		.loc 1 81 0
+ 1340 0170 90019FE5 		ldr	r0, .L13+84
+ 1341 0174 FEFFFFEB 		bl	uart0_puts
+  82:../lab4.c     ****         if( uart0_getint() != 25 )
+ 1342              		.loc 1 82 0
+ 1343 0178 FEFFFFEB 		bl	uart0_getint
+ 1344 017c 0030A0E1 		mov	r3, r0
+ 1345 0180 190053E3 		cmp	r3, #25
+ 1346 0184 0100000A 		beq	.L3
+  83:../lab4.c     ****            uart0_puts( "ERROR en uart0_getint()\n" );
+ 1347              		.loc 1 83 0
+ 1348 0188 74019FE5 		ldr	r0, .L13+80
+ 1349 018c FEFFFFEB 		bl	uart0_puts
+ 1350              	.L3:
+  84:../lab4.c     ****         uart0_puts( "Escriba 987654321: " );
+ 1351              		.loc 1 84 0
+ 1352 0190 74019FE5 		ldr	r0, .L13+88
+ 1353 0194 FEFFFFEB 		bl	uart0_puts
+  85:../lab4.c     ****         if( uart0_getint() != 987654321 )
+ 1354              		.loc 1 85 0
+ 1355 0198 FEFFFFEB 		bl	uart0_getint
+ 1356 019c 0020A0E1 		mov	r2, r0
+ 1357 01a0 30319FE5 		ldr	r3, .L13+36
+ 1358 01a4 030052E1 		cmp	r2, r3
+ 1359 01a8 0100000A 		beq	.L4
+  86:../lab4.c     ****            uart0_puts( "ERROR en uart0_getint()\n" );
+ 1360              		.loc 1 86 0
+ 1361 01ac 50019FE5 		ldr	r0, .L13+80
+ 1362 01b0 FEFFFFEB 		bl	uart0_puts
+ 1363              	.L4:
+  87:../lab4.c     ****         uart0_puts( "Escriba -25: " );
+ 1364              		.loc 1 87 0
+ 1365 01b4 54019FE5 		ldr	r0, .L13+92
+ 1366 01b8 FEFFFFEB 		bl	uart0_puts
+  88:../lab4.c     ****         if( uart0_getint() != -25 )
+ 1367              		.loc 1 88 0
+ 1368 01bc FEFFFFEB 		bl	uart0_getint
+ 1369 01c0 0030A0E1 		mov	r3, r0
+ 1370 01c4 190073E3 		cmn	r3, #25
+ 1371 01c8 0100000A 		beq	.L5
+  89:../lab4.c     ****            uart0_puts( "ERROR en uart0_getint()\n" );
+ 1372              		.loc 1 89 0
+ 1373 01cc 30019FE5 		ldr	r0, .L13+80
+ 1374 01d0 FEFFFFEB 		bl	uart0_puts
+ 1375              	.L5:
+  90:../lab4.c     ****         uart0_puts( "Escriba -987654321: " );
+ 1376              		.loc 1 90 0
+ 1377 01d4 38019FE5 		ldr	r0, .L13+96
+ 1378 01d8 FEFFFFEB 		bl	uart0_puts
+  91:../lab4.c     ****         if( uart0_getint() != -987654321 )
+ 1379              		.loc 1 91 0
+ 1380 01dc FEFFFFEB 		bl	uart0_getint
+ 1381 01e0 0020A0E1 		mov	r2, r0
+ 1382 01e4 F8309FE5 		ldr	r3, .L13+48
+ 1383 01e8 030052E1 		cmp	r2, r3
+ 1384 01ec 0100000A 		beq	.L6
+  92:../lab4.c     ****            uart0_puts( "ERROR en uart0_getint()\n" );
+ 1385              		.loc 1 92 0
+ 1386 01f0 0C019FE5 		ldr	r0, .L13+80
+ 1387 01f4 FEFFFFEB 		bl	uart0_puts
+ 1388              	.L6:
+  93:../lab4.c     ****         uart0_putchar( '\n' );
+ 1389              		.loc 1 93 0
+ 1390 01f8 0A00A0E3 		mov	r0, #10
+ 1391 01fc FEFFFFEB 		bl	uart0_putchar
+  94:../lab4.c     **** 
+  95:../lab4.c     ****         uart0_puts( "Escriba 0: " );
+ 1392              		.loc 1 95 0
+ 1393 0200 F8009FE5 		ldr	r0, .L13+76
+ 1394 0204 FEFFFFEB 		bl	uart0_puts
+  96:../lab4.c     ****         if( uart0_gethex() != 0 )
+ 1395              		.loc 1 96 0
+ 1396 0208 FEFFFFEB 		bl	uart0_gethex
+ 1397 020c 0030A0E1 		mov	r3, r0
+ 1398 0210 000053E3 		cmp	r3, #0
+ 1399 0214 0100000A 		beq	.L7
+  97:../lab4.c     ****            uart0_puts( "ERROR en uart0_gethex()\n" );
+ 1400              		.loc 1 97 0
+ 1401 0218 F8009FE5 		ldr	r0, .L13+100
+ 1402 021c FEFFFFEB 		bl	uart0_puts
+ 1403              	.L7:
+  98:../lab4.c     ****         uart0_puts( "Escriba AB: " );
+ 1404              		.loc 1 98 0
+ 1405 0220 F4009FE5 		ldr	r0, .L13+104
+ 1406 0224 FEFFFFEB 		bl	uart0_puts
+  99:../lab4.c     ****         if( uart0_gethex() != 0xAB )
+ 1407              		.loc 1 99 0
+ 1408 0228 FEFFFFEB 		bl	uart0_gethex
+ 1409 022c 0030A0E1 		mov	r3, r0
+ 1410 0230 AB0053E3 		cmp	r3, #171
+ 1411 0234 0100000A 		beq	.L8
+ 100:../lab4.c     ****            uart0_puts( "ERROR en uart0_gethex()\n" );
+ 1412              		.loc 1 100 0
+ 1413 0238 D8009FE5 		ldr	r0, .L13+100
+ 1414 023c FEFFFFEB 		bl	uart0_puts
+ 1415              	.L8:
+ 101:../lab4.c     ****         uart0_puts( "Escriba ab: " );
+ 1416              		.loc 1 101 0
+ 1417 0240 D8009FE5 		ldr	r0, .L13+108
+ 1418 0244 FEFFFFEB 		bl	uart0_puts
+ 102:../lab4.c     ****         if( uart0_gethex() != 0xAB )
+ 1419              		.loc 1 102 0
+ 1420 0248 FEFFFFEB 		bl	uart0_gethex
+ 1421 024c 0030A0E1 		mov	r3, r0
+ 1422 0250 AB0053E3 		cmp	r3, #171
+ 1423 0254 0100000A 		beq	.L9
+ 103:../lab4.c     ****            uart0_puts( "ERROR en uart0_gethex()\n" );
+ 1424              		.loc 1 103 0
+ 1425 0258 B8009FE5 		ldr	r0, .L13+100
+ 1426 025c FEFFFFEB 		bl	uart0_puts
+ 1427              	.L9:
+ 104:../lab4.c     ****         uart0_puts( "Escriba FEDCBA98: " );
+ 1428              		.loc 1 104 0
+ 1429 0260 BC009FE5 		ldr	r0, .L13+112
+ 1430 0264 FEFFFFEB 		bl	uart0_puts
+ 105:../lab4.c     ****         if( uart0_gethex() != 0xFEDCBA98 )
+ 1431              		.loc 1 105 0
+ 1432 0268 FEFFFFEB 		bl	uart0_gethex
+ 1433 026c 0020A0E1 		mov	r2, r0
+ 1434 0270 7C309FE5 		ldr	r3, .L13+64
+ 1435 0274 030052E1 		cmp	r2, r3
+ 1436 0278 0100000A 		beq	.L10
+ 106:../lab4.c     ****            uart0_puts( "ERROR en uart0_gethex()\n" );
+ 1437              		.loc 1 106 0
+ 1438 027c 94009FE5 		ldr	r0, .L13+100
+ 1439 0280 FEFFFFEB 		bl	uart0_puts
+ 1440              	.L10:
+ 107:../lab4.c     ****         uart0_puts( "Escriba fedcba98: " );
+ 1441              		.loc 1 107 0
+ 1442 0284 9C009FE5 		ldr	r0, .L13+116
+ 1443 0288 FEFFFFEB 		bl	uart0_puts
+ 108:../lab4.c     ****         if( uart0_gethex() != 0xFEDCBA98 )
+ 1444              		.loc 1 108 0
+ 1445 028c FEFFFFEB 		bl	uart0_gethex
+ 1446 0290 0020A0E1 		mov	r2, r0
+ 1447 0294 58309FE5 		ldr	r3, .L13+64
+ 1448 0298 030052E1 		cmp	r2, r3
+ 1449 029c 0100000A 		beq	.L11
+ 109:../lab4.c     ****            uart0_puts( "ERROR en uart0_gethex()\n" );
+ 1450              		.loc 1 109 0
+ 1451 02a0 70009FE5 		ldr	r0, .L13+100
+ 1452 02a4 FEFFFFEB 		bl	uart0_puts
+ 1453              	.L11:
+ 110:../lab4.c     ****         uart0_putchar( '\n' );
+ 1454              		.loc 1 110 0
+ 1455 02a8 0A00A0E3 		mov	r0, #10
+ 1456 02ac FEFFFFEB 		bl	uart0_putchar
+ 111:../lab4.c     **** 
+ 112:../lab4.c     ****     }
+ 1457              		.loc 1 112 0
+ 1458 02b0 62FFFFEA 		b	.L12
+ 1459              	.L14:
+ 1460              		.align	2
+ 1461              	.L13:
+ 1462 02b4 00000000 		.word	.LC0
+ 1463 02b8 28000000 		.word	.LC1
+ 1464 02bc 34000000 		.word	.LC2
+ 1465 02c0 3C000000 		.word	.LC3
+ 1466 02c4 48000000 		.word	.LC4
+ 1467 02c8 4C000000 		.word	.LC5
+ 1468 02cc 60000000 		.word	.LC6
+ 1469 02d0 90000000 		.word	.LC7
+ 1470 02d4 C0000000 		.word	.LC8
+ 1471 02d8 B168DE3A 		.word	987654321
+ 1472 02dc F0000000 		.word	.LC9
+ 1473 02e0 20010000 		.word	.LC10
+ 1474 02e4 4F9721C5 		.word	-987654321
+ 1475 02e8 50010000 		.word	.LC11
+ 1476 02ec 80010000 		.word	.LC12
+ 1477 02f0 B0010000 		.word	.LC13
+ 1478 02f4 98BADCFE 		.word	-19088744
+ 1479 02f8 E0010000 		.word	.LC14
+ 1480 02fc F4010000 		.word	.LC15
+ 1481 0300 08020000 		.word	.LC16
+ 1482 0304 14020000 		.word	.LC17
+ 1483 0308 30020000 		.word	.LC18
+ 1484 030c 40020000 		.word	.LC19
+ 1485 0310 54020000 		.word	.LC20
+ 1486 0314 64020000 		.word	.LC21
+ 1487 0318 7C020000 		.word	.LC22
+ 1488 031c 98020000 		.word	.LC23
+ 1489 0320 A8020000 		.word	.LC24
+ 1490 0324 B8020000 		.word	.LC25
+ 1491 0328 CC020000 		.word	.LC26
+ 1492              		.cfi_endproc
+ 1493              	.LFE0:
+ 1495              	.Letext0:
+DEFINED SYMBOLS
+                            *ABS*:00000000 lab4.c
+C:\Users\alv\AppData\Local\Temp\ccoBtLuS.s:1103   .rodata:00000000 $d
+C:\Users\alv\AppData\Local\Temp\ccoBtLuS.s:1185   .text:00000000 $a
+C:\Users\alv\AppData\Local\Temp\ccoBtLuS.s:1188   .text:00000000 main
+C:\Users\alv\AppData\Local\Temp\ccoBtLuS.s:1462   .text:000002b4 $d
+                     .debug_frame:00000010 $d
+
+UNDEFINED SYMBOLS
+sys_init
+uart0_init
+uart0_puts
+uart0_putchar
+uart0_putint
+uart0_puthex
+uart0_gets
+uart0_getint
+uart0_gethex
