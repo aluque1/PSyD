@@ -11,24 +11,24 @@ void rtc_init( void )
     RTCALM  = 0x0;
     RTCRST  = 0x0;
         
-    RTCCON  = 0x0;
+    RTCCON  = 0x1;
     
-    BCDYEAR = ...;
-    BCDMON  = ...;
-    BCDDAY  = ...;
-    BCDDATE = ...;
-    BCDHOUR = ...;
-    BCDMIN  = ...;
-    BCDSEC  = ...;
+    BCDYEAR = 0x25;
+    BCDMON  = 0x5;
+    BCDDAY  = 0x15;
+    BCDDATE = 0x04;
+    BCDHOUR = 0x19;
+    BCDMIN  = 0x33;
+    BCDSEC  = 0x12;
 
-    ALMYEAR = ...;
-    ALMMON  = ...;
-    ALMDAY  = ...;
-    ALMHOUR = ...;
-    ALMMIN  = ...;
-    ALMSEC  = ...;
+    ALMYEAR = 0x0;
+    ALMMON  = 0x0;
+    ALMDAY  = 0x0;
+    ALMHOUR = 0x0;
+    ALMMIN  = 0x0;
+    ALMSEC  = 0x0;
 
-    RTCCON &= ...;
+    RTCCON &= 0x0;
 }
 
 void rtc_puttime( rtc_time_t *rtc_time )
@@ -83,5 +83,5 @@ void rtc_close( void )
 {
     TICNT     = ...;  
     INTMSK   |= ...;    
-    pISR_TICK = ...;
+    pISR_TICK = (uint32) isr_TICK_dummy;
 }
