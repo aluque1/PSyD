@@ -35,12 +35,10 @@ void uart0_gets( char *s )
 	char aux;
 	uint32 i = 1;
 	while((aux = uart0_getchar()) != '\n'){
-		s[0] = aux;
-		s++;
+		s[i] = aux;
 		++i;
 	}
 	s[0] = '\0';
-	s -= i;
 }
 
 

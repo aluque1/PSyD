@@ -85,3 +85,12 @@ void rtc_close( void )
     INTMSK   |= ...;    
     pISR_TICK = (uint32) isr_TICK_dummy;
 }
+
+uint8 uint8ToBCD(uint8 num){
+	uint8 resul = 0;
+	for (int i = 0; i < 2; ++i){
+		resul |= ((num % 10) << (i * 4));
+		num /= 10;
+	}
+	return resul;
+}
