@@ -89,6 +89,12 @@ void isr_TS_dummy( void )		 __attribute__ ((interrupt ("TS")));
 void isr_KEYPAD_dummy( void )	 __attribute__ ((interrupt ("KEYPAD")));
 void isr_USB_dummy( void )       __attribute__ ((interrupt ("USB")));
 
+static void port_init( void );
+static void install_dummy_isr( void );
+static void show_sys_info( void );
+static void sys_recovery( void );
+inline void sleep( void );
+
 void sys_init( void )
 {
 	uint8 mode;

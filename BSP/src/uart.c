@@ -19,7 +19,7 @@ void uart0_putchar( char ch )
 
 char uart0_getchar( void )
 {
-	while(((UFSTAT0 & (15 << 0)) == 0));
+	while(!(UFSTAT0 & 0xf));
 	return URXH0;
 }
 
@@ -33,12 +33,12 @@ void uart0_puts( char *s )
 void uart0_gets( char *s )
 {
 	char aux;
-	uint32 i = 1;
+	uint32 i = 0;
 	while((aux = uart0_getchar()) != '\n'){
 		s[i] = aux;
 		++i;
 	}
-	s[0] = '\0';
+	s[i] = '\0';
 }
 
 
