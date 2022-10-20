@@ -79,7 +79,7 @@ void rtc_open( void (*isr)(void), uint8 tick_count )
 {
 	pISR_TICK = (uint32) isr;
 	I_ISPC    = BIT_TICK;
-	INTMSK   &= 0 << 20;
+	INTMSK   &= ~(1 << 20);
 	TICNT     = 1 << 7 | tick_count;
 }
 
