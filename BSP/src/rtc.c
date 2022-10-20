@@ -35,13 +35,13 @@ void rtc_puttime( rtc_time_t *rtc_time )
 {
     RTCCON |= ...;
     
-    BCDYEAR = ...;
-    BCDMON  = ...;
-    BCDDAY  = ...;
-    BCDDATE = ...;
-    BCDHOUR = ...;
-    BCDMIN  = ...;
-    BCDSEC  = ...;
+    BCDYEAR = uint8toBCD(rtc_time->year);
+    BCDMON  = uint8toBCD(rtc_time->mon);
+    BCDDAY  = uint8toBCD(rtc_time->wday);
+    BCDDATE = uint8toBCD(rtc_time->mday);
+    BCDHOUR = uint8toBCD(rtc_time->hour);
+    BCDMIN  = uint8toBCD(rtc_time->min);
+    BCDSEC  = uint8toBCD(rtc_time->sec);
         
     RTCCON &= ...;
 }
