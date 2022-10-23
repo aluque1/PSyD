@@ -78,7 +78,7 @@ void rtc_gettime( rtc_time_t *rtc_time )
 void rtc_open( void (*isr)(void), uint8 tick_count )
 {
 	pISR_TICK = (uint32) isr;
-	I_ISPC    = BIT_TICK;
+	I_ISPC    = 1;
 	INTMSK   &= ~(1 << 20);
 	TICNT     = 1 << 7 | tick_count;
 }
@@ -86,26 +86,27 @@ void rtc_open( void (*isr)(void), uint8 tick_count )
 void rtc_close( void )
 {
 	TICNT     = 0x7F;
-	INTMSK   |= 0 << 20;
+	INTMSK   |= 1 << 20;
 	pISR_TICK = (uint32) isr_TICK_dummy;
 }
 
 uint8 uint8_to_BCD(uint8 num){
-	uint8 resul = 0;
+	uint8 resul = 0, i = 0;
 	while (num){
-		resul |= (num % 10);
-		resul = resul << 4;
+		resul |= ((num % 10) << (i * 4));
 		num /= 10;
+		++i;
 	}
 	return resul;
 }
 
 uint8 BCD_to_uint8(uint8 num){
-	uint8 resul = 0;
-	while(num){
+	uint8 resul = 0, i = 0;
+	while(i < sizeof(num) * 2){
 		resul *= 10;
 		resul += (num >> sizeof(num) * 4);
 		num = num << 4;
+		++i;
 	}
 	return resul;
 }

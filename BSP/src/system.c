@@ -100,8 +100,7 @@ void sys_init( void )
 	uint8 mode;
 
 	WTCON  = 0;
-	INTMSK = ~0;
-
+	INTMSK = ~(1 << 26);
 	GET_OPMODE( &mode );    // lee el modo de ejecución del procesador
 	if( mode != SVCMODE )
 		sys_recovery();     // si no es SVC (por una reejecución de la aplicación tras una excepción sin reset HW previo) recupera el modo SVC y restaura las pilas del sistema
