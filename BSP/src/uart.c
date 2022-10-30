@@ -1,6 +1,7 @@
 
 #include <s3c44b0x.h>
 #include <uart.h>
+#include <common_functions.h>
 
 void uart0_init( void )
 {
@@ -44,51 +45,12 @@ void uart0_gets( char *s )
 
 void uart0_putint( int32 i )
 {
-	char buf[10 + 1];
-	char *p = buf + 10;
-	char signo;
-	boolean negative = 0;
-
-	*p = '\0';
-
-	if (i < 0){
-		signo = '-';
-		negative = 1;
-		i--;
-		i = ~i;
-	}
-
-	do {
-		*--p = i % 10 + '0';
-		i /= 10;
-
-	} while (i);
-
-	if (negative) *--p = signo;
-	uart0_puts( p );
-
+	uart0_puts( int32ToString(i) );
 }
 
 void uart0_puthex( uint32 i )
 {
-	char buf[8 + 1];
-	char *p = buf + 8;
-
-	uint8 c;
-
-
-	*p = '\0';
-
-	do {
-		c = i & 0xf;
-		if( c < 10 )
-			*--p = '0' + c;
-		else
-			*--p = 'a' + c - 10;
-		i = i >> 4;
-	} while( i );
-
-	uart0_puts( p );
+	uart0_puts( hexToString(i) );
 }
 
 
@@ -96,43 +58,18 @@ int32 uart0_getint( void )
 {
 	char buf[10 + 1];
 	char *num = buf;
-	int32 resul = 0;
-	boolean negative = 0;
 
 	uart0_gets(num);
 
-	if(num[0] == '-'){
-		negative = 1;
-		++num;
-	}
-
-	while(num[0] != '\0'){
-		resul *= 10;
-		resul += (num++[0] - 48);
-	}
-
-	if(negative){
-		resul = ~resul;
-		resul++;
-	}
-
-	return resul;
+	return stringToInt32(num);
 }
 
 uint32 uart0_gethex( void )
 {
 	char buf[8 + 1];
 	char *num = buf;
-	int32 resul = 0;
 
 	uart0_gets(num);
 
-	while(num[0] != '\0'){
-		resul *= 16;
-		if(num[0] > 70) num[0] -= 32;
-		if(num[0] > 57) num[0] -= 7;
-		resul += (num++[0] - 48);
-	}
-
-	return resul;
+	return stringToHex(num);
 }
