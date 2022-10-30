@@ -55,7 +55,7 @@ void lcd_clear( void )
 {
 	for(int x = 0; x < 320; ++x){
 		for(int y = 0; y < 240; ++y){
-			lcd_putpixel(x, y, 0xff);
+			lcd_putpixel(x, y, WHITE);
 		}
 	}
 }
@@ -76,16 +76,16 @@ void lcd_putpixel( uint16 x, uint16 y, uint8 c)
 
 uint8 lcd_getpixel( uint16 x, uint16 y ) //Revisar
 {
-    uint8 byte, bit;
-    uint16 i;
+	uint8 byte, bit;
+	uint16 i;
 
-    i = x/2 + y*(LCD_WIDTH/2);
-    bit = (x%2)*4;
+	i = x/2 + y*(LCD_WIDTH/2);
+	bit = (x%2)*4;
 
-    byte = lcd_buffer[i] >> bit;
-    byte &= ~(0xF0);
+	byte = lcd_buffer[i] >> bit;
+	byte &= ~(0xF0);
 
-    return byte;
+	return byte;
 }
 
 void lcd_draw_hrow( uint16 xleft, uint16 xright, uint16 y, uint8 color, uint16 width )
@@ -164,7 +164,15 @@ void lcd_putchar_x2( uint16 x, uint16 y, uint8 color, char ch )
 
 void lcd_puts_x2( uint16 x, uint16 y, uint8 color, char *s )
 {
-	...
+	int i = 0;
+	while(*s != '\0'){
+		lcd_putchar_x2(x, y, color, *s++);
+		x += 16;
+		if(x > (320 - 16)){
+			y += 32;
+			x = 0;
+		}
+	}
 }
 
 void lcd_putint_x2( uint16 x, uint16 y, uint8 color, int32 i )
