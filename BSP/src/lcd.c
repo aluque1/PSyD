@@ -119,7 +119,15 @@ void lcd_putchar( uint16 x, uint16 y, uint8 color, char ch )
 
 void lcd_puts( uint16 x, uint16 y, uint8 color, char *s )
 {
-	...
+	int i = 0;
+	while(*s != '\0'){
+		lcd_putchar(x, y, color, *s++);
+		x += 8;
+		if(x > (320 - 8)){
+			y += 16;
+			x = 0;
+		}
+	}
 }
 
 void lcd_putint( uint16 x, uint16 y, uint8 color, int32 i )
@@ -134,7 +142,24 @@ void lcd_puthex( uint16 x, uint16 y, uint8 color, uint32 i )
 
 void lcd_putchar_x2( uint16 x, uint16 y, uint8 color, char ch )
 {
-	...
+	uint8 row, col;
+	uint8 *bitmap;
+
+	bitmap = font + ch*16;
+	for( row=0; row<16; row++ )
+		for( col=0; col<8; col++ )
+			if( bitmap[row] & (0x80 >> col) ){
+				lcd_putpixel( x+(col*2),	y+(row*2),	color );
+				lcd_putpixel( x+(col*2)+1,	y+(row*2),	color );
+				lcd_putpixel( x+col*2,		y+(row*2)+1,color );
+				lcd_putpixel( x+(col*2)+1,	y+(row*2)+1,color );
+			}
+			else{
+				lcd_putpixel( x+(col*2),	y+(row*2),	WHITE );
+				lcd_putpixel( x+(col*2)+1,	y+(row*2),	WHITE );
+				lcd_putpixel( x+col*2,		y+(row*2)+1,WHITE );
+				lcd_putpixel( x+(col*2)+1,	y+(row*2)+1,WHITE );
+			}
 }
 
 void lcd_puts_x2( uint16 x, uint16 y, uint8 color, char *s )
