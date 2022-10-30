@@ -36,22 +36,24 @@ void lcd_init( void )
 
 void lcd_on( void )
 {
-
+	LCDCON1 |= (1 << 0);
+	state = LCDCON1;
 }
 
 void lcd_off( void )
 {
-    ...
+	LCDCON1 &= ~(1 << 0);
+	state = LCDCON1;
 }
 
 uint8 lcd_status( void )
 {
-    ...
+    return (uint8)state;
 }
 
 void lcd_clear( void )
 {
-    ...
+
 }
 
 void lcd_putpixel( uint16 x, uint16 y, uint8 c)
