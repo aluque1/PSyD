@@ -74,13 +74,18 @@ void lcd_putpixel( uint16 x, uint16 y, uint8 c)
 	lcd_buffer[i] = byte;
 }
 
-uint8 lcd_getpixel( uint16 x, uint16 y )
+uint8 lcd_getpixel( uint16 x, uint16 y ) //Revisar
 {
-	uint8 byte, bit;
-	uint16 i;
+    uint8 byte, bit;
+    uint16 i;
 
-	i = x/2 + y*(LCD_WIDTH/2);
-	bit = (1-x%2)*4;
+    i = x/2 + y*(LCD_WIDTH/2);
+    bit = (x%2)*4;
+
+    byte = lcd_buffer[i] >> bit;
+    byte &= ~(0xF0);
+
+    return byte;
 }
 
 void lcd_draw_hrow( uint16 xleft, uint16 xright, uint16 y, uint8 color, uint16 width )
