@@ -53,8 +53,10 @@ uint8 lcd_status( void )
 
 void lcd_clear( void )
 {
-	for(int x = 0; x < 320; ++x){
-		for(int y = 0; y < 240; ++y){
+	uint8 x, y;
+
+	for( x=0; x < 320; ++x) {
+		for( y=0; y < 240; ++y){
 			lcd_putpixel(x, y, WHITE);
 		}
 	}
@@ -134,7 +136,6 @@ void lcd_putchar( uint16 x, uint16 y, uint8 color, char ch )
 
 void lcd_puts( uint16 x, uint16 y, uint8 color, char *s )
 {
-	int i = 0;
 	while(*s != '\0'){
 		lcd_putchar(x, y, color, *s++);
 		x += 8;
@@ -147,12 +148,12 @@ void lcd_puts( uint16 x, uint16 y, uint8 color, char *s )
 
 void lcd_putint( uint16 x, uint16 y, uint8 color, int32 i )
 {
-	...
+
 }
 
 void lcd_puthex( uint16 x, uint16 y, uint8 color, uint32 i )
 {
-	...
+
 }
 
 void lcd_putchar_x2( uint16 x, uint16 y, uint8 color, char ch )
@@ -179,7 +180,6 @@ void lcd_putchar_x2( uint16 x, uint16 y, uint8 color, char ch )
 
 void lcd_puts_x2( uint16 x, uint16 y, uint8 color, char *s )
 {
-	int i = 0;
 	while(*s != '\0'){
 		lcd_putchar_x2(x, y, color, *s++);
 		x += 16;
@@ -192,12 +192,10 @@ void lcd_puts_x2( uint16 x, uint16 y, uint8 color, char *s )
 
 void lcd_putint_x2( uint16 x, uint16 y, uint8 color, int32 i )
 {
-	...
 }
 
 void lcd_puthex_x2( uint16 x, uint16 y, uint8 color, uint32 i )
 {
-	...
 }
 
 void lcd_putWallpaper( uint8 *bmp )
