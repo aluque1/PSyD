@@ -90,7 +90,13 @@ uint8 lcd_getpixel( uint16 x, uint16 y ) //Revisar
 
 void lcd_draw_hrow( uint16 xleft, uint16 xright, uint16 y, uint8 color, uint16 width )
 {
-	...
+	while(y < (y + width)){
+		while((xleft <= xright)){
+			lcd_putpixel(xleft, y, color);
+			++xleft;
+		}
+		++y;
+	}
 }
 
 void lcd_draw_vrow( uint16 yup, uint16 ydown, uint16 x, uint8 color, uint16 width )
@@ -100,7 +106,7 @@ void lcd_draw_vrow( uint16 yup, uint16 ydown, uint16 x, uint8 color, uint16 widt
 
 void lcd_draw_box( uint16 xleft, uint16 yup, uint16 xright, uint16 ydown, uint8 color, uint16 width )
 {
-	...
+	// TODO para esto usaremos las funciones de lcd_draw_hrow() lcd_draw_vrow() para formar la caja
 }
 
 void lcd_putchar( uint16 x, uint16 y, uint8 color, char ch )
