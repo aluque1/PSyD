@@ -27,7 +27,7 @@ char uart0_getchar( void )
 void uart0_puts( char *s )
 {
 	while(s[0] != '\0'){
-		uart0_putchar(s++[0]);
+		uart0_putchar((*s)++);
 	}
 }
 
