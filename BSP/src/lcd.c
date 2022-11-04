@@ -53,7 +53,7 @@ uint8 lcd_status( void )
 
 void lcd_clear( void )
 {
-	uint8 x, y;
+	uint16 x, y;
 
 	for( x=0; x < 320; ++x) {
 		for( y=0; y < 240; ++y){
@@ -92,12 +92,15 @@ uint8 lcd_getpixel( uint16 x, uint16 y ) //Revisar
 
 void lcd_draw_hrow( uint16 xleft, uint16 xright, uint16 y, uint8 color, uint16 width )
 {
-	while(y < (y + width)){
+	uint16 aux = y, auxX = xleft;
+
+	while(aux < (y + width)){//Centrar o expandir hacia la abajo/derecha?
+		xleft = auxX;
 		while((xleft <= xright)){
 			lcd_putpixel(xleft, y, color);
 			++xleft;
 		}
-		++y;
+		++aux;
 	}
 }
 
@@ -148,12 +151,12 @@ void lcd_puts( uint16 x, uint16 y, uint8 color, char *s )
 
 void lcd_putint( uint16 x, uint16 y, uint8 color, int32 i )
 {
-
+	lcd_puts(x, y, color, int32ToString(i));
 }
 
 void lcd_puthex( uint16 x, uint16 y, uint8 color, uint32 i )
 {
-
+	lcd_puts(x, y, color, hexToString(i));
 }
 
 void lcd_putchar_x2( uint16 x, uint16 y, uint8 color, char ch )
@@ -192,10 +195,12 @@ void lcd_puts_x2( uint16 x, uint16 y, uint8 color, char *s )
 
 void lcd_putint_x2( uint16 x, uint16 y, uint8 color, int32 i )
 {
+	lcd_puts_x2(x, y, color, int32ToString(i));
 }
 
 void lcd_puthex_x2( uint16 x, uint16 y, uint8 color, uint32 i )
 {
+	lcd_puts_x2(x, y, color, hexToString(i));
 }
 
 void lcd_putWallpaper( uint8 *bmp )

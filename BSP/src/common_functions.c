@@ -45,7 +45,7 @@ int32 stringToInt32(char* num){
 
 	while(*num != '\0'){
 		resul *= 10;
-		resul += (((*num)++) - 48);
+		resul += ((*num++) - 48);
 	}
 
 	if(negative){
@@ -83,7 +83,7 @@ int32 stringToHex(char* num){
 		resul *= 16;
 		if(*num > 70) *num -= 32;
 		if(*num > 57) *num -= 7;
-		resul += (((*num)++) - 48);
+		resul += ((*num++) - 48);
 	}
 
 	return resul;
