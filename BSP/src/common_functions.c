@@ -7,10 +7,10 @@
 
 #include <common_functions.h>
 
-char* int32ToString(int32 i){
 
-	char buf[10 + 1];
-	char *p = buf + 10;
+char* int32ToString(int32 i){
+	static char buf[10 + 1];
+	char* p = buf + 10;
 	char signo;
 	boolean negative = 0;
 
@@ -33,7 +33,6 @@ char* int32ToString(int32 i){
 
 	return p;
 }
-
 int32 stringToInt32(char* num){
 	int32 resul = 0;
 	boolean negative = 0;
@@ -57,11 +56,10 @@ int32 stringToInt32(char* num){
 }
 
 char* hexToString(int32 i){
-	char buf[8 + 1];
+	static char buf[8 + 1];
 	char *p = buf + 8;
 
 	uint8 c;
-
 
 	*p = '\0';
 
@@ -72,6 +70,7 @@ char* hexToString(int32 i){
 		else
 			*--p = 'a' + c - 10;
 		i = i >> 4;
+		i &= (0x0fffffff);
 	} while( i );
 	return p;
 }

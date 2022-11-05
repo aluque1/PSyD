@@ -1,6 +1,7 @@
 
 #include <s3c44b0x.h>
 #include <lcd.h>
+#include <common_functions.h>
 
 extern uint8 font[];
 uint8 lcd_buffer[LCD_BUFFER_SIZE];

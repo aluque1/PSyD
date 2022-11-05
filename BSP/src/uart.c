@@ -24,10 +24,10 @@ char uart0_getchar( void )
 	return URXH0;
 }
 
-void uart0_puts( char *s )
+void uart0_puts(char *s)
 {
 	while(*s != '\0'){
-		uart0_putchar(*s++);
+		uart0_putchar(*(s++));
 	}
 }
 
@@ -42,10 +42,9 @@ void uart0_gets( char *s )
 	s[i] = '\0';
 }
 
-
 void uart0_putint( int32 i )
 {
-	uart0_puts( int32ToString(i) );
+	uart0_puts(int32ToString(i));
 }
 
 void uart0_puthex( uint32 i )
@@ -56,7 +55,7 @@ void uart0_puthex( uint32 i )
 
 int32 uart0_getint( void )
 {
-	char buf[10 + 1];
+	static char buf[10 + 1];
 	char *num = buf;
 
 	uart0_gets(num);
@@ -66,7 +65,7 @@ int32 uart0_getint( void )
 
 uint32 uart0_gethex( void )
 {
-	char buf[8 + 1];
+	static char buf[8 + 1];
 	char *num = buf;
 
 	uart0_gets(num);
