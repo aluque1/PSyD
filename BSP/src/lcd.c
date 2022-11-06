@@ -109,7 +109,7 @@ void lcd_draw_vrow( uint16 yup, uint16 ydown, uint16 x, uint8 color, uint16 widt
 	while(yup <= ydown){
 		x = auxX;
 		while(x <= (auxX + width)){
-			lcd_putpixel(yup, x++, color);
+			lcd_putpixel(x++, yup,color);
 		}
 		++yup;
 	}
