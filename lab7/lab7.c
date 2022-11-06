@@ -43,7 +43,7 @@ void main( void )
     uint8 backup[LCD_WIDTH*LCD_HEIGHT], *p;
     
     sys_init();
-    keypad_init();
+    //keypad_init();
     lcd_init();
     
     lcd_clear();

@@ -83,36 +83,35 @@ uint8 lcd_getpixel( uint16 x, uint16 y ) //Revisar
 	uint16 i;
 
 	i = x/2 + y*(LCD_WIDTH/2);
-	bit = (x%2)*4;
+	bit = (1 - x%2)*4;
 
 	byte = lcd_buffer[i] >> bit;
-	byte &= ~(0xF0);
+	byte &= 0x0F;
 
 	return byte;
 }
 
 void lcd_draw_hrow( uint16 xleft, uint16 xright, uint16 y, uint8 color, uint16 width )
 {
-	uint16 aux = y, auxX = xleft;
-
-	while(aux < (y + width)){//Centrar o expandir hacia la abajo/derecha?
-		xleft = auxX;
-		while((xleft <= xright)){
-			lcd_putpixel(xleft, y, color);
-			++xleft;
+	uint16 auxY = y - ((width - 1) >> 1);
+	while(xleft <= xright){
+		y = auxY;
+		while(y <= (auxY + width)){
+			lcd_putpixel(xleft, y++, color);
 		}
-		++aux;
+		++xleft;
 	}
 }
 
 void lcd_draw_vrow( uint16 yup, uint16 ydown, uint16 x, uint8 color, uint16 width )
 {
-	while(x < (x + width)){
-		while(ydown <= yup){
-			lcd_putpixel(ydown, x, color);
-			++ydown;
+	uint16 auxX = x - ((width - 1) >> 1);
+	while(yup <= ydown){
+		x = auxX;
+		while(x <= (auxX + width)){
+			lcd_putpixel(yup, x++, color);
 		}
-		++x;
+		++yup;
 	}
 }
 
