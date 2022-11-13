@@ -93,7 +93,11 @@ uint8 lcd_getpixel( uint16 x, uint16 y ) //Revisar
 
 void lcd_draw_hrow( uint16 xleft, uint16 xright, uint16 y, uint8 color, uint16 width )
 {
-	uint16 auxY = y - ((width - 1) >> 1);
+	uint16 corr = width >> 1;
+	uint16 auxY = (y - corr > 0 && y - corr < 240) ? y - corr : y;
+	xleft -=  (xleft - corr > 0) ? corr : 0;
+	xright +=  (xright + corr < 320) ? corr : 0;
+	if(width % 2) ++xright;
 	while(xleft <= xright){
 		y = auxY;
 		while(y <= (auxY + width)){
@@ -105,7 +109,11 @@ void lcd_draw_hrow( uint16 xleft, uint16 xright, uint16 y, uint8 color, uint16 w
 
 void lcd_draw_vrow( uint16 yup, uint16 ydown, uint16 x, uint8 color, uint16 width )
 {
-	uint16 auxX = x - ((width - 1) >> 1);
+	uint16 corr = width >> 1;
+	uint16 auxX = (x - corr > 0) ? x - corr : x;
+	yup -=  (yup - corr > 0) ? corr : 0;
+	ydown +=  (ydown + corr < 240) ? corr : 0;
+	if(width % 2) ++ydown;
 	while(yup <= ydown){
 		x = auxX;
 		while(x <= (auxX + width)){

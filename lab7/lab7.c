@@ -34,6 +34,8 @@
 #define CHAPLIN    ((uint8 *)0x0c250000)
 #define PULP       ((uint8 *)0x0c260000)
 #define MAPA       ((uint8 *)0x0c270000)
+#define MC         ((uint8 *)0x0c280000)
+#define DOOM       ((uint8 *)0x0c290000)
 
 void one_second_loop( void );
 
@@ -103,6 +105,10 @@ void main( void )
         lcd_putWallpaper( PULP );
         one_second_loop();
         lcd_putWallpaper( MAPA );
+        one_second_loop();
+        lcd_putWallpaper( MC );
+        one_second_loop();
+        lcd_putWallpaper( DOOM );
 
         /************************************/
 

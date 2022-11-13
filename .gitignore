@@ -54,6 +54,6 @@ dkms.conf
 # Folders
 .metadata/
 RemoteSystemsTempFiles/
-*/Debug/
+*/Debug*/
 *.project
 *.cproject
