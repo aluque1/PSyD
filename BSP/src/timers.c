@@ -1,4 +1,4 @@
-/*
+
 #include <s3c44b0x.h>
 #include <s3cev40.h>
 #include <timers.h>
@@ -9,26 +9,28 @@ static uint32 loop_ms = 0;
 static uint32 loop_s = 0;
 
 static void sw_delay_init( void );
+void wait_for_1s( void );
+void wait_for_1ms( void )
 
 void timers_init( void )
 {
-    TCFG0 = ...;
-    TCFG1 = ...;
+    TCFG0 = 0x0;
+    TCFG1 = 0x0;
 
-    TCNTB0 = ...;
-    TCMPB0 = ...;
-    TCNTB1 = ...;
-    TCMPB1 = ...;
-    TCNTB2 = ...;
-    TCMPB2 = ...;
-    TCNTB3 = ...;
-    TCMPB3 = ...;
-    TCNTB4 = ...;
-    TCMPB4 = ...;    
-    TCNTB5 = ...;
+    TCNTB0 = 0x0;
+    TCMPB0 = 0x0;
+    TCNTB1 = 0x0;
+    TCMPB1 = 0x0;
+    TCNTB2 = 0x0;
+    TCMPB2 = 0x0;
+    TCNTB3 = 0x0;
+    TCMPB3 = 0x0;
+    TCNTB4 = 0x0;
+    TCMPB4 = 0x0;
+    TCNTB5 = 0x0;
 
-    TCON = ...;
-    TCON = ...;
+    TCON = (1 << 1) | (1 << 9) | (1 << 13) | (1 << 17) | (1 << 21) | (1 << 25);
+    TCON = 0x0;
 
     sw_delay_init();
 }
@@ -47,7 +49,7 @@ void timer3_delay_ms( uint16 n )
 {
     for( ; n; n-- )
     {
-        ...
+        wait_for_1ms();
     }
 }
 
@@ -60,8 +62,12 @@ void sw_delay_ms( uint16 n )
 
 void timer3_delay_s( uint16 n )
 {
-    ...
+	for( ; n; n--){
+		wait_for_1s();
+	}
 }
+
+
 
 void sw_delay_s( uint16 n )
 {
@@ -105,7 +111,7 @@ uint16 timer3_timeout( )
 
 void timer0_open_tick( void (*isr)(void), uint16 tps )
 {
-    pISR_TIMER0 = ...;
+    pISR_TIMER0 = (uint32) isr ;
     I_ISPC      = ...;
     INTMSK     &= ...;
 
@@ -156,4 +162,25 @@ void timer0_close( void )
     INTMSK     |= ...;
     pISR_TIMER0 = ...;
 }
-*/
+
+void wait_for_1s( void )
+{
+	TCFG0 = (TCFG0 & ~(0xff << 8)) | (63 << 8);
+	TCFG1 = (TCFG1 & ~(0xf << 12)) | (4 << 12);
+	TCNTB3 = 31250;
+	TCON = (TCON & ~(0xf << 16)) | (1 << 17);
+	TCON = (TCON & ~(0xf << 16)) | (1 << 16);
+	while( !TCNTO3 );
+	while( TCNTO3 );
+}
+
+void wait_for_1ms( void )
+{
+	TCFG0 = (TCFG0 & ~(0xff << 8)) | (0 << 8);
+	TCFG1 = (TCFG1 & ~(0xf << 12)) | (0 << 12);
+	TCNTB3 = 32000;
+	TCON = (TCON & ~(0xf << 16)) | (1 << 17);
+	TCON = (TCON & ~(0xf << 16)) | (1 << 16);
+	while( !TCNTO3 );
+	while( TCNTO3 );
+}
