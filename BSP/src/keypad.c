@@ -1,4 +1,4 @@
-/*
+
 #include <s3c44b0x.h>
 #include <s3cev40.h>
 #include <timers.h>
@@ -22,7 +22,7 @@ uint8 keypad_scan( void )
         else if( (aux & 0x1) == 0 )
             return KEYPAD_KEY3;
     }
-	aux = *( KEYPAD_ADDR + ... );
+	aux = *( KEYPAD_ADDR + 0x18); // revisar
 	if( (aux & 0x0f) != 0x0f )
 	{
 		if( (aux & 0x8) == 0 )
@@ -34,24 +34,24 @@ uint8 keypad_scan( void )
 		else if( (aux & 0x1) == 0 )
 			return KEYPAD_KEY7;
 	}
-    ...
+    aux = *( KEYPAD_ADDR + 0x14); // revisar
 
     return KEYPAD_FAILURE;
 }
 
 uint8 keypad_pressed( void )
 {
-    ...
+    
 }
 
 void keypad_open( void (*isr)(void) )
 {
-    ...    
+
 }
 
 void keypad_close( void )
 {
-    ...    
+
 }
 
 #if KEYPAD_IO_METHOD == POOLING
@@ -64,17 +64,17 @@ void keypad_init( void )
 
 uint8 keypad_getchar( void )
 {
-    ...    
+
 }
 
 uint8 keypad_getchartime( uint16 *ms )
 {
-    ...    
+
 }
 
 uint8 keypad_timeout_getchar( uint16 ms )
 {
-    ...    
+
 }
 
 #elif KEYPAD_IO_METHOD == INTERRUPT
@@ -136,4 +136,4 @@ static void timer0_up_isr( void )
 	#error No se ha definido el metodo de E/S del keypad
 #endif
 
-*/
+

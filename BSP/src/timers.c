@@ -10,7 +10,7 @@ static uint32 loop_s = 0;
 
 static void sw_delay_init( void );
 void wait_for_1s( void );
-void wait_for_1ms( void )
+void wait_for_1ms( void );
 
 void timers_init( void )
 {
@@ -112,55 +112,55 @@ uint16 timer3_timeout( )
 void timer0_open_tick( void (*isr)(void), uint16 tps )
 {
     pISR_TIMER0 = (uint32) isr ;
-    I_ISPC      = ...;
-    INTMSK     &= ...;
-
+    I_ISPC      = BIT_TIMER0; // revisar
+    INTMSK     &= ~(BIT_GLOBAL | BIT_TIMER0); // revisar
+    // N Y D deben ser lo minimo posible
     if( tps > 0 && tps <= 10 ) {
-        TCFG0  = ...;
-        TCFG1  = ...;
+        TCFG0  = (TCFG0 & ~(0xff << 0)) | (199 << 0); // N + 1 = 200,
+        TCFG1  &= ~(0xf << 0) | (1 << 0); // D = 4
         TCNTB0 = (40000U / tps);
     } else if( tps > 10 && tps <= 100 ) {
-        TCFG0  = ...;
-        TCFG1  = ...;
+        TCFG0  = (TCFG0 & ~(0xff << 0)) | (39 << 0); // N + 1 = 40
+        TCFG1  = (TCFG1 & ~(0xf << 0)) | (1 << 0); // D = 4
         TCNTB0 = (400000U / (uint32) tps);
     } else if( tps > 100 && tps <= 1000 ) {
-        TCFG0  = ...;
-        TCFG1  = ...;
+        TCFG0  = (TCFG0 & ~(0xff << 0)) | (3 << 0); // N + 1 = 4
+        TCFG1  = (TCFG1 & ~(0xf << 0)) | (1 << 0); // D = 4
         TCNTB0 = (4000000U / (uint32) tps);
     } else if ( tps > 1000 ) {
-        TCFG0  = ...;
-        TCFG1  = ...;
+        TCFG0  = (TCFG0 & ~(0xff << 0)) | (3 << 0); // N + 1 = 4
+        TCFG1  = (TCFG1 & ~(0xf << 0)) | (0 << 0); // D = 2
         TCNTB0 = (32000000U / (uint32) tps);
     }
 
-    TCON = ...;
-    TCON = ...;
+    TCON = (TCON & ~(0xf << 0)) | (1 << 1);
+    TCON = (TCON & ~(0xf << 0)) | (1 << 0);
 }
 
 void timer0_open_ms( void (*isr)(void), uint16 ms, uint8 mode )
 {
-    pISR_TIMER0 = ...;
-    I_ISPC      = ...;
-    INTMSK     &= ...;
+    pISR_TIMER0 = (uint32) isr ;
+    I_ISPC      = BIT_TIMER0;
+    INTMSK     &= ~(BIT_GLOBAL | BIT_TIMER0);
 
-    TCFG0 = ...;
-    TCFG1 = ...;
+    TCFG0 = (TCFG0 & ~(0xff << 0)) | (199 << 0);
+    TCFG1 = (TCFG1 & ~(0xf << 0)) | (4 << 0);
     TCNTB0 = 10*ms;
 
-    TCON = ...;
-    TCON = ...;
+    TCON = (TCON & ~(0xf << 0)) | (1 << 1);
+    TCON = (TCON & ~(0xf << 0)) | (1 << 0);
 }
 
 void timer0_close( void )
 {
-    TCNTB0 = ...;
-    TCMPB0 = ...;
+    TCNTB0 = 0;
+    TCMPB0 = 0;
 
-    TCON = ...;
-    TCON = ...;
+    TCON = (TCON & ~(0xf << 0)) | (1 << 1);
+    TCON = (TCON & ~(0xf << 0)) | (0 << 0);
     
-    INTMSK     |= ...;
-    pISR_TIMER0 = ...;
+    INTMSK     |= (BIT_GLOBAL | BIT_TIMER0);
+    pISR_TIMER0 = (uint32) isr_TIMER0_dummy;
 }
 
 void wait_for_1s( void )
