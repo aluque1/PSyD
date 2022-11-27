@@ -1,4 +1,3 @@
-/*
 #include <s3c44b0x.h>
 #include <s3cev40.h>
 #include <pbs.h>
@@ -13,9 +12,9 @@ void pbs_init( void )
 
 uint8 pb_scan( void )
 {
-    if( ... )
+    if( !(PDATG & PB_LEFT) )
         return PB_LEFT;
-    else if( ... )
+    else if( !(PDATG & PB_RIGHT) )
         return PB_RIGHT;
     else
         return PB_FAILURE;
@@ -23,7 +22,10 @@ uint8 pb_scan( void )
 
 uint8 pb_pressed( void )
 {
-    ...
+    if( !(PDATG & PB_LEFT) || !(PDATG & PB_RIGHT) )
+        return TRUE;
+    else
+        return FALSE; //???
 }
 
 uint8 pb_getchar( void )
@@ -35,7 +37,7 @@ uint8 pb_getchartime( uint16 *ms )
 {
     uint8 scancode;
     
-    while( ... );
+    while( (PDATG & PB_LEFT) && (PDATG & PB_RIGHT))
     timer3_start();
     sw_delay_ms( PB_KEYDOWN_DELAY );
     
@@ -50,20 +52,19 @@ uint8 pb_getchartime( uint16 *ms )
 
 uint8 pb_timeout_getchar( uint16 ms )
 {
-    ...
+
 }
 
 void pbs_open( void (*isr)(void) )
 {
-    pISR_PB   = ...;
-    EXTINTPND = ...;
-    I_ISPC    = ...;
-    INTMSK   &= ...;
+    pISR_PB   = (uint32) isr;
+    EXTINTPND = 0xF;
+    I_ISPC    = BIT_PB;
+    INTMSK   &= ~(BIT_GLOBAL | BIT_PB);
 }
 
 void pbs_close( void )
 {
-    INTMSK  |= ...;
-    pISR_PB  = ...;
+    INTMSK  |= BIT_PB;
+    pISR_PB  = (uint32) isr_PB_dummy;
 }
-*/
