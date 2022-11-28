@@ -1,4 +1,3 @@
-
 #include <s3c44b0x.h>
 #include <s3cev40.h>
 #include <timers.h>
@@ -9,39 +8,29 @@ extern void isr_KEYPAD_dummy( void );
 uint8 keypad_scan( void )
 {
     uint8 aux;
+	uint8 i = 0;
+	uint8 j = 0;
+	uint8 keypadArr[16] = { KEYPAD_KEY0, KEYPAD_KEY1, KEYPAD_KEY2, KEYPAD_KEY3, KEYPAD_KEY4,
+	KEYPAD_KEY5, KEYPAD_KEY6, KEYPAD_KEY7, KEYPAD_KEY8, KEYPAD_KEY9, KEYPAD_KEYA, KEYPAD_KEYB,
+	KEYPAD_KEYC, KEYPAD_KEYD, KEYPAD_KEYE, KEYPAD_KEYF };
 
-    aux = *( KEYPAD_ADDR + 0x1c );
-    if( (aux & 0x0f) != 0x0f )
-    {
-        if( (aux & 0x8) == 0 )
-            return KEYPAD_KEY0;
-        else if( (aux & 0x4) == 0 )
-            return KEYPAD_KEY1;
-        else if( (aux & 0x2) == 0 )
-            return KEYPAD_KEY2;
-        else if( (aux & 0x1) == 0 )
-            return KEYPAD_KEY3;
-    }
-	aux = *( KEYPAD_ADDR + 0x18); // revisar
-	if( (aux & 0x0f) != 0x0f )
-	{
-		if( (aux & 0x8) == 0 )
-			return KEYPAD_KEY4;
-		else if( (aux & 0x4) == 0 )
-			return KEYPAD_KEY5;
-		else if( (aux & 0x2) == 0 )
-			return KEYPAD_KEY6;
-		else if( (aux & 0x1) == 0 )
-			return KEYPAD_KEY7;
+	while(i < 4){
+		aux = *(KEYPAD_ADDR + (0x1E ^ (1 << i + 1)) );
+		j = 0;
+		if( (aux & 0x0f) != 0x0f ){
+			while(aux & (0x8 >> j)){
+				j++;
+			}
+			return keypadArr[(i*4) + j];
+		}
+		++i;
 	}
-    aux = *( KEYPAD_ADDR + 0x14); // revisar
-
     return KEYPAD_FAILURE;
 }
 
 uint8 keypad_pressed( void )
 {
-    
+	    
 }
 
 void keypad_open( void (*isr)(void) )

@@ -22,28 +22,32 @@ uint8 pb_scan( void )
 
 uint8 pb_pressed( void )
 {
-    if( !(PDATG & PB_LEFT) || !(PDATG & PB_RIGHT) )
+    if( !((PDATG & PB_LEFT) | (PDATG & PB_RIGHT)))
         return TRUE;
     else
-        return FALSE; //???
+        return FALSE;
 }
 
 uint8 pb_getchar( void )
 {
-    ...
+    uint8 pb;
+    while( !pb_pressed() );
+    pb = pb_scan();
+    while( pb_pressed() );
+    return pb;
 }
 
 uint8 pb_getchartime( uint16 *ms )
 {
     uint8 scancode;
     
-    while( (PDATG & PB_LEFT) && (PDATG & PB_RIGHT))
+    while( !pb_pressed() );
     timer3_start();
     sw_delay_ms( PB_KEYDOWN_DELAY );
     
     scancode = pb_scan();
     
-    while( ... );
+    while( pb_pressed() );
     *ms = timer3_stop() / 10;
     sw_delay_ms( PB_KEYUP_DELAY );
 
@@ -52,7 +56,18 @@ uint8 pb_getchartime( uint16 *ms )
 
 uint8 pb_timeout_getchar( uint16 ms )
 {
+    uint8 scancode;
 
+    timer3_start_timeout(ms * 10);
+    while( !pb_pressed() )
+    {
+        if( timer3_timeout() )
+            return PB_TIMEOUT;
+    }
+    
+    scancode = pb_scan();
+    while( pb_pressed() );
+    return scancode;
 }
 
 void pbs_open( void (*isr)(void) )
