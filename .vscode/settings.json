@@ -1,0 +1,6 @@
+{
+    "files.associations": {
+        "timers.h": "c",
+        "keypad.h": "c"
+    }
+}

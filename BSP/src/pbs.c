@@ -32,8 +32,10 @@ uint8 pb_getchar( void )
 {
     uint8 pb;
     while( !pb_pressed() );
+    sw_delay_ms( PB_KEYDOWN_DELAY );
     pb = pb_scan();
     while( pb_pressed() );
+    sw_delay_ms( PB_KEYUP_DELAY );
     return pb;
 }
 
