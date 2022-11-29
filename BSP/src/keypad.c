@@ -16,7 +16,7 @@ uint8 keypad_scan( void )
 
 	while(i < 4)
 	{
-		aux = *(KEYPAD_ADDR + (0x1E ^ (1 << i + 1)) );
+		aux = *(KEYPAD_ADDR + (0x1E ^ (1 << (i + 1))) );
 		j = 0;
 		if( (aux & 0x0f) != 0x0f )
 		{
@@ -35,7 +35,7 @@ uint8 keypad_pressed( void )
 
 	while(i < 4)
 	{
-		aux = *(KEYPAD_ADDR + (0x1E ^ (1 << i++ + 1)) );
+		aux = *(KEYPAD_ADDR + (0x1E ^ (1 << (i++ + 1))) );
 		if( (aux & 0x0f) != 0x0f )
 			return TRUE;
 	}
@@ -51,7 +51,8 @@ void keypad_open( void (*isr)(void) )
 
 void keypad_close( void )
 {
-
+	INTMSK  |= BIT_KEYPAD;
+	pISR_KEYPAD = (uint32)isr_KEYPAD_dummy;
 }
 
 #if KEYPAD_IO_METHOD == POOLING
@@ -60,7 +61,7 @@ void keypad_close( void )
 void keypad_init( void )
 {
     timers_init();
-};
+}
 
 uint8 keypad_getchar( void )
 {
@@ -75,12 +76,36 @@ uint8 keypad_getchar( void )
 
 uint8 keypad_getchartime( uint16 *ms )
 {
+	uint8 scancode;
 
+	while( !keypad_pressed() );
+	timer3_start();
+	sw_delay_ms( KEYPAD_KEYDOWN_DELAY );
+
+	scancode = keypad_scan();
+
+	while( keypad_pressed() );
+	*ms = timer3_stop() / 10;
+	sw_delay_ms( KEYPAD_KEYUP_DELAY );
+
+	return scancode;
 }
 
 uint8 keypad_timeout_getchar( uint16 ms )
 {
+	uint8 scancode;
 
+    timer3_start_timeout(ms * 10);
+    while( !keypad_pressed() )
+    {
+        if( timer3_timeout() )
+            return KEYPAD_TIMEOUT;
+    }
+    sw_delay_ms( KEYPAD_KEYDOWN_DELAY );
+    scancode = keypad_scan();
+    while( keypad_pressed() );
+    sw_delay_ms( KEYPAD_KEYUP_DELAY );
+    return scancode;
 }
 
 #elif KEYPAD_IO_METHOD == INTERRUPT

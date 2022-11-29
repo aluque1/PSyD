@@ -22,10 +22,10 @@ uint8 pb_scan( void )
 
 uint8 pb_pressed( void )
 {
-    if( !((PDATG & PB_LEFT) | (PDATG & PB_RIGHT)))
-        return TRUE;
-    else
+    if( (PDATG & PB_LEFT) && (PDATG & PB_RIGHT))
         return FALSE;
+    else
+        return TRUE;
 }
 
 uint8 pb_getchar( void )
@@ -66,9 +66,10 @@ uint8 pb_timeout_getchar( uint16 ms )
         if( timer3_timeout() )
             return PB_TIMEOUT;
     }
-    
+    sw_delay_ms( PB_KEYDOWN_DELAY );
     scancode = pb_scan();
     while( pb_pressed() );
+    sw_delay_ms( PB_KEYUP_DELAY );
     return scancode;
 }
 

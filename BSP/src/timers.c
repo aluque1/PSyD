@@ -117,24 +117,24 @@ void timer0_open_tick( void (*isr)(void), uint16 tps )
     // N Y D deben ser lo minimo posible
     if( tps > 0 && tps <= 10 ) {
         TCFG0  = (TCFG0 & ~(0xff << 0)) | (199 << 0); // N + 1 = 200,
-        TCFG1  &= ~(0xf << 0) | (1 << 0); // D = 4
+        TCFG1  = (TCFG1 & ~(0xf << 0)) | (2 << 0); // D = 8
         TCNTB0 = (40000U / tps);
     } else if( tps > 10 && tps <= 100 ) {
         TCFG0  = (TCFG0 & ~(0xff << 0)) | (39 << 0); // N + 1 = 40
         TCFG1  = (TCFG1 & ~(0xf << 0)) | (1 << 0); // D = 4
-        TCNTB0 = (400000U / (uint32) tps);
+        TCNTB0 = (400000U / tps);
     } else if( tps > 100 && tps <= 1000 ) {
         TCFG0  = (TCFG0 & ~(0xff << 0)) | (3 << 0); // N + 1 = 4
         TCFG1  = (TCFG1 & ~(0xf << 0)) | (1 << 0); // D = 4
-        TCNTB0 = (4000000U / (uint32) tps);
+        TCNTB0 = (4000000U / tps);
     } else if ( tps > 1000 ) {
-        TCFG0  = (TCFG0 & ~(0xff << 0)) | (3 << 0); // N + 1 = 4
+        TCFG0  = (TCFG0 & ~(0xff << 0)) | (1 << 0); // N + 1 = 1
         TCFG1  = (TCFG1 & ~(0xf << 0)) | (0 << 0); // D = 2
-        TCNTB0 = (32000000U / (uint32) tps);
+        TCNTB0 = (32000000U / tps);
     }
 
-    TCON = (TCON & ~(0xf << 0)) | (1 << 1);
-    TCON = (TCON & ~(0xf << 0)) | (1 << 0);
+    TCON = (TCON & ~(0xf << 0)) | (1 << 3) | (1 << 1);
+    TCON = (TCON & ~(0xf << 0)) | (1 << 3) | (1 << 0);
 }
 
 void timer0_open_ms( void (*isr)(void), uint16 ms, uint8 mode )
@@ -147,8 +147,8 @@ void timer0_open_ms( void (*isr)(void), uint16 ms, uint8 mode )
     TCFG1 = (TCFG1 & ~(0xf << 0)) | (4 << 0);
     TCNTB0 = 10*ms;
 
-    TCON = (TCON & ~(0xf << 0)) | (1 << 1);
-    TCON = (TCON & ~(0xf << 0)) | (mode & 0x0F);
+    TCON = (TCON & ~(0xf << 0)) | (mode << 3) | (1 << 1);
+    TCON = (TCON & ~(0xf << 0)) | (mode << 3) | (1 << 0);
 }
 
 void timer0_close( void )

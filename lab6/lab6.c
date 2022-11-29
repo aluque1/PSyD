@@ -44,7 +44,7 @@ void main( void )
     keypad_init();
     pbs_init();
     
-      /************************************/
+      /***********************************/
 
     uart0_puts( "\n\n" );
     uart0_puts( "TEST DE TEMPORIZADORES\n" );
