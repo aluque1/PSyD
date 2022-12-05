@@ -8,11 +8,6 @@
 #define READ  (1)
 #define WRITE (0)
 
-void at24c04_clear( void )
-{
-    // TODO hacer el clear de la EEPROM
-}
-
 void at24c04_bytewrite( uint16 addr, uint8 data )
 {
     uint8 page;
@@ -78,3 +73,9 @@ void at24c04_store( uint8 *buffer )
         iic_stop( 5 );   
     }
 }
+
+
+void at24c04_clear( void )
+{
+    at24c04_store(0);    
+}   
