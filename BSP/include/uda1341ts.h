@@ -4,15 +4,15 @@
 **    uda1341ts.h  24/5/2013
 **
 **    (c) J.M. Mendias
-**    Programación de Sistemas y Dispositivos
-**    Facultad de Informática. Universidad Complutense de Madrid
+**    Programaciï¿½n de Sistemas y Dispositivos
+**    Facultad de Informï¿½tica. Universidad Complutense de Madrid
 **
-**  Propósito:
+**  Propï¿½sito:
 **    Contiene las definiciones de los prototipos de funciones
 **    para la reproduccion/grabacion de sonido usando el audio 
 **    codec UDA1341TS
 **
-**  Notas de diseño:
+**  Notas de diseï¿½o:
 **
 **-----------------------------------------------------------------*/
 
@@ -25,7 +25,7 @@
 #define UDA_ADC (2)
 
 #define VOL_MAX (0x3F)
-#define VOL_MED    (0x20)
+#define VOL_MED (0x20)
 #define VOL_MIN (0x0)
 
 #define MUTE_ON  (1)
@@ -34,13 +34,13 @@
 /*
 ** Inicializa el interfaz L3  
 ** Resetea el audio codec 
-** Configura el audio codec según los siguientes parámetros:
+** Configura el audio codec segï¿½n los siguientes parï¿½metros:
 **   CODECLK = 256fs
-**   Protocolo de trasmisión de audio: iis
-**   Volumen de reproducción máximo
+**   Protocolo de trasmisiï¿½n de audio: iis
+**   Volumen de reproducciï¿½n mï¿½ximo
 **   Selecciona el canal 1 como entrada
 **   Habilita el ADC y DAC con 6 dB de ganancia de entrada
-**   Fija el volumen máximo
+**   Fija el volumen mï¿½ximo
 */
 void uda1341ts_init( void );
 
@@ -65,12 +65,12 @@ void uda1341ts_off( uint8 converter );
 uint8 uda1341ts_status( uint8 converter );
 
 /*
-** Fija el volumen de reproducción
+** Fija el volumen de reproducciï¿½n
 */
 void uda1341ts_setvol( uint8 vol );
 
 /*
-** Devuelve el volumen de reproducción
+** Devuelve el volumen de reproducciï¿½n
 */
 uint8 uda1341ts_getvol( void );
 

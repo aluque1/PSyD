@@ -1,4 +1,3 @@
-/*
 #include <l3.h>
 #include <uda1341ts.h>
 
@@ -34,31 +33,37 @@ void uda1341ts_init( void )
 
 void uda1341ts_mute( uint8 on )
 {
-    ...  
+    L3_putByte((ADDRESS << 2) | DATA0, L3_ADDR_MODE);
+    L3_putByte(0x2 << 6 | ((on & 1) << 2), L3_DATA_MODE);
 };
 
 void uda1341ts_on( uint8 converter )
 {
-    ...  
+    state |= (1 << 7) | converter;
+    L3_putByte( (ADDRESS << 2) | STATUS, L3_ADDR_MODE );
+    L3_putByte(state, L3_DATA_MODE);
 }
 
 void uda1341ts_off( uint8 converter )
 {
-    ...  
+    state &= ~converter;
+    L3_putByte( (ADDRESS << 2) | STATUS, L3_ADDR_MODE );
+    L3_putByte(state, L3_DATA_MODE);
 }
 
 uint8 uda1341ts_status( uint8 converter )
 {
-    ...  
+    return (state >> (converter - 1)) & 1;
 }
 
 void uda1341ts_setvol( uint8 vol )
 {
-    ...  
+    L3_putByte((ADDRESS << 2) | DATA0, L3_ADDR_MODE);
+    L3_putByte(vol & 0x3F, L3_DATA_MODE);
+    volume = vol;
 };
 
 uint8 uda1341ts_getvol( void )
 {
-    ...  
+    return volume;
 };
-*/
