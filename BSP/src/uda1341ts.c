@@ -59,7 +59,7 @@ uint8 uda1341ts_status( uint8 converter )
 void uda1341ts_setvol( uint8 vol )
 {
     L3_putByte((ADDRESS << 2) | DATA0, L3_ADDR_MODE);
-    L3_putByte(vol & 0x3F, L3_DATA_MODE);
+    L3_putByte(0x3F & (0x3F - vol), L3_DATA_MODE);
     volume = vol;
 };
 

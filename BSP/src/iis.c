@@ -69,9 +69,16 @@ void iis_play( int16 *buffer, uint32 length, uint8 loop )
         BDIDES0  = (1 << 30) | (3 << 28) | (uint32) &IISFIF;
         BDCON0   = 0;
         BDICNT0  = (1 << 30) | (1 << 26) | (0xfffff & length);
-        if (loop) BDCCNT0 |= (1 << 21);
-        else BDCCNT0 |= (3 << 22);
         BDICNT0 |= (1 << 20);
+        if (loop){
+            BDICNT0 |= (1 << 21);
+            BDICNT0 &= ~(3 << 22);
+        } 
+        else{
+            BDICNT0 &= ~(1 << 21);
+            BDICNT0 |= (3 << 22);
+        } 
+        
 
         IISMOD = (IISMOD & ~(3 << 6)) | (2 << 6);
 
