@@ -21,7 +21,7 @@ uint8 keypad_scan( void )
 		if( (aux & 0x0f) != 0x0f )
 		{
 			while(aux & (0x8 >> j++));
-			return keypadArr[(i*4) + j];
+			return keypadArr[(i*4) + (j - 1)];
 		}
 		++i;
 	}
