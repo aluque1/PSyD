@@ -27,7 +27,7 @@ void iic_start( uint8 mode, uint8 byte )
     IICDS   = byte; // Escribimos el dato en el registro de transmision
     IICSTAT = (((mode & 0x3) << 6)| 0x20);// Escribimos un 1 en ICCSTAT[5] (esto genera el start condition) y ponemos el modo IICSTAT[7:6] como se pasa por arg
     IICCON &= ~(1 << 4); // Arrancamos la transmision del dato (escribir 0 en IICCON[4])
-    while((IICSTAT & 0)); // Espermos a que termine la transmision (recepcion de ACK)
+    while(IICCON & (1 << 4)); // Espermos a que termine la transmision TODO por si acaso no va hacer (IICCON & (1 << 4)) == 1
 }
 
 
@@ -35,14 +35,16 @@ void iic_putByte( uint8 byte )
 {
     IICDS   = byte;
     IICCON &= ~(1 << 4);
-    while((IICSTAT & 0));    
+    while(IICCON & (1 << 4));    
 }
 
 uint8 iic_getByte( uint8 ack )
 {
-    IICCON  = ((ack & 1) << 7);
+    IICCON &= ~(1 << 7); // ponemos a 0 el bit 7 
+    IICCON |= ((ack & 1) << 7); // ponemos el primer bit de ack en el bit 7
+
     IICCON &= ~(1 << 4);
-    while((IICSTAT & 0)); // espera la recepcion de un dato 
+    while(IICCON & (1 << 4)); // espera la recepcion de un dato 
     return IICDS;
 }
 

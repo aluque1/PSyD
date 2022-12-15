@@ -28,7 +28,7 @@ void at24c04_byteread( uint16 addr, uint8 *data )
 
     iic_start(IIC_Tx, DEVICE_ADDR | (page << 1) | WRITE);
     iic_putByte(addr & 0xFF);
-    iic_start(IIC_Tx, DEVICE_ADDR | (page << 1) | READ);
+    iic_start(IIC_Rx, DEVICE_ADDR | (page << 1) | READ);
     *data = iic_getByte(0);
     iic_stop( 5 );
 
@@ -47,7 +47,7 @@ void at24c04_load( uint8 *buffer )
         page = (addr & 0x100) >> 8;
         iic_start(IIC_Tx, DEVICE_ADDR | (page << 1) | WRITE);
         iic_putByte(addr & 0xFF);
-        iic_start(IIC_Tx, DEVICE_ADDR | (page << 1) | READ);
+        iic_start(IIC_Rx, DEVICE_ADDR | (page << 1) | READ);
         for (j = 0; j < 16; j++)
         {
             buffer[index] = iic_getByte(j < 15);

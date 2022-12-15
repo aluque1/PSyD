@@ -1,6 +1,7 @@
 {
     "files.associations": {
         "timers.h": "c",
-        "keypad.h": "c"
+        "keypad.h": "c",
+        "s3c44b0x.h": "c"
     }
 }
