@@ -44,7 +44,7 @@ uint8 iic_getByte( uint8 ack )
     IICCON |= ((ack & 1) << 7); // ponemos el primer bit de ack en el bit 7
 
     IICCON &= ~(1 << 4);
-    while(IICCON & (1 << 4) == 0); // espera la recepcion de un dato
+    while((IICCON & (1 << 4)) == 0); // espera la recepcion de un dato
     return IICDS;
 }
 

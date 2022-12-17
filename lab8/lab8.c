@@ -91,6 +91,28 @@ void main( void )
               uart0_putchar( ( (31<buffer[(i<<4)+j]) && (buffer[(i<<4)+j]<127) ? buffer[(i<<4)+j] : '.' ) );
     };
 
+    // BORRAR ESTO
+    uart0_puts( "\nVolcado su puta madre (secuencial):\n" );
+
+    for( i=0; i < (AT24C04_DEPTH>>4); i++ ){
+            uart0_puts( "\n" );
+            if( i<<4 <= 0xf )
+                uart0_puts( "00" );
+            else if( i<<4 <= 0xff )
+                uart0_putchar( '0' );
+            uart0_puthex( i<<4 );
+            uart0_puts( "h:"  );
+            for( j=0; j<16; j++ )
+            {
+                if( buffer_aux[(i<<4)+j] <= 0xf )
+                    uart0_putchar( '0' );
+                uart0_puthex( buffer_aux[(i<<4)+j] );
+            }
+            uart0_puts( " ; " );
+            for( j=0; j<16; j++ )
+                  uart0_putchar( ( (31<buffer_aux[(i<<4)+j]) && (buffer_aux[(i<<4)+j]<127) ? buffer_aux[(i<<4)+j] : '.' ) );
+        };
+
     /************************************/
 
     uart0_puts( "\n\nModificacion del contenido de la memoria IIC-EEPROM AT24C04:\n" );    
