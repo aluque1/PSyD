@@ -4,13 +4,13 @@
 **    lab8.c  17/5/2013
 **
 **    (c) J.M. Mendias
-**    Programación de Sistemas y Dispositivos
-**    Facultad de Informática. Universidad Complutense de Madrid
+**    Programaciï¿½n de Sistemas y Dispositivos
+**    Facultad de Informï¿½tica. Universidad Complutense de Madrid
 **
-**  Propósito:
+**  Propï¿½sito:
 **    Test del laboratorio 8
 **
-**  Notas de diseño:
+**  Notas de diseï¿½o:
 **
 **-----------------------------------------------------------------*/
 
@@ -25,10 +25,10 @@
 
 void main( void )
 {
-    uint8 buffer[AT24C04_DEPTH], buffer_aux[AT24C04_DEPTH];
+    static uint8 buffer[AT24C04_DEPTH], buffer_aux[AT24C04_DEPTH];
     uint16 i, j, delay;
 
-    uint32 addr, data;
+    static uint32 addr, data;
     
     sys_init();
     uart0_init();

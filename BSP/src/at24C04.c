@@ -1,4 +1,3 @@
-
 #include <s3c44b0x.h>
 #include <at24c04.h>
 #include <iic.h>
@@ -10,7 +9,7 @@
 
 void at24c04_bytewrite( uint16 addr, uint8 data )
 {
-    uint8 page;
+    static uint8 page;
     
     page = (addr & 0x100) >> 8; 
 
@@ -22,7 +21,7 @@ void at24c04_bytewrite( uint16 addr, uint8 data )
     
 void at24c04_byteread( uint16 addr, uint8 *data )
 {
-    uint8 page;
+    static uint8 page;
     
     page = (addr & 0x100) >> 8; 
 
@@ -34,37 +33,32 @@ void at24c04_byteread( uint16 addr, uint8 *data )
 
 }
 
-void at24c04_load( uint8 *buffer )
+void at24c04_load(uint8 *buffer )
 {
-    uint16 addr = 0;
-    uint8 page = 0;
-    uint16 index = 0;
-    uint8 i;
-    uint8 j;
+    static uint16 addr = 0;
+    static uint8 page = 0;
+    static uint16 index;
 
-    for (i = 0; i < 32; ++i)
+    page = (addr & 0x100) >> 8;
+    iic_start(IIC_Tx, DEVICE_ADDR | (page << 1) | WRITE);
+    iic_putByte(addr & 0xFF);
+    iic_start(IIC_Rx, DEVICE_ADDR | (page << 1) | READ);
+
+    for (index = 0; index < AT24C04_DEPTH; ++index)
     {
-        page = (addr & 0x100) >> 8;
-        iic_start(IIC_Tx, DEVICE_ADDR | (page << 1) | WRITE);
-        iic_putByte(addr & 0xFF);
-        iic_start(IIC_Rx, DEVICE_ADDR | (page << 1) | READ);
-        for (j = 0; j < 16; j++)
-        {
-            buffer[index] = iic_getByte(j < 15);
-            ++index;
-        }
-        iic_stop( 5 );  
-        addr += 16;
+        buffer[index] = iic_getByte(index < (AT24C04_DEPTH - 1));
     }
+
+    iic_stop( 5 );
 }
 
 void at24c04_store( uint8 *buffer )
 { 
-    uint16 addr = 0;
-    uint8 page = 0;
-    uint16 index = 0;
-    uint8 i;
-    uint8 j;
+    static uint16 addr = 0;
+    static uint8 page = 0;
+    static uint16 index = 0;
+    static uint8 i;
+    static uint8 j;
 
     for (i = 0; i < 32; ++i)
     {
