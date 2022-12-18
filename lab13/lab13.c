@@ -274,6 +274,8 @@ void Task9(void) /* Muestra cada segundo en el LCD los segundos transcurridos */
     static boolean init = TRUE;
     static char* str = "Segundos: ";
     static uint32 secs;
+    static uint32 sizeCounter = 10;
+    static uint8 multiplier = 1;
 
     if (init)
     {
@@ -283,6 +285,13 @@ void Task9(void) /* Muestra cada segundo en el LCD los segundos transcurridos */
     }
     else
     {
+        if (secs == sizeCounter)
+        {
+            multiplier++;
+            sizeCounter*=10;
+            lcd_draw_box(5, 5, 95 + (8*multiplier), 23, WHITE, 1);
+        }
+        lcd_draw_box(4, 4, 92 + (8*multiplier), 24, BLACK, 1);
         lcd_puts(8, 8, BLACK, str);
         lcd_putint(88, 8, BLACK, secs++);
     }
