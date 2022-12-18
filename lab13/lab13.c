@@ -4,14 +4,14 @@
 **    lab13.c  12/1/2021
 **
 **    (c) J.M. Mendias
-**    Programación de Sistemas y Dispositivos
-**    Facultad de Informática. Universidad Complutense de Madrid
+**    Programaciï¿½n de Sistemas y Dispositivos
+**    Facultad de Informï¿½tica. Universidad Complutense de Madrid
 **
-**  Propósito:
-**    Ejemplo de una aplicación bajo un kernel de planificación
+**  Propï¿½sito:
+**    Ejemplo de una aplicaciï¿½n bajo un kernel de planificaciï¿½n
 **    no expropiativa de tareas cooperativas multiestado
 **
-**  Notas de diseño:
+**  Notas de diseï¿½o:
 **
 **-----------------------------------------------------------------*/
 
@@ -28,16 +28,19 @@
 #include <keypad.h>
 #include <timers.h>
 #include <rtc.h>
+#include <lcd.h>
+#include <common_functions.h>
 
-/* Declaración de recursos */
+/* Declaraciï¿½n de recursos */
 
 uint8 scancode;
 boolean flagTask5;
 boolean flagTask6;
+boolean flagTask8;
 
 volatile boolean flagPb;
 
-/* Declaración de tareas */
+/* Declaraciï¿½n de tareas */
 
 void Task1( void );
 void Task2( void );
@@ -46,8 +49,11 @@ void Task4( void );
 void Task5( void );
 void Task6( void );
 void Task7( void );
+void Task8( void );
+void Task9( void );
 
-/* Declaración de RTI */
+
+/* Declaraciï¿½n de RTI */
 
 void isr_pb( void ) __attribute__ ((interrupt ("IRQ")));
 
@@ -63,30 +69,36 @@ void main( void )
     rtc_init();
     pbs_init();
     keypad_init();
+    lcd_init();
+    lcd_clear();
+    lcd_on();
 
-    uart0_puts( "\n\n Ejecutando kernel de planificación no expropiativa\n" );
+    uart0_puts( "\n\n Ejecutando kernel de planificaciï¿½n no expropiativa\n" );
     uart0_puts( " --------------------------------------------------\n\n" ) ;
 
     flagTask5  = FALSE;               /* Inicializa flags */
     flagTask6  = FALSE;
+    flagTask8  = FALSE;
     flagPb     = FALSE;
 
     scheduler_init();                 /* Inicializa el kernel */
 
-    create_task( Task2, 5 );          /* Crea las tareas de la aplicación... */
-    create_task( Task7, 5 );          /* ... el kernel asigna la prioridad según orden de creación: Task2 > Task5 > Task6 > ... */
-    create_task( Task5, 10 );         /* ... las tareas más frecuentes tienen mayor prioridad (criterio Rate-Monotonic-Scheduling) */
+    create_task( Task2, 5 );          /* Crea las tareas de la aplicaciï¿½n... */
+    create_task( Task7, 5 );          /* ... el kernel asigna la prioridad segï¿½n orden de creaciï¿½n: Task2 > Task5 > Task6 > ... */
+    create_task( Task5, 10 );         /* ... las tareas mï¿½s frecuentes tienen mayor prioridad (criterio Rate-Monotonic-Scheduling) */
     create_task( Task6, 10 );
+    create_task( Task8, 10 );
     create_task( Task1, 50 );
     create_task( Task3, 100 );
+    create_task( Task9, 100 );
     create_task( Task4, 1000 );
 
     timer0_open_tick( scheduler, TICKS_PER_SEC );  /* Instala scheduler como RTI del timer0  */
-    pbs_open( isr_pb );                            /* Instala isr_pb como RTI por presión de pulsadores  */
+    pbs_open( isr_pb );                            /* Instala isr_pb como RTI por presiï¿½n de pulsadores  */
 
     while( 1 )
     {
-        sleep();                /* Entra en estado IDLE, sale por interrupción */
+        sleep();                /* Entra en estado IDLE, sale por interrupciï¿½n */
         dispacher();            /* Las tareas preparadas se ejecutan en esta hebra (background) en orden de prioridad */
     }
 
@@ -101,7 +113,7 @@ void Task1( void )  /* Cada 0,5 segundos (50 ticks) alterna el led que se encien
     if( init )
     {
         init = FALSE;
-        uart0_puts( " Task 1: iniciada.\n" );  /* Muestra un mensaje inicial en la UART0 (no es necesario semáforo) */
+        uart0_puts( " Task 1: iniciada.\n" );  /* Muestra un mensaje inicial en la UART0 (no es necesario semï¿½foro) */
         led_on( LEFT_LED );
         led_off( RIGHT_LED );
     }
@@ -112,7 +124,7 @@ void Task1( void )  /* Cada 0,5 segundos (50 ticks) alterna el led que se encien
     }
 }
 
-void Task2( void )  /* Cada 50 ms (5 ticks) muestrea el keypad y envía el scancode a otras tareas */
+void Task2( void )  /* Cada 50 ms (5 ticks) muestrea el keypad y envï¿½a el scancode a otras tareas */
 {
     static boolean init = TRUE;
     static enum { wait_keydown, scan, wait_keyup } state;
@@ -120,7 +132,7 @@ void Task2( void )  /* Cada 50 ms (5 ticks) muestrea el keypad y envía el scanco
     if( init )
     {
         init  = FALSE;
-        uart0_puts( " Task 2: iniciada.\n" );  /* Muestra un mensaje inicial en la UART0 (no es necesario semáforo) */
+        uart0_puts( " Task 2: iniciada.\n" );  /* Muestra un mensaje inicial en la UART0 (no es necesario semï¿½foro) */
         state = wait_keydown;
     }
     else switch( state )
@@ -135,6 +147,7 @@ void Task2( void )  /* Cada 50 ms (5 ticks) muestrea el keypad y envía el scanco
             {
                 flagTask5 = TRUE;
                 flagTask6 = TRUE;
+                flagTask8 = TRUE;
             }
             state = wait_keyup;
             break;
@@ -153,7 +166,7 @@ void Task3( void  )  /* Cada segundo (100 ticks) muestra por la UART0 la hora de
     if( init )
     {
         init = FALSE;
-        uart0_puts( " Task 3: iniciada.\n" );  /* Muestra un mensaje inicial en la UART0 (no es necesario semáforo) */
+        uart0_puts( " Task 3: iniciada.\n" );  /* Muestra un mensaje inicial en la UART0 (no es necesario semï¿½foro) */
     }
     else
     {
@@ -176,7 +189,7 @@ void Task4( void )  /* Cada 10 segundos (1000 ticks) muestra por la UART0 los ti
     if( init )
     {
         init = FALSE;
-        uart0_puts( " Task 4: iniciada.\n" );  /* Muestra un mensaje inicial en la UART0 (no es necesario semáforo) */
+        uart0_puts( " Task 4: iniciada.\n" );  /* Muestra un mensaje inicial en la UART0 (no es necesario semï¿½foro) */
         ticks = 0;
     }
     else
@@ -195,7 +208,7 @@ void Task5( void )  /* Cada vez que reciba un scancode lo muestra por la UART0 *
     if( init )
     {
         init = FALSE;
-        uart0_puts( " Task 5: iniciada.\n" );  /* Muestra un mensaje inicial en la UART0 (no es necesario semáforo) */
+        uart0_puts( " Task 5: iniciada.\n" );  /* Muestra un mensaje inicial en la UART0 (no es necesario semï¿½foro) */
     }
     else if( flagTask5 )
     {
@@ -213,7 +226,7 @@ void Task6( void )  /* Cada vez que reciba un scancode lo muestra por los 7 segm
     if( init )
     {
         init = FALSE;
-        uart0_puts( " Task 6: iniciada.\n" );  /* Muestra un mensaje inicial en la UART0 (no es necesario semáforo) */
+        uart0_puts( " Task 6: iniciada.\n" );  /* Muestra un mensaje inicial en la UART0 (no es necesario semï¿½foro) */
     }
     else if( flagTask6 )
     {
@@ -229,12 +242,50 @@ void Task7( void )  /* Cada vez que se presione un pulsador lo avisa por la UART
     if( init )
     {
         init = FALSE;
-        uart0_puts( " Task 7: iniciada.\n" );  /* Muestra un mensaje inicial en la UART0 (no es necesario semáforo) */
+        uart0_puts( " Task 7: iniciada.\n" );  /* Muestra un mensaje inicial en la UART0 (no es necesario semï¿½foro) */
     }
     else if( flagPb )
     {   
         flagPb = FALSE;
-        uart0_puts( "  (Task 7) Se ha pulsado algún pushbutton...\n" );
+        uart0_puts( "  (Task 7) Se ha pulsado algï¿½n pushbutton...\n" );
+    }
+}
+
+void Task8( void ) /* Muestra en el LCD cada una de las teclas pulsadas*/
+{
+    static boolean init = TRUE;
+    static char* str = "Tecla pulsada:  ";
+
+    if (init)
+    {
+        init = FALSE;
+        uart0_puts( " Task 8: iniciada.\n" );  /* Muestra un mensaje inicial en la UART0 (no es necesario semï¿½foro) */
+    }
+    else if (flagTask8)
+    {
+        flagTask8 = FALSE;
+        str[15] = hexToString(scancode)[0];
+        lcd_puts(LCD_WIDTH/2 - 64, LCD_HEIGHT/2, BLACK, str);
+    }
+}
+
+void Task9(void) /* Muestra cada segundo en el LCD los segundos transcurridos */
+{
+    static boolean init = TRUE;
+    static char* str = "Segundos: ";
+    static uint32 secs;
+
+    if (init)
+    {
+        init = FALSE;
+        uart0_puts( " Task 9: iniciada.\n" );  /* Muestra un mensaje inicial en la UART0 (no es necesario semï¿½foro) */
+        secs = 0;
+    }
+    else
+    {
+        secs++;
+        lcd_puts(8, 8, BLACK, str);
+        lcd_putint(88, 8, BLACK, secs);
     }
 }
 

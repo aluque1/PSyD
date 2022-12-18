@@ -286,12 +286,13 @@ void Task9(void) /* Muestra cada segundo en el LCD los segundos transcurridos */
 {
     static boolean init = TRUE;
     static char* str = "Segundos: ";
-    static uint32 secs = 0;
+    static uint32 secs;
 
     if (init)
     {
         init = FALSE;
         uart0_puts( " Task 9: iniciada.\n" );  /* Muestra un mensaje inicial en la UART0 (no es necesario sem�foro) */
+        secs = 0;
     }
     else
     {
