@@ -4,14 +4,14 @@
 **    lab12-queue.c  14/1/2021
 **
 **    (c) J.M. Mendias
-**    Programación de Sistemas y Dispositivos
-**    Facultad de Informática. Universidad Complutense de Madrid
+**    Programaciï¿½n de Sistemas y Dispositivos
+**    Facultad de Informï¿½tica. Universidad Complutense de Madrid
 **
-**  Propósito:
-**    Ejemplo de una aplicación guiada por tiempo con arquitectura
+**  Propï¿½sito:
+**    Ejemplo de una aplicaciï¿½n guiada por tiempo con arquitectura
 **    cola de funciones tipo FIFO
 **
-**  Notas de diseño:
+**  Notas de diseï¿½o:
 **
 **-----------------------------------------------------------------*/
 
@@ -26,10 +26,12 @@
 #include <keypad.h>
 #include <timers.h>
 #include <rtc.h>
+#include <lcd.h>
+#include <common_functions.h>
 
 #define TICKS_PER_SEC   (100)
 
-/* Declaración de fifo de punteros a funciones */
+/* Declaraciï¿½n de fifo de punteros a funciones */
 
 #define BUFFER_LEN   (512)
 
@@ -48,13 +50,13 @@ pf_t fifo_dequeue( void );
 boolean fifo_is_empty( void );
 boolean fifo_is_full( void );
 
-/* Declaración de recursos */
+/* Declaraciï¿½n de recursos */
 
 volatile fifo_t fifo;
 
 uint8 scancode;
 
-/* Declaración de tareas */
+/* Declaraciï¿½n de tareas */
 
 void Task1( void );
 void Task2( void );
@@ -63,8 +65,10 @@ void Task4( void );
 void Task5( void );
 void Task6( void );
 void Task7( void );
+void Task8( void );
+void Task9( void );
 
-/* Declaración de RTI */
+/* Declaraciï¿½n de RTI */
 
 void isr_pb( void ) __attribute__ ((interrupt ("IRQ")));
 void isr_tick( void ) __attribute__ ((interrupt ("IRQ")));
@@ -83,8 +87,11 @@ void main( void )
     rtc_init();
     pbs_init();
     keypad_init(); 
+    lcd_init();
+    lcd_clear();
+    lcd_on();
       
-    uart0_puts( "\n\n Ejecutando una aplicación como cola de funciones\n" );
+    uart0_puts( "\n\n Ejecutando una aplicaciï¿½n como cola de funciones\n" );
     uart0_puts( " ------------------------------------------------\n\n" ) ;
 
     fifo_init();             /* Inicializa cola de funciones */
@@ -96,13 +103,15 @@ void main( void )
     Task5();
     Task6();
     Task7();
+    Task8();
+    Task9();
 
-    pbs_open( isr_pb );                           /* Instala isr_pb como RTI por presión de pulsadores  */
+    pbs_open( isr_pb );                           /* Instala isr_pb como RTI por presiï¿½n de pulsadores  */
     timer0_open_tick( isr_tick, TICKS_PER_SEC );  /* Instala isr_tick como RTI del timer0  */
         
     while( 1 )
     {
-        sleep();                        /* Entra en estado IDLE, sale por interrupción */
+        sleep();                        /* Entra en estado IDLE, sale por interrupciï¿½n */
         while( !fifo_is_empty() )
         {
             pf = fifo_dequeue();
@@ -121,7 +130,7 @@ void Task1( void )  /* Cada 0,5 segundos (50 ticks) alterna el led que se encien
     if( init )
     {
         init = FALSE;
-        uart0_puts( " Task 1: iniciada.\n" );  /* Muestra un mensaje inicial en la UART0 (no es necesario semáforo) */
+        uart0_puts( " Task 1: iniciada.\n" );  /* Muestra un mensaje inicial en la UART0 (no es necesario semï¿½foro) */
         led_on( LEFT_LED );
         led_off( RIGHT_LED );
     }
@@ -132,7 +141,7 @@ void Task1( void )  /* Cada 0,5 segundos (50 ticks) alterna el led que se encien
     }
 }
 
-void Task2( void )  /* Cada 50 ms (5 ticks) muestrea el keypad y envía el scancode a otras tareas */
+void Task2( void )  /* Cada 50 ms (5 ticks) muestrea el keypad y envï¿½a el scancode a otras tareas */
 {
     static boolean init = TRUE;
     static enum { wait_keydown, scan, wait_keyup } state;
@@ -140,7 +149,7 @@ void Task2( void )  /* Cada 50 ms (5 ticks) muestrea el keypad y envía el scanco
     if( init )
     {
         init  = FALSE;
-        uart0_puts( " Task 2: iniciada.\n" );  /* Muestra un mensaje inicial en la UART0 (no es necesario semáforo) */
+        uart0_puts( " Task 2: iniciada.\n" );  /* Muestra un mensaje inicial en la UART0 (no es necesario semï¿½foro) */
         state = wait_keydown;
     }
     else switch( state )
@@ -155,6 +164,7 @@ void Task2( void )  /* Cada 50 ms (5 ticks) muestrea el keypad y envía el scanco
             {
                 fifo_enqueue( Task5 );
                 fifo_enqueue( Task6 );
+                fifo_enqueue( Task8 );
             }
             state = wait_keyup;
             break;
@@ -173,7 +183,7 @@ void Task3( void  )  /* Cada segundo (100 ticks) muestra por la UART0 la hora de
     if( init )
     {
         init = FALSE;
-        uart0_puts( " Task 3: iniciada.\n" );  /* Muestra un mensaje inicial en la UART0 (no es necesario semáforo) */
+        uart0_puts( " Task 3: iniciada.\n" );  /* Muestra un mensaje inicial en la UART0 (no es necesario semï¿½foro) */
     }
     else
     {
@@ -196,7 +206,7 @@ void Task4( void )  /* Cada 10 segundos (1000 ticks) muestra por la UART0 los ti
     if( init )
     {
         init = FALSE;
-        uart0_puts( " Task 4: iniciada.\n" );  /* Muestra un mensaje inicial en la UART0 (no es necesario semáforo) */
+        uart0_puts( " Task 4: iniciada.\n" );  /* Muestra un mensaje inicial en la UART0 (no es necesario semï¿½foro) */
         ticks = 0;
     }
     else
@@ -215,7 +225,7 @@ void Task5( void )  /* Cada vez que reciba un scancode lo muestra por la UART0 *
     if( init )
     {
         init = FALSE;
-        uart0_puts( " Task 5: iniciada.\n" );  /* Muestra un mensaje inicial en la UART0 (no es necesario semáforo) */
+        uart0_puts( " Task 5: iniciada.\n" );  /* Muestra un mensaje inicial en la UART0 (no es necesario semï¿½foro) */
     }
     else
     {
@@ -232,7 +242,7 @@ void Task6( void )  /* Cada vez que reciba un scancode lo muestra por los 7 segm
     if( init )
     {
         init = FALSE;
-        uart0_puts( " Task 6: iniciada.\n" );  /* Muestra un mensaje inicial en la UART0 (no es necesario semáforo) */
+        uart0_puts( " Task 6: iniciada.\n" );  /* Muestra un mensaje inicial en la UART0 (no es necesario semï¿½foro) */
     }
     else
     {
@@ -247,11 +257,47 @@ void Task7( void )  /* Cada vez que se presione un pulsador lo avisa por la UART
     if( init )
     {
         init = FALSE;
-        uart0_puts( " Task 7: iniciada.\n" );  /* Muestra un mensaje inicial en la UART0 (no es necesario semáforo) */
+        uart0_puts( " Task 7: iniciada.\n" );  /* Muestra un mensaje inicial en la UART0 (no es necesario semï¿½foro) */
     }
     else
     {   
-        uart0_puts( "  (Task 7) Se ha pulsado algún pushbutton...\n" );
+        uart0_puts( "  (Task 7) Se ha pulsado algï¿½n pushbutton...\n" );
+    }
+}
+
+void Task8( void ) /* Muestra en el LCD cada una de las teclas pulsadas*/
+{
+    static boolean init = TRUE;
+    static char* str = "Tecla pulsada:  ";
+
+    if (init)
+    {
+        init = FALSE;
+        uart0_puts( " Task 8: iniciada.\n" );  /* Muestra un mensaje inicial en la UART0 (no es necesario semï¿½foro) */
+    }
+    else
+    {
+        str[15] = hexToString(scancode)[0];
+        lcd_puts(LCD_WIDTH/2 - 64, LCD_HEIGHT/2, BLACK, str);
+    }
+}
+
+void Task9(void) /* Muestra cada segundo en el LCD los segundos transcurridos */
+{
+    static boolean init = TRUE;
+    static char* str = "Segundos: ";
+    static uint32 secs = 0;
+
+    if (init)
+    {
+        init = FALSE;
+        uart0_puts( " Task 9: iniciada.\n" );  /* Muestra un mensaje inicial en la UART0 (no es necesario semï¿½foro) */
+    }
+    else
+    {
+        secs++;
+        lcd_puts(8, 8, BLACK, str);
+        lcd_putint(88, 8, BLACK, secs);
     }
 }
 
@@ -285,7 +331,8 @@ void isr_tick( void )
     if( !(--cont100ticks) )
     {
         cont100ticks = 100;
-        fifo_enqueue( Task3 );        
+        fifo_enqueue( Task3 );
+        fifo_enqueue( Task9 );       
     }    
     if( !(--cont1000ticks) )
     {
