@@ -283,9 +283,8 @@ void Task9(void) /* Muestra cada segundo en el LCD los segundos transcurridos */
     }
     else
     {
-        secs++;
         lcd_puts(8, 8, BLACK, str);
-        lcd_putint(88, 8, BLACK, secs);
+        lcd_putint(88, 8, BLACK, secs++);
     }
 }
 
