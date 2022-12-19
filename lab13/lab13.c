@@ -265,7 +265,9 @@ void Task8( void ) /* Muestra en el LCD cada una de las teclas pulsadas*/
     {
         flagTask8 = FALSE;
         str[15] = hexToString(scancode)[0];
+        lcd_draw_box(LCD_WIDTH/2 - 69, LCD_HEIGHT/2 - 5, LCD_WIDTH/2 + 68, LCD_HEIGHT/2 + 20, BLACK, 2); 
         lcd_puts(LCD_WIDTH/2 - 64, LCD_HEIGHT/2, BLACK, str);
+        
     }
 }
 
@@ -287,11 +289,11 @@ void Task9(void) /* Muestra cada segundo en el LCD los segundos transcurridos */
     {
         if (secs == sizeCounter)
         {
+            lcd_draw_box(5, 5, 92 + (8*multiplier), 22, WHITE, 2);
             multiplier++;
             sizeCounter*=10;
-            lcd_draw_box(5, 5, 95 + (8*multiplier), 23, WHITE, 1);
         }
-        lcd_draw_box(4, 4, 92 + (8*multiplier), 24, BLACK, 1);
+        lcd_draw_box(3, 3, 92 + (8*multiplier), 24, BLACK, 2);
         lcd_puts(8, 8, BLACK, str);
         lcd_putint(88, 8, BLACK, secs++);
     }

@@ -317,6 +317,7 @@ void Task8( void *id ) /* Muestra en el LCD cada una de las teclas pulsadas*/
         scancode = *((uint8 *) OSMboxPend( keypadMbox, 0, &err ));
         OSSemPend( lcdSem, 0, &err );
             str[15] = hexToString(scancode)[0];
+            lcd_draw_box(LCD_WIDTH/2 - 69, LCD_HEIGHT/2 - 5, LCD_WIDTH/2 + 68, LCD_HEIGHT/2 + 20, BLACK, 2);
             lcd_puts( LCD_WIDTH/2 - 64, LCD_HEIGHT/2, BLACK, str );
         OSSemPost( lcdSem );
     
@@ -328,6 +329,8 @@ void Task9( void *id ) /* Muestra cada segundo en el LCD los segundos transcurri
     INT8U err;
     static char* str = "Segundos: ";
     static uint32 secs;
+    static uint32 sizeCounter = 10;
+    static uint8 multiplier = 1;
 
     OSSemPend( uart0Sem, 0, &err );    /* Muestra un mensaje inicial en la UART0 (protegida por un sem�foro) */
         uart0_puts( "  Task" );
@@ -339,8 +342,15 @@ void Task9( void *id ) /* Muestra cada segundo en el LCD los segundos transcurri
     while( 1 )                         /* Cada vez que reciba un scancode lo muestra en el LCD */
     {
         OSSemPend( lcdSem, 0, &err );
-            lcd_puts( 8, 8, BLACK, str );
-            lcd_putint( 88, 8, BLACK, secs++);
+            if (secs == sizeCounter)
+            {
+                lcd_draw_box(5, 5, 92 + (8*multiplier), 22, WHITE, 2);
+                multiplier++;
+                sizeCounter*=10;
+            }
+            lcd_draw_box(3, 3, 92 + (8*multiplier), 24, BLACK, 2);
+            lcd_puts(8, 8, BLACK, str);
+            lcd_putint(88, 8, BLACK, secs++);
         OSSemPost( lcdSem );
         OSTimeDly( 100 );
     }

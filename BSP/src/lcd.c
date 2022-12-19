@@ -93,14 +93,10 @@ uint8 lcd_getpixel( uint16 x, uint16 y ) //Revisar
 
 void lcd_draw_hrow( uint16 xleft, uint16 xright, uint16 y, uint8 color, uint16 width )
 {
-	uint16 corr = width >> 1;
-	uint16 auxY = (y - corr > 0 && y - corr < 240) ? y - corr : y;
-	xleft -=  (xleft - corr > 0) ? corr : 0;
-	xright +=  (xright + corr < 320) ? corr : 0;
-	if(width % 2) ++xright;
+	uint16 auxY = y;
 	while(xleft <= xright){
 		y = auxY;
-		while(y <= (auxY + width)){
+		while(y < (auxY + width)){
 			lcd_putpixel(xleft, y++, color);
 		}
 		++xleft;
@@ -109,14 +105,10 @@ void lcd_draw_hrow( uint16 xleft, uint16 xright, uint16 y, uint8 color, uint16 w
 
 void lcd_draw_vrow( uint16 yup, uint16 ydown, uint16 x, uint8 color, uint16 width )
 {
-	uint16 corr = width >> 1;
-	uint16 auxX = (x - corr > 0) ? x - corr : x;
-	yup -=  (yup - corr > 0) ? corr : 0;
-	ydown +=  (ydown + corr < 240) ? corr : 0;
-	if(width % 2) ++ydown;
+	uint16 auxX = x;
 	while(yup <= ydown){
 		x = auxX;
-		while(x <= (auxX + width)){
+		while(x < (auxX + width)){
 			lcd_putpixel(x++, yup,color);
 		}
 		++yup;
@@ -173,19 +165,13 @@ void lcd_putchar_x2( uint16 x, uint16 y, uint8 color, char ch )
 	uint8 *bitmap;
 
 	bitmap = font + ch*16;
-	for( row=0; row<16; row++ )
-		for( col=0; col<8; col++ )
-			if( bitmap[row] & (0x80 >> col) ){
-				lcd_putpixel( x+(col*2),	y+(row*2),	color );
-				lcd_putpixel( x+(col*2)+1,	y+(row*2),	color );
-				lcd_putpixel( x+col*2,		y+(row*2)+1,color );
-				lcd_putpixel( x+(col*2)+1,	y+(row*2)+1,color );
+	for( row=0; row<32; row++ )
+		for( col=0; col<16; col++ )
+			if( bitmap[row >> 1] & (0x80 >> (col >> 1)) ){
+				lcd_putpixel( x+col, y+row, color );
 			}
 			else{
-				lcd_putpixel( x+(col*2),	y+(row*2),	WHITE );
-				lcd_putpixel( x+(col*2)+1,	y+(row*2),	WHITE );
-				lcd_putpixel( x+col*2,		y+(row*2)+1,WHITE );
-				lcd_putpixel( x+(col*2)+1,	y+(row*2)+1,WHITE );
+				lcd_putpixel( x+col, y+row, WHITE );
 			}
 }
 

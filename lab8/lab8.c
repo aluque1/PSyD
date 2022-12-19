@@ -92,7 +92,7 @@ void main( void )
     };
 
     // BORRAR ESTO
-    uart0_puts( "\nVolcado su puta madre (secuencial):\n" );
+    uart0_puts( "\nVolcado (secuencial):\n" );
 
     for( i=0; i < (AT24C04_DEPTH>>4); i++ ){
             uart0_puts( "\n" );
