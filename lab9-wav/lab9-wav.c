@@ -75,6 +75,8 @@ void main( void )
     timers_init();
     uda1341ts_init();
 
+    uda1341ts_setvol(VOL_MAX);
+
     /************************************/
 
     uart0_puts( "\n\nReproducción de audio no comprimido (estéreo, 16b, 16KHz) por pooling:\n" );

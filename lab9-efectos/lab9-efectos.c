@@ -87,6 +87,8 @@ void main( void )
     uda1341ts_init();
     iis_init( IIS_POLLING );
 
+    uda1341ts_setvol(VOL_MAX);
+
     /************************************/
 
     uart0_puts( "\n\nReproducción de sonido tabulado (LA central 440 Hz)\n" );

@@ -35,11 +35,12 @@ void at24c04_byteread( uint16 addr, uint8 *data )
 
 void at24c04_load(uint8 *buffer )
 {
-    static uint16 addr = 0;
-    static uint8 page = 0;
+    static uint16 addr;
+    static uint8 page;
     static uint16 index;
 
-    page = (addr & 0x100) >> 8;
+    page = 0;
+    addr = 0;
     iic_start(IIC_Tx, DEVICE_ADDR | (page << 1) | WRITE);
     iic_putByte(addr & 0xFF);
     iic_start(IIC_Rx, DEVICE_ADDR | (page << 1) | READ);
@@ -54,12 +55,14 @@ void at24c04_load(uint8 *buffer )
 
 void at24c04_store( uint8 *buffer )
 { 
-    static uint16 addr = 0;
-    static uint8 page = 0;
-    static uint16 index = 0;
+    static uint16 addr;
+    static uint8 page;
+    static uint16 index;
     static uint8 i;
     static uint8 j;
 
+    addr = 0;
+    index = 0;
     for (i = 0; i < 32; ++i)
     {
         page = addr >> 8;
