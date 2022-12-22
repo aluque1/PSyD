@@ -3,5 +3,7 @@
         "timers.h": "c",
         "keypad.h": "c",
         "s3c44b0x.h": "c"
-    }
+    },
+    "files.encoding": "utf8",
+    "files.autoGuessEncoding": true
 }

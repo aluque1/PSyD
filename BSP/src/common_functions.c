@@ -33,6 +33,7 @@ char* int32ToString(int32 i){
 
 	return p;
 }
+
 int32 stringToInt32(char* num){
 	int32 resul = 0;
 	boolean negative = 0;
