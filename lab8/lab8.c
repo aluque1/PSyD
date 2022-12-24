@@ -26,6 +26,7 @@
 void main( void )
 {
     static uint8 buffer[AT24C04_DEPTH], buffer_aux[AT24C04_DEPTH];
+
     uint16 i, j, delay;
 
     static uint32 addr, data;
@@ -161,7 +162,7 @@ void main( void )
     at24c04_load( buffer_aux );
     for( i=0; i<AT24C04_DEPTH; i++ )
         if( buffer[i] != buffer_aux[i] )
-            uart0_puts( "ERROR: La escritura secuencial falla.\n" );     
+            uart0_puts( "ERROR: La escritura secuencial falla.\n" );
 
     /************************************/
 

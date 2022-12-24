@@ -35,6 +35,13 @@
 #define DOWN        (3)
 #define NO_APPLY    (4)
 
+/* Modos de transferencia DMA */
+
+#define SRC_INCR    (0x01)
+#define DES_INCR    (0x04)
+#define SRC_DEC     (0x02)
+#define DES_DEC     (0x08)
+
 /* Declaraci�n de funciones auxiliares */
 void lcd_dumpBmp(uint8 *bmp, uint8 *buffer, uint16 x, uint16 y, uint16 xsize, uint16 ysize);
 void lcd_putBmp(uint8 *bmp, uint16 x, uint16 y, uint16 xsize, uint16 ysize);
@@ -42,11 +49,12 @@ void lcd_bmp2photo(uint8 *bmp, uint8 *photo);
 void lcd_bmp2min(uint8 *bmp, uint8 *min);
 void test(uint8 *photo); // Incluida para uso exclusivo en depuraci�n, deber� eliminarse del proyecto final
 
+
 void lcd_putColumn(uint16 xLcd, uint8 *photo, uint16 xPhoto);
 void lcd_putRow(uint16 yLcd, uint8 *photo, uint16 yPhoto); // Deber� recodificarse en el proyecto final
 void lcd_putPhoto(uint8 *photo);                           // Deber� recodificarse en el proyecto final
 void lcd_putMiniaturePhoto(uint8 *photo, uint16 x, uint16 y);
-void zDMA_transfer(uint8 *src, uint8 *dst, uint32 size);
+void zDMA_transfer(uint8 *src, uint8 *dst, uint32 size, uint8 mode);
 
 void lcd_shift(uint8 sense);       // Deber� completarse y ampliarse en el proyecto final
 void lcd_shift_noDMA(uint8 sense); // Incluida para uso exclusivo en la demo, deber� eliminarse del proyecto final
@@ -129,7 +137,7 @@ void main(void)
     lcd_putBmp(MINIPICACHU, 168, 20, 128, 96); // PICACHU al 40% editada con Paint de Windows
 
     lcd_puts(20, 130, BLACK, "Se usaran miniaturas para configurar la transicion de fotos");
-    sw_delay_s(10);
+    sw_delay_s(4);
 
     // Creaci�n del album de fotos
 
@@ -137,26 +145,26 @@ void main(void)
 
     lcd_bmp2photo(ARBOL, album.pack[i].data.photoBuffer);
     album.pack[i].secs = 0;
-    album.pack[i].effect = efectoNulo;
-    album.pack[i].sense = NO_APPLY;
+    album.pack[i].effect = efectoBarrido;
+    album.pack[i].sense = LEFT;
     i++;
 
     lcd_bmp2photo(PICACHU, album.pack[i].data.photoBuffer);
-    album.pack[i].secs = 3;
-    album.pack[i].effect = efectoEmpuje_noDMA;
-    album.pack[i].sense = LEFT;
+    album.pack[i].secs = 1;
+    album.pack[i].effect = efectoBarrido;
+    album.pack[i].sense = RIGHT;
     i++;
 
     lcd_bmp2photo(ARBOL, album.pack[i].data.photoBuffer);
-    album.pack[i].secs = 0;
-    album.pack[i].effect = efectoNulo;
-    album.pack[i].sense = NO_APPLY;
+    album.pack[i].secs = 1;
+    album.pack[i].effect = efectoBarrido;
+    album.pack[i].sense = UP;
     i++;
 
     lcd_bmp2photo(PICACHU, album.pack[i].data.photoBuffer);
-    album.pack[i].secs = 3;
-    album.pack[i].effect = efectoEmpuje;
-    album.pack[i].sense = LEFT;
+    album.pack[i].secs = 1;
+    album.pack[i].effect = efectoBarrido;
+    album.pack[i].sense = DOWN;
     i++;
 
     album.numPacks = i;
@@ -187,6 +195,18 @@ void lcd_putBmp(uint8 *bmp, uint16 x, uint16 y, uint16 xsize, uint16 ysize)
     lcd_dumpBmp(bmp, lcd_buffer, x, y, xsize, ysize);
 }
 
+/*
+** Respecto al buffer de v�deo, el formato BMP tiene cabecera, las filas est�n volteadas y el color invertido,
+** Esta funci�n convierte los BMP en un array de pixeles directamente visualizable (foto) para facilitar su manipulaci�n
+** Es una adaptaci�n de lcd_putWallpaper() que en lugar de copiar el BMP sobre el buffer de v�deo lo hace sobre el array photo
+**
+** NO puede hacerse por DMA porque requiere la manipulaci�n de pixeles.
+*/
+void lcd_bmp2photo(uint8 *bmp, uint8 *photo)
+{
+    lcd_dumpBmp(bmp, photo, 0, 0, LCD_WIDTH, LCD_HEIGHT);
+}
+
 void lcd_dumpBmp(uint8 *bmp, uint8 *buffer, uint16 x, uint16 y, uint16 xsize, uint16 ysize)
 {
     uint32 headerSize;
@@ -205,18 +225,6 @@ void lcd_dumpBmp(uint8 *bmp, uint8 *buffer, uint16 x, uint16 y, uint16 xsize, ui
         for (xSrc = 0; xSrc < xsize / 2; xSrc++)
             buffer[offsetDst + xSrc] = ~bmp[offsetSrc + xSrc];
     }
-}
-
-/*
-** Respecto al buffer de v�deo, el formato BMP tiene cabecera, las filas est�n volteadas y el color invertido,
-** Esta funci�n convierte los BMP en un array de pixeles directamente visualizable (foto) para facilitar su manipulaci�n
-** Es una adaptaci�n de lcd_putWallpaper() que en lugar de copiar el BMP sobre el buffer de v�deo lo hace sobre el array photo
-**
-** NO puede hacerse por DMA porque requiere la manipulaci�n de pixeles.
-*/
-void lcd_bmp2photo(uint8 *bmp, uint8 *photo)
-{
-    lcd_dumpBmp(bmp, photo, 0, 0, LCD_WIDTH, LCD_HEIGHT);
 }
 
 void lcd_bmp2min(uint8 *bmp, uint8 *min)
@@ -274,12 +282,10 @@ void lcd_putColumn(uint16 xLcd, uint8 *photo, uint16 xPhoto)
 
 /*
 ** Visualiza una linea de la foto en una linea dada de la pantalla
-**
-** Deber� recodificarse para que se realice mediante una �nica operaci�n DMA ya que los pixeles de una linea son contiguos en memoria
 */
 void lcd_putRow(uint16 yLcd, uint8 *photo, uint16 yPhoto)
 {
-    zDMA_transfer(photo + (yPhoto * LCD_COLS), lcd_buffer + (yLcd * LCD_COLS), LCD_COLS);
+    zDMA_transfer(photo + (yPhoto * LCD_COLS), lcd_buffer + (yLcd * LCD_COLS), LCD_COLS, SRC_INCR| DES_INCR);
 }
 
 /*
@@ -287,25 +293,23 @@ void lcd_putRow(uint16 yLcd, uint8 *photo, uint16 yPhoto)
 */
 void lcd_putPhoto(uint8 *photo)
 {
-    zDMA_transfer(photo, lcd_buffer, LCD_BUFFER_SIZE);
+    zDMA_transfer(photo, lcd_buffer, LCD_BUFFER_SIZE, SRC_INCR | DES_INCR);
 }
 
 /*
 ** Visualiza una miniatura en la pantalla
 */
-void lcd_putMiniaturePhoto(uint8 *min, uint16 x, uint16 y) // hacer por DMA
+void lcd_putMiniaturePhoto(uint8 *min, uint16 x, uint16 y)
 {
     uint16 i, auxX = x / 2, auxY = y;
 
     for(i = 0; i < MIN_ROWS; i++)
-        zDMA_transfer(min + (i * MIN_COLS), lcd_buffer + ((auxY + i) * LCD_COLS) + auxX, MIN_COLS);
+        zDMA_transfer(min + (i * MIN_COLS), lcd_buffer + ((auxY + i) * LCD_COLS) + auxX, MIN_COLS, SRC_INCR | DES_INCR);
 }
 
 /*
 ** Scroll de una fila/columna por DMA
 ** Desplaza el contenido del LCD una linea en desplazamientos verticales, o una columna (formada por 2 pixeles adyacentes) en desplazamientos horizontales
-**
-** Deber� completarse y ampliarse para poder realizar otros efectos
 */
 void lcd_shift(uint8 sense)
 {
@@ -316,66 +320,39 @@ void lcd_shift(uint8 sense)
     case LEFT:                         // Al ser un desplazamiento a izquierda, tener en cuenta que columnas consecutivas son contiguas en memoria pero los segmentos de fila no (excepto que sean filas completas y consecutivas)
         for (y = 0; y < LCD_ROWS; y++) // Recorre la pantalla por filas de arriba hacia abajo
         {
-            zDMA_transfer(lcd_buffer + (y * LCD_COLS) + 1, lcd_buffer + (y * LCD_COLS), LCD_COLS - 1); // Desplaza una columna a la izquierda
+            zDMA_transfer(lcd_buffer + (y * LCD_COLS) + 1, lcd_buffer + (y * LCD_COLS), LCD_COLS - 1, SRC_INCR | DES_INCR); // Desplaza la fila una columna a la izquierda
         }
         break;
-    case RIGHT: // Al ser un desplazamiento a izquierda, tener en cuenta que columnas consecutivas son contiguas en memoria pero los segmentos de fila no (excepto que sean filas completas y consecutivas)
+    case RIGHT:
         for (y = 0; y < LCD_ROWS; y++) // Recorre la pantalla por filas de arriba hacia abajo
         {
-            zDMA_transfer(lcd_buffer + (y * LCD_COLS), lcd_buffer + (y * LCD_COLS) + 1, LCD_COLS - 1); // Desplaza una columna a la derecha
+            zDMA_transfer(lcd_buffer + (y * LCD_COLS) + (LCD_COLS - 2), lcd_buffer + (y * LCD_COLS) + (LCD_COLS - 1), LCD_COLS - 1, SRC_DEC | DES_DEC); // Desplaza la fila una columna a la derecha
         }
         break;
-    case UP: // Al ser un desplazamiento hacia abajo, tener en cuenta que filas consecutivas son contiguas en memoria
-        for (y = 0; y < LCD_ROWS - 1; y++) // Recorre la pantalla por filas de arriba hacia abajo
-        {
-            zDMA_transfer(lcd_buffer + ((y + 1) * LCD_COLS), lcd_buffer + (y * LCD_COLS), LCD_COLS); // Desplaza una fila hacia arriba
-        }
+    case UP:
+            zDMA_transfer(lcd_buffer + LCD_COLS, lcd_buffer, LCD_BUFFER_SIZE - LCD_COLS, SRC_INCR | DES_INCR); // Desplaza una fila hacia arriba
         break;
-    case DOWN: // Al ser un desplazamiento hacia abajo, tener en cuenta que filas consecutivas son contiguas en memoria
-               //          ZDISRC0  = ... ;                                                                    // datos de 8b, direcci�n POST-DECREMENTADA, origen: posici�n de la �ltima columna de la penultima fila
-               //          ZDIDES0  = ... ;                                                                    // recomendada, direcci�n POST-DECREMENTADA, destino: posici�n de la �ltima columna de la ultima fila
-               //          ZDICNT0  = ... ;                                                                    // whole service, unit tranfer mode, pooling mode, no autoreload, tama�o: el de columnas por el de filas menos una
-               //          ZDICNT0 |= ... ;                                                                    // enable DMA (seg�n manual debe hacerse en escritura separada a la escritura del resto de registros)
-               //          ZDCON0   = ... ;                                                                    // start DMA
-               //          while( ... );                                                                       // Espera a que la transferencia por DMA finalice
+    case DOWN:
+            zDMA_transfer(lcd_buffer + (LCD_BUFFER_SIZE - LCD_COLS - 1), lcd_buffer + LCD_BUFFER_SIZE - 1, LCD_BUFFER_SIZE - LCD_COLS, SRC_DEC | DES_DEC); // Desplaza una fila hacia abajo
         break;
     }
 }
 
 /*
-** Scroll de una fila/columna sin DMA
-**
-** Incluida para uso exclusivo en la demo, deber� eliminarse del proyecto final
+* Función de transferencia de datos por DMA
+* @param src: dirección de origen
+* @param dst: dirección de destino
+* @param size: tamaño de la transferencia
+* @param mode: modo de transferencia (dirección post incrementada o post decrementada)
 */
-
-void lcd_shift_noDMA(uint8 sense)
+void zDMA_transfer(uint8 *src, uint8 *dst, uint32 size, uint8 mode)
 {
-    int16 x, y;
-
-    switch (sense)
-    {
-    case LEFT:
-        for (y = 0; y < LCD_ROWS; y++)
-            for (x = 0; x < LCD_COLS - 1; x++)
-                lcd_buffer[(y * LCD_COLS) + x] = lcd_buffer[(y * LCD_COLS) + (x + 1)];
-        break;
-    case RIGHT:
-        break;
-    case UP:
-        break;
-    case DOWN:
-        break;
-    }
-}
-
-void zDMA_transfer(uint8 *src, uint8 *dst, uint32 size)
-{
-    ZDISRC0 = (0 << 30) | (1 << 28) | (uint32)src;                          // datos de 8b, direcci�n POST-INCREMENTADA, origen: posici�n de la segunda columna de la fila correspondiente
-    ZDIDES0 = (2 << 30) | (1 << 28) | (uint32)dst;                          // recomendada, direcci�n POST-INCREMENTADA, destino: posici�n de la primera columna de la fila correspondiente
-    ZDICNT0 = (2 << 28) | (1 << 26) | (0 << 22) | (0 << 21) | (size);       // whole service, unit tranfer mode, pooling mode, no autoreload, tama�o: el de columnas menos una
-    ZDICNT0 |= (1 << 20);                                                   // enable DMA (seg�n manual debe hacerse en escritura separada a la escritura del resto de registros)
-    ZDCON0 = 1;                                                             // start DMA
-    while (ZDCCNT0 & 0xFFFFF);                                              // Espera a que la transferencia por DMA finalice
+    ZDISRC0 = (0 << 30) | ((mode & 0x3) << 28)        | (uint32)src;                     // datos de 8b
+    ZDIDES0 = (2 << 30) | (((mode & 0xC) >> 2) << 28) | (uint32)dst;                     // recomendada
+    ZDICNT0 = (2 << 28) | (1 << 26) | (0 << 22) | (0 << 21) | (size & 0xFFFFF); // whole service, unit tranfer mode, pooling mode, no autoreload, size
+    ZDICNT0 |= (1 << 20);                                                       // enable DMA (seg�n manual debe hacerse en escritura separada a la escritura del resto de registros)
+    ZDCON0 = 1;                                                                 // start DMA
+    while (ZDCCNT0 & 0xFFFFF);                                                  // Espera a que la transferencia por DMA finalice
 }
 
 
@@ -386,7 +363,6 @@ void zDMA_transfer(uint8 *src, uint8 *dst, uint32 size)
 **
 ** Incluido por homogeneidad
 */
-
 void efectoNulo(uint8 *photo, uint8 sense)
 {
     switch (sense)
@@ -399,10 +375,7 @@ void efectoNulo(uint8 *photo, uint8 sense)
 
 /*
 ** Efecto empuje: La nueva imagen hace un scroll conjunto con la imagen mostrada
-**
-** Deber� completarse en el proyecto final
 */
-
 void efectoEmpuje(uint8 *photo, uint8 sense)
 {
     int16 x;
@@ -417,44 +390,25 @@ void efectoEmpuje(uint8 *photo, uint8 sense)
         }
         break;
     case RIGHT:
-        break;
-    case UP:
-        break;
-    case DOWN:
-        //          for( ... )    // Recorre la foto por filas de abajo hacia arriba
-        //          {
-        //              ...;                  // Desplaza la pantalla una fila hacia abajo
-        //              ...;                  // Visualiza la fila de la foto que corresponde en la primera fila de la pantalla
-        //              sw_delay_ms( 10 );    // Retarda porque el efecto por DMA es demasiado r�pido
-        //          }
-        break;
-    }
-}
-
-/*
-** Efecto empuje sin DMA
-**
-** Incluido para uso exclusivo en la demo, deber� eliminarse del proyecto final
-*/
-
-void efectoEmpuje_noDMA(uint8 *photo, uint8 sense)
-{
-    int16 x;
-
-    switch (sense)
-    {
-    case LEFT:
-        for (x = 0; x <= LCD_COLS - 1; x++) // Recorre la foto por columnas de izquierda a derecha
+        for (x = LCD_COLS - 1; x >= 0; x--) // Recorre la foto por columnas de derecha a izquierda
         {
-            lcd_shift_noDMA(LEFT);                 // Desplaza toda la pantalla una columna a la izquierda
-            lcd_putColumn(LCD_COLS - 1, photo, x); // Visualiza la columna de la foto que corresponde en la ultima columna de la pantalla
+            lcd_shift(RIGHT);                      // Desplaza toda la pantalla una columna a la derecha
+            lcd_putColumn(0, photo, x);            // Visualiza la columna de la foto que corresponde en la primera columna de la pantalla
         }
         break;
-    case RIGHT:
-        break;
     case UP:
+        for (x = 0; x <= LCD_ROWS - 1; x++) // Recorre la foto por filas de arriba hacia abajo
+        {
+            lcd_shift(UP);                         // Desplaza toda la pantalla una fila hacia arriba
+            lcd_putRow(LCD_ROWS - 1, photo, x);    // Visualiza la fila de la foto que corresponde en la ultima fila de la pantalla
+        }
         break;
     case DOWN:
+        for (x = LCD_ROWS - 1; x >= 0; x--) // Recorre la foto por filas de abajo hacia arriba
+        {
+            lcd_shift(DOWN);                        // Desplaza toda la pantalla una fila hacia abajo
+            lcd_putRow(0, photo, x);                // Visualiza la fila de la foto que corresponde en la primera fila de la pantalla
+        }
         break;
     }
 }
@@ -462,15 +416,46 @@ void efectoEmpuje_noDMA(uint8 *photo, uint8 sense)
 /*
 ** Efecto barrido: La nueva imagen se superpone progresivamente sobre la imagen mostrada desde un lateral al opuesto
 */
-
 void efectoBarrido(uint8 *photo, uint8 sense)
 {
+    int16 x, y;
+
+    switch (sense)
+    {
+    case LEFT:
+        for (x = 0; x <= LCD_COLS - 1; x++) // Recorre la foto por columnas de izquierda a derecha
+        {
+            lcd_putColumn(x, photo, x); // Visualiza la columna de la foto que corresponde en la columna de la pantalla que corresponde
+            sw_delay_ms(5);            // Espera un tiempo para que se vea el efecto
+        }
+        break;
+    case RIGHT:
+        for (x = LCD_COLS - 1; x >= 0; x--) // Recorre la foto por columnas de derecha a izquierda
+        {
+            lcd_putColumn(x, photo, x); // Visualiza la columna de la foto que corresponde en la columna de la pantalla que corresponde
+            sw_delay_ms(5);            // Espera un tiempo para que se vea el efecto
+        }
+        break;
+    case UP:
+        for (y = 0; y <= LCD_ROWS - 1; y++) // Recorre la foto por filas de arriba hacia abajo
+        {
+            lcd_putRow(y, photo, y); // Visualiza la fila de la foto que corresponde en la fila de la pantalla que corresponde
+            sw_delay_ms(6);        // Espera un tiempo para que se vea el efecto
+        }
+        break;
+    case DOWN:
+        for (y = LCD_ROWS - 1; y >= 0; y--) // Recorre la foto por filas de abajo hacia arriba
+        {
+            lcd_putRow(y, photo, y); // Visualiza la fila de la foto que corresponde en la fila de la pantalla que corresponde
+            sw_delay_ms(6);        // Espera un tiempo para que se vea el efecto
+        }
+        break;
+    }
 }
 
 /*
 ** Efecto revelado: La nueva imagen aparece conforme la imagen mostrada desaparece haciendo scroll
 */
-
 void efectoRevelado(uint8 *photo, uint8 sense)
 {
 }
@@ -478,7 +463,6 @@ void efectoRevelado(uint8 *photo, uint8 sense)
 /*
 ** Efecto cobertura: La nueva imagen se superpone haciendo scroll sobre la imagen mostrada
 */
-
 void efectoCobertura(uint8 *photo, uint8 sense)
 {
 }
