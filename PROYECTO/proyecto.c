@@ -51,22 +51,20 @@ void test(uint8 *photo); // Incluida para uso exclusivo en depuraciï¿½n, deberï¿
 
 
 void lcd_putColumn(uint16 xLcd, uint8 *photo, uint16 xPhoto);
-void lcd_putRow(uint16 yLcd, uint8 *photo, uint16 yPhoto); // Deberï¿½ recodificarse en el proyecto final
-void lcd_putPhoto(uint8 *photo);                           // Deberï¿½ recodificarse en el proyecto final
+void lcd_putRow(uint16 yLcd, uint8 *photo, uint16 yPhoto);
+void lcd_putPhoto(uint8 *photo);
 void lcd_putMiniaturePhoto(uint8 *photo, uint16 x, uint16 y);
 void zDMA_transfer(uint8 *src, uint8 *dst, uint32 size, uint8 mode);
 
-void lcd_shift(uint8 sense);       // Deberï¿½ completarse y ampliarse en el proyecto final
-void lcd_shift_noDMA(uint8 sense); // Incluida para uso exclusivo en la demo, deberï¿½ eliminarse del proyecto final
+void lcd_shift(uint8 sense, uint16 initRow, uint16 initCol, uint16 endRow, uint16 endCol);
 
 
 /* Declaraciï¿½n de efectos de transiciï¿½n entre fotos */
 void efectoNulo(uint8 *photo, uint8 sense);
-void efectoEmpuje(uint8 *photo, uint8 sense);       // Deberï¿½ completarse en el proyecto final
-void efectoEmpuje_noDMA(uint8 *photo, uint8 sense); // Incluida para uso exclusivo en la demo, deberï¿½ eliminarse del proyecto final
-void efectoBarrido(uint8 *photo, uint8 sense);      // Deberï¿½ implementarse en el proyecto final
-void efectoRevelado(uint8 *photo, uint8 sense);     // Deberï¿½ implementarse en el proyecto final
-void efectoCobertura(uint8 *photo, uint8 sense);    // Deberï¿½ implementarse en el proyecto final
+void efectoEmpuje(uint8 *photo, uint8 sense);
+void efectoBarrido(uint8 *photo, uint8 sense);
+void efectoRevelado(uint8 *photo, uint8 sense);
+void efectoCobertura(uint8 *photo, uint8 sense);
 
 
 // Otros posibles efectos a implementar
@@ -145,25 +143,25 @@ void main(void)
 
     lcd_bmp2photo(ARBOL, album.pack[i].data.photoBuffer);
     album.pack[i].secs = 0;
-    album.pack[i].effect = efectoBarrido;
+    album.pack[i].effect = efectoCobertura;
     album.pack[i].sense = LEFT;
     i++;
 
     lcd_bmp2photo(PICACHU, album.pack[i].data.photoBuffer);
     album.pack[i].secs = 1;
-    album.pack[i].effect = efectoBarrido;
+    album.pack[i].effect = efectoCobertura;
     album.pack[i].sense = RIGHT;
     i++;
 
     lcd_bmp2photo(ARBOL, album.pack[i].data.photoBuffer);
     album.pack[i].secs = 1;
-    album.pack[i].effect = efectoBarrido;
+    album.pack[i].effect = efectoCobertura;
     album.pack[i].sense = UP;
     i++;
 
     lcd_bmp2photo(PICACHU, album.pack[i].data.photoBuffer);
     album.pack[i].secs = 1;
-    album.pack[i].effect = efectoBarrido;
+    album.pack[i].effect = efectoCobertura;
     album.pack[i].sense = DOWN;
     i++;
 
@@ -311,29 +309,29 @@ void lcd_putMiniaturePhoto(uint8 *min, uint16 x, uint16 y)
 ** Scroll de una fila/columna por DMA
 ** Desplaza el contenido del LCD una linea en desplazamientos verticales, o una columna (formada por 2 pixeles adyacentes) en desplazamientos horizontales
 */
-void lcd_shift(uint8 sense)
+void lcd_shift(uint8 sense, uint16 initRow, uint16 initCol, uint16 endRow, uint16 endCol)
 {
     int16 y;
 
     switch (sense)
     {
     case LEFT:                         // Al ser un desplazamiento a izquierda, tener en cuenta que columnas consecutivas son contiguas en memoria pero los segmentos de fila no (excepto que sean filas completas y consecutivas)
-        for (y = 0; y < LCD_ROWS; y++) // Recorre la pantalla por filas de arriba hacia abajo
+        for (y = initRow; y <= endRow; y++) // Recorre la pantalla por filas de arriba hacia abajo
         {
-            zDMA_transfer(lcd_buffer + (y * LCD_COLS) + 1, lcd_buffer + (y * LCD_COLS), LCD_COLS - 1, SRC_INCR | DES_INCR); // Desplaza la fila una columna a la izquierda
+            zDMA_transfer(lcd_buffer + (y * LCD_COLS) + endCol + 1, lcd_buffer + (y * LCD_COLS) + endCol, initCol - endCol, SRC_INCR | DES_INCR); // Desplaza la fila una columna a la izquierda
         }
         break;
     case RIGHT:
-        for (y = 0; y < LCD_ROWS; y++) // Recorre la pantalla por filas de arriba hacia abajo
+        for (y = initRow; y <= endRow; y++) // Recorre la pantalla por filas de arriba hacia abajo
         {
-            zDMA_transfer(lcd_buffer + (y * LCD_COLS) + (LCD_COLS - 2), lcd_buffer + (y * LCD_COLS) + (LCD_COLS - 1), LCD_COLS - 1, SRC_DEC | DES_DEC); // Desplaza la fila una columna a la derecha
+            zDMA_transfer(lcd_buffer + (y * LCD_COLS) + (endCol - 1), lcd_buffer + (y * LCD_COLS) + (endCol), endCol - initCol, SRC_DEC | DES_DEC); // Desplaza la fila una columna a la derecha
         }
         break;
     case UP:
-            zDMA_transfer(lcd_buffer + LCD_COLS, lcd_buffer, LCD_BUFFER_SIZE - LCD_COLS, SRC_INCR | DES_INCR); // Desplaza una fila hacia arriba
+            zDMA_transfer(lcd_buffer + (LCD_COLS * (endRow + 1)), lcd_buffer + (LCD_COLS * endRow), (initRow - endRow) * LCD_COLS, SRC_INCR | DES_INCR); // Desplaza una fila hacia arriba
         break;
     case DOWN:
-            zDMA_transfer(lcd_buffer + (LCD_BUFFER_SIZE - LCD_COLS - 1), lcd_buffer + LCD_BUFFER_SIZE - 1, LCD_BUFFER_SIZE - LCD_COLS, SRC_DEC | DES_DEC); // Desplaza una fila hacia abajo
+            zDMA_transfer(lcd_buffer + (LCD_COLS * endRow) - 1, lcd_buffer + (LCD_COLS * (endRow + 1) - 1), (endRow - initRow) * LCD_COLS, SRC_DEC | DES_DEC); // Desplaza una fila hacia abajo
         break;
     }
 }
@@ -385,28 +383,28 @@ void efectoEmpuje(uint8 *photo, uint8 sense)
     case LEFT:
         for (x = 0; x <= LCD_COLS - 1; x++) // Recorre la foto por columnas de izquierda a derecha
         {
-            lcd_shift(LEFT);                       // Desplaza toda la pantalla una columna a la izquierda
+            lcd_shift(LEFT, 0, LCD_COLS - 1, LCD_ROWS - 1, 0);                       // Desplaza toda la pantalla una columna a la izquierda
             lcd_putColumn(LCD_COLS - 1, photo, x); // Visualiza la columna de la foto que corresponde en la ultima columna de la pantalla
         }
         break;
     case RIGHT:
         for (x = LCD_COLS - 1; x >= 0; x--) // Recorre la foto por columnas de derecha a izquierda
         {
-            lcd_shift(RIGHT);                      // Desplaza toda la pantalla una columna a la derecha
+            lcd_shift(RIGHT, 0, 0, LCD_ROWS - 1, LCD_COLS - 1);                      // Desplaza toda la pantalla una columna a la derecha
             lcd_putColumn(0, photo, x);            // Visualiza la columna de la foto que corresponde en la primera columna de la pantalla
         }
         break;
     case UP:
         for (x = 0; x <= LCD_ROWS - 1; x++) // Recorre la foto por filas de arriba hacia abajo
         {
-            lcd_shift(UP);                         // Desplaza toda la pantalla una fila hacia arriba
+            lcd_shift(UP, LCD_ROWS - 1, 0, 0, LCD_COLS - 1);                         // Desplaza toda la pantalla una fila hacia arriba
             lcd_putRow(LCD_ROWS - 1, photo, x);    // Visualiza la fila de la foto que corresponde en la ultima fila de la pantalla
         }
         break;
     case DOWN:
         for (x = LCD_ROWS - 1; x >= 0; x--) // Recorre la foto por filas de abajo hacia arriba
         {
-            lcd_shift(DOWN);                        // Desplaza toda la pantalla una fila hacia abajo
+            lcd_shift(DOWN, 0, 0, LCD_ROWS - 1, LCD_COLS - 1);                        // Desplaza toda la pantalla una fila hacia abajo
             lcd_putRow(0, photo, x);                // Visualiza la fila de la foto que corresponde en la primera fila de la pantalla
         }
         break;
@@ -458,6 +456,39 @@ void efectoBarrido(uint8 *photo, uint8 sense)
 */
 void efectoRevelado(uint8 *photo, uint8 sense)
 {
+    int16 x, y;
+
+    switch (sense)
+    {
+    case LEFT:
+        for (x = LCD_COLS - 1; x >= 0; x--)  // Recorre la foto por columnas de izquierda a derecha
+        {
+            lcd_shift(LEFT, 0, x, LCD_ROWS - 1, 0);      // Desplaza toda la pantalla una columna a la izquierda
+            lcd_putColumn(x, photo, x); // Visualiza la columna de la foto que corresponde en la ultima columna de la pantalla
+        }
+        break;
+    case RIGHT:
+        for (x = 0; x < LCD_COLS; x++)  // Recorre la foto por columnas de derecha a izquierda
+        {
+            lcd_shift(RIGHT, 0, x, LCD_ROWS - 1, LCD_COLS - 1);     // Desplaza toda la pantalla una columna a la derecha
+            lcd_putColumn(x, photo, x); // Visualiza la columna de la foto que corresponde en la primera columna de la pantalla
+        }
+        break;
+    case UP:
+        for (y = LCD_ROWS - 1; y >= 0; y--) // Recorre la foto por filas de arriba hacia abajo
+        {
+            lcd_shift(UP, y, 0, 0, LCD_COLS - 1);         // Desplaza toda la pantalla una fila hacia arriba
+            lcd_putRow(y, photo, y); // Visualiza la fila de la foto que corresponde en la ultima fila de la pantalla
+        }
+        break;
+    case DOWN:
+        for (y = 0; y < LCD_ROWS; y++) // Recorre la foto por filas de abajo hacia arriba
+        {
+            lcd_shift(DOWN, y, 0, LCD_ROWS - 1, LCD_COLS - 1);      // Desplaza toda la pantalla una fila hacia abajo
+            lcd_putRow(y, photo, y); // Visualiza la fila de la foto que corresponde en la primera fila de la pantalla
+        }
+        break;
+    }
 }
 
 /*
@@ -465,4 +496,37 @@ void efectoRevelado(uint8 *photo, uint8 sense)
 */
 void efectoCobertura(uint8 *photo, uint8 sense)
 {
+    int16 x, y;
+
+    switch (sense)
+    {
+    case LEFT:
+        for (x = LCD_COLS - 1; x >= 0; x--) // Recorre la foto por columnas de derecha a izquierda
+        {
+            lcd_shift(LEFT, 0, LCD_COLS - 1, LCD_ROWS - 1, x);      // Desplaza toda la pantalla una columna a la izquierda
+            lcd_putColumn(LCD_COLS - 1, photo, (LCD_COLS - 1) - x); // Visualiza la columna de la foto que corresponde en la ultima columna de la pantalla
+        }
+        break;
+    case RIGHT:
+        for (x = 0; x < LCD_COLS; x++) // Recorre la foto por columnas de izquierda a derecha
+        {
+            lcd_shift(RIGHT, 0, 0, LCD_ROWS - 1, x);     // Desplaza toda la pantalla una columna a la derecha
+            lcd_putColumn(0, photo, (LCD_COLS - 1) - x); // Visualiza la columna de la foto que corresponde en la primera columna de la pantalla
+        }
+        break;
+    case UP:
+        for (y = LCD_ROWS - 1; y >= 0; y--) // Recorre la foto por filas de abajo hacia arriba
+        {
+            lcd_shift(UP, LCD_ROWS - 1, 0, y, LCD_COLS - 1);         // Desplaza toda la pantalla una fila hacia arriba
+            lcd_putRow(LCD_ROWS - 1, photo, (LCD_ROWS - 1) - y); // Visualiza la fila de la foto que corresponde en la ultima fila de la pantalla
+        }
+        break;
+    case DOWN:
+        for (y = 0; y < LCD_ROWS; y++) // Recorre la foto por filas de arriba hacia abajo
+        {
+            lcd_shift(DOWN, 0, 0, y, LCD_COLS - 1);      // Desplaza toda la pantalla una fila hacia abajo
+            lcd_putRow(0, photo, (LCD_ROWS - 1) - y); // Visualiza la fila de la foto que corresponde en la primera fila de la pantalla
+        }
+        break;
+    }
 }
