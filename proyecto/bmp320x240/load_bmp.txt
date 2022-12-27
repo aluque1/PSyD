@@ -2,7 +2,14 @@ echo Cargando ficheros BMP...\n
 
 restore arbol.bmp       binary 0x0c210000
 restore picachu.bmp     binary 0x0c220000
-restore miniarbol.bmp   binary 0x0c280000
-restore minipicachu.bmp binary 0x0c288000
+restore harry.bmp       binary 0x0c230000
+restore pulp.bmp        binary 0x0c240000
+
+echo restore Rosalina.wav	binary 0x0c703fff\n
+
+restore miniarbol.bmp   binary 0x0c610000
+restore minipicachu.bmp binary 0x0c612000
+restore miniharry.bmp   binary 0x0c614000
+restore minipulp.bmp    binary 0x0c616000
 
 echo ...carga finalizada
