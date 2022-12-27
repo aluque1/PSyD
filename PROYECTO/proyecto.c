@@ -9,6 +9,8 @@
 #include <iis.h>
 #include <dma.h>
 #include <pbs.h>
+#include <keypad.h>
+#include <ts.h>
 
 /* N�mero m�ximo de fotos distintas visualizables en el marco */
 
@@ -43,10 +45,6 @@
 #define MIN_LEFT        (0)
 #define MIN_RIGHT       (1)
 
-
-
-#define AUDIO_BUFFER_SIZE (0xfffff)
-
 /* Sentidos de realizaci�n del efecto */
 
 #define LEFT        (0)
@@ -62,15 +60,6 @@
 #define SRC_DEC     (0x02)
 #define DES_DEC     (0x08)
 
-/* Declaraci�n de recursos */
-
-uint8 scancode; // Variable para almacenar el c�digo de tecla pulsada
-uint8 pb_pressed; // Variable para almacenar el estado del pulsador PB
-volatile boolean flagPb;
-
-/* Declaraci�n de RTI */
-
-void isr_pb( void ) __attribute__ ((interrupt ("IRQ")));
 
 
 /* Declaraci�n de tipos */
@@ -98,10 +87,27 @@ typedef struct // Estructura conteniendo las fotos a visualizar, podr� ampliar
 } album_t;
 
 
-/* Declaraci�n del buffer de v�deo */
 
-extern uint8 lcd_buffer[LCD_BUFFER_SIZE];
+/* Declaraci�n de recursos */
 
+extern uint8 lcd_buffer[LCD_BUFFER_SIZE]; // Buffer de v�deo
+
+uint8 scancode; // Variable para almacenar el c�digo de tecla pulsada
+uint8 volumen; // Variable para almacenar el volumen de reproducci�n
+uint16 xTs; // Variables para almacenar las coordenadas del TS
+uint16 yTs; // Variables para almacenar las coordenadas del TS
+
+volatile boolean flagPb; // Flag para indicar que se ha pulsado el pulsador
+volatile boolean flagKeyPad; // Flag para indicar que se ha pulsado una tecla del teclado
+volatile boolean flagTs; // Flag para indicar que se ha pulsado el TS
+volatile boolean flagExit; 
+
+
+/* Declaraci�n de RTI */
+
+void isr_pb( void )     __attribute__ ((interrupt ("IRQ")));
+void isr_keyPad( void )    __attribute__ ((interrupt ("IRQ")));
+void isr_ts( void )     __attribute__ ((interrupt ("IRQ")));
 
 /* Declaraci�n de funciones auxiliares */
 void lcd_dumpBmp(uint8 *bmp, uint8 *buffer, uint16 x, uint16 y, uint16 xsize, uint16 ysize);
@@ -110,7 +116,9 @@ void lcd_bmp2photo(uint8 *bmp, uint8 *photo);
 void lcd_bmp2min(uint8 *bmp, uint8 *min);
 void test(uint8 *photo); // Incluida para uso exclusivo en depuraci�n, deber� eliminarse del proyecto final
 void photoSlider();
-void menu();
+void menuPrincipal();
+void menuPausa();
+void menuImagen(uint8 index);
 
 void lcd_shift(uint8 sense, uint16 initRow, uint16 initCol, uint16 endRow, uint16 endCol);
 void lcd_putColumn(uint16 xLcd, uint8 *photo, uint16 xPhoto, uint16 yLcdUp, uint16 yLcdDown, uint16 yPhotoUp);
@@ -118,6 +126,9 @@ void lcd_putRow(uint16 yLcd, uint8 *photo, uint16 yPhoto, uint16 xLcdLeft, uint1
 void lcd_putPhoto(uint8 *photo);
 void lcd_putMiniaturePhoto(uint8 *min, uint8 pos);
 void zDMA_transfer(uint8 *src, uint8 *dst, uint32 size, uint8 mode);
+void lcd_clearDMA();
+void lcd_restore();
+void lcd_backUp();
 
 
 /* Declaraci�n de efectos de transici�n entre fotos */
@@ -141,37 +152,54 @@ void efectoAleatorio(uint8 *photo, uint8 sense);
 
 // variables globales
 album_t album;
-uint8 *imgArray[] = {ARBOL, PICACHU, PULP, HARRY}; // Array de punteros a las fotos a visualizar
+uint8 *photoArray[] = {ARBOL, PICACHU, PULP, HARRY}; // Array de punteros a las fotos a visualizar
+uint8 *minArray[] = {MINIARBOL, MINIPICACHU, MINIPULP, MINIHARRY}; // Array de punteros a las miniaturas de las fotos a visualizar
 uint8 bkUpBuffer[LCD_BUFFER_SIZE];
+const uint8 numPhotos = 4; // N�mero de fotos a visualizar
 
 /*******************************************************************/
 
 void main(void)
 {
     sys_init();
+    pbs_init();
     segs_init();
     timers_init();
-    lcd_init();
+    keypad_init();
     uda1341ts_init();
     iis_init(IIS_DMA);
-    lcd_clear();
+    pbs_open(isr_pb);
+    keypad_open(isr_keyPad);
+    ts_open(isr_ts);
+    ts_init();
     lcd_on();
 
     flagPb = FALSE;
+    flagKeyPad = FALSE;
+    flagTs = FALSE;
+    flagExit = FALSE;
 
-    // Ejemplo de uso de las miniaturas (de este o distinto tama�o)
     uint8 i;
-    for (i = 0; i < 4; i++)
-    lcd_bmp2min(imgArray[i], album.pack[i].data.min);
+    for (i = 0; i < numPhotos; i++)
+    {
+        lcd_bmp2min(minArray[i], album.pack[i].data.min);
+        lcd_bmp2photo(photoArray[i], album.pack[i].data.photoBuffer);
+    }
+    album.numPacks = numPhotos;
+    album.index = 0;
 
-
-    menu();
+    menuPrincipal();
     while (1)
     {
         if(flagPb)
         {
             flagPb = FALSE;
-            menu();
+            menuPausa();
+        }
+        if(flagExit)
+        {
+            flagExit = FALSE;
+            menuPrincipal();
         }
         photoSlider();
     }
@@ -185,10 +213,12 @@ void photoSlider()
     ++album.index; album.index %= album.numPacks;                                      // Avanza circularmente a la siguiente foto del album
 }
 
-void menu()
+void menuPrincipal()
 {
     uint16 i;
-
+    uint8 index = 0;
+    
+    lcd_clearDMA();
     lcd_puts(19, 0, BLACK, "Configura las fotos a visualizar:");
     lcd_draw_box(3, 18, LCD_WIDTH - 5, 19 + 31, BLACK, 2);
     lcd_puts(LCD_WIDTH/2 - 8, 29, BLACK, "UP");
@@ -196,49 +226,78 @@ void menu()
     lcd_draw_box(3, 203, LCD_WIDTH - 5, LCD_HEIGHT - 5, BLACK, 2);
     lcd_puts(LCD_WIDTH/2 - 16, 211, BLACK, "DOWN");
 
-    do
-    {
-    for (i = 0; i < 4; i++)
-    {
-        lcd_putMiniaturePhoto(album.pack[i].data.min, i);
+    while (!flagPb)
+    { 
+        for (i = 0; i < 2; i++)
+        lcd_putMiniaturePhoto(album.pack[index++].data.min, i);
+        index -= 2;
+
+        while (!flagTs && !flagPb);
+
+        if (flagTs)
+        {
+            ts_getpos(&xTs, &yTs);
+            flagTs = FALSE;
+            if (yTs >= 18 && yTs <= 19 + 32)
+            {
+                index -= (index == 0) ? 0 : 2;
+            }
+            else if (yTs >= 203 && yTs <= LCD_HEIGHT - 5)
+            {
+                index += 2; index %= album.numPacks;
+            }
+            else if (yTs >= 75 && yTs < 203)
+            {
+                lcd_backUp();
+                menuImagen(index + (xTs > LCD_WIDTH/2));
+                lcd_restore();
+            }
+        } 
     }
-
-    }while (flagPb == FALSE);
-
-    i = 0;
-
-    lcd_bmp2photo(ARBOL, album.pack[i].data.photoBuffer);
-    album.pack[i].secs = 0;
-    album.pack[i].effect = efectoCobertura;
-    album.pack[i].sense = LEFT;
-    i++;
-
-    lcd_bmp2photo(PICACHU, album.pack[i].data.photoBuffer);
-    album.pack[i].secs = 1;
-    album.pack[i].effect = efectoCobertura;
-    album.pack[i].sense = RIGHT;
-    i++;
-
-    lcd_bmp2photo(PULP, album.pack[i].data.photoBuffer);
-    album.pack[i].secs = 1;
-    album.pack[i].effect = efectoCobertura;
-    album.pack[i].sense = UP;
-    i++;
-
-    lcd_bmp2photo(HARRY, album.pack[i].data.photoBuffer);
-    album.pack[i].secs = 1;
-    album.pack[i].effect = efectoCobertura;
-    album.pack[i].sense = DOWN;
-    i++;
-
-    album.numPacks = i;
-    album.index = 0;
+    flagPb = FALSE;
+    
 
     uda1341ts_setvol(VOL_MED);
     iis_play(ROSALINA, ROSALINA_SIZE, TRUE);
 
-    sw_delay_s(4);
+    sw_delay_s(1);
 }
+
+void menuPausa()
+{
+
+}
+
+void menuImagen(uint8 index)
+{
+    lcd_clearDMA();
+
+    index = 0;
+    lcd_bmp2photo(ARBOL, album.pack[index].data.photoBuffer);
+    album.pack[index].secs = 0;
+    album.pack[index].effect = efectoCobertura;
+    album.pack[index].sense = LEFT;
+    index++;
+
+    lcd_bmp2photo(PICACHU, album.pack[index].data.photoBuffer);
+    album.pack[index].secs = 1;
+    album.pack[index].effect = efectoCobertura;
+    album.pack[index].sense = RIGHT;
+    index++;
+
+    lcd_bmp2photo(PULP, album.pack[index].data.photoBuffer);
+    album.pack[index].secs = 1;
+    album.pack[index].effect = efectoCobertura;
+    album.pack[index].sense = UP;
+    index++;
+
+    lcd_bmp2photo(HARRY, album.pack[index].data.photoBuffer);
+    album.pack[index].secs = 1;
+    album.pack[index].effect = efectoCobertura;
+    album.pack[index].sense = DOWN;
+    index++;
+}
+
 
 /*******************************************************************/
 
@@ -358,12 +417,39 @@ void lcd_putPhoto(uint8 *photo)
 */
 void lcd_putMiniaturePhoto(uint8 *min, uint8 pos)
 {
-    uint16 i, x = 8, y = 65;
+    uint16 i, x = 8, y = 75;
     x += (pos % 2) ? MIN_WIDTH + 8 : 0;
     x = x >> 1;
 
     for(i = 0; i < MIN_ROWS; i++)
         zDMA_transfer(min + (i * MIN_COLS), lcd_buffer + ((y + i) * LCD_COLS) + x, MIN_COLS, SRC_INCR | DES_INCR);
+}
+
+/* 
+Copia el contenido del LCD en un buffer de backup 
+*/
+void lcd_backUp()
+{
+    zDMA_transfer(lcd_buffer, bkUpBuffer, LCD_BUFFER_SIZE, SRC_INCR | DES_INCR);
+}
+
+/*
+* Restaura el contenido del LCD a partir del buffer de backup
+*/
+void lcd_restore()
+{
+    zDMA_transfer(bkUpBuffer, lcd_buffer, LCD_BUFFER_SIZE, SRC_INCR | DES_INCR);
+}
+
+void lcd_clearDMA()
+{
+    uint32 clear = WHITE;
+    ZDISRC0 = (2 << 30) | (3 << 28) | (uint32)&clear;                            // datos de 8b
+    ZDIDES0 = (2 << 30) | (1 << 28) | (uint32)lcd_buffer;                       // recomendada
+    ZDICNT0 = (2 << 28) | (1 << 26) | (0 << 22) | (0 << 21) | (LCD_BUFFER_SIZE & 0xFFFFF); // whole service, unit tranfer mode, pooling mode, no autoreload, size
+    ZDICNT0 |= (1 << 20);                                                       // enable DMA (seg�n manual debe hacerse en escritura separada a la escritura del resto de registros)
+    ZDCON0 = 1;                                                                 // start DMA
+    while (ZDCCNT0 & 0xFFFFF);
 }
 
 /*
@@ -596,4 +682,17 @@ void isr_pb( void )
     flagPb = TRUE;
     EXTINTPND = BIT_RIGHTPB | BIT_LEFTPB;
     I_ISPC = BIT_PB;
+}
+
+void isr_keyPad( void )
+{
+    flagKeyPad = TRUE;
+    I_ISPC = BIT_KEYPAD;
+}
+
+void isr_ts( void )
+{
+    flagTs = TRUE;
+    INTPND &= ~(BIT_EINT2);
+    I_ISPC = BIT_TS;
 }

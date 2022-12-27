@@ -5,7 +5,7 @@
 #include <lcd.h>
 #include <ts.h>
 
-#define PX_ERROR    (5)
+#define PX_ERROR    (7)
 
 static uint16 Vxmin = 0;
 static uint16 Vxmax = 0;
@@ -67,7 +67,7 @@ static void ts_calibrate( void )
         sw_delay_s(2);
         //PINTA CUADRADO 5X5 PX EN (0,0) Y SOLICITA PRESIONAR TOUCHSCREEN
         lcd_clear();
-        lcd_puts(80, 128, BLACK, "Presione en el cuadrado");
+        lcd_puts(64, 128, BLACK, "Presione en el cuadrado");
         lcd_draw_box(0, 0, 5, 5, BLACK, 1);
     
         while(!ts_pressed()); // ESPERAMOS PRESION DE TOUCHSCREEN
@@ -78,7 +78,7 @@ static void ts_calibrate( void )
 
         //PINTA CUADRADO 5X5 PX EN (319,239) Y SOLICITA PRESIONAR TOUCHSCREEN
         lcd_clear();
-        lcd_puts(80, 128, BLACK, "Presione en el cuadrado");
+        lcd_puts(64, 128, BLACK, "Presione en el cuadrado");
         lcd_draw_box(319-5, 239-5, 319, 239, BLACK, 1);
            
         while(!ts_pressed()); // ESPERAMOS PRESION DE TOUCHSCREEN
