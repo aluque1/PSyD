@@ -268,6 +268,41 @@ void menuPausa()
 
 }
 
+void menuSelecion(uint8 index) // Menu de seleccion de settings
+{
+    lcd_clearDMA();
+    lcd_puts(19, 0, BLACK, "Configura las opciones de foto:");
+
+    lcd_draw_box(3, 18, LCD_WIDTH - 5, 19 + 31, BLACK, 2);
+    lcd_puts(LCD_WIDTH/2 - 8, 29, BLACK, "PARA SALIR PULSE EL BOTON");
+
+    while (!flagPb)
+    {
+        while (!flagTs && !flagPb);
+
+        if (flagTs)
+        {
+            ts_getpos(&xTs, &yTs);
+            flagTs = FALSE;
+            if (yTs >= 75 && yTs < 203)
+            {
+                lcd_backUp();
+                menuImagen(index + (xTs > LCD_WIDTH/2));
+                lcd_restore();
+            }
+        } 
+    }
+    flagPb = FALSE;
+
+
+    // seleccionar el effecto para la foto dada:
+    // album.pack[index].effect = efectoCobertura;
+
+    // seleccionar el tiempo para la foto dada:
+    // album.pack[index].secs = 5;
+        // si el efecto tiene sentido seleccionar este:
+}   
+
 void menuImagen(uint8 index)
 {
     lcd_clearDMA();
