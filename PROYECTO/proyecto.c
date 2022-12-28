@@ -117,6 +117,7 @@ void lcd_bmp2min(uint8 *bmp, uint8 *min);
 void test(uint8 *photo); // Incluida para uso exclusivo en depuraci�n, deber� eliminarse del proyecto final
 void photoSlider();
 void menuPrincipal();
+void menuSettings(uint8 index);
 void menuPausa();
 void menuImagen(uint8 index);
 
@@ -238,17 +239,18 @@ void menuPrincipal()
         {
             ts_getpos(&xTs, &yTs);
             flagTs = FALSE;
-            if (yTs >= 18 && yTs <= 19 + 32)
+            if (yTs >= 18 && yTs <= 19 + 32) // "boton  up"
             {
                 index -= (index == 0) ? 0 : 2;
             }
-            else if (yTs >= 203 && yTs <= LCD_HEIGHT - 5)
+            else if (yTs >= 203 && yTs <= LCD_HEIGHT - 5) // "boton down"
             {
                 index += 2; index %= album.numPacks;
             }
             else if (yTs >= 75 && yTs < 203)
             {
                 lcd_backUp();
+                menuSettings(index + (xTs > LCD_WIDTH/2));
                 menuImagen(index + (xTs > LCD_WIDTH/2));
                 lcd_restore();
             }
@@ -267,41 +269,50 @@ void menuPausa()
 {
 
 }
+/**
+ *  _________________________________________________
+ * |               configura la foto                |
+ * |                                                |
+ * |  _________________         _______________     |
+ * | |                |        |___SEGUNDOS___|     |   (MIN_WIDTH + 20, 75), (MIN_WIDTH + 160, 95)
+ * | |                |                             |
+ * | |                |         _______________     |
+ * | |      PHOTO     |        |____EFECTO____|     |   (MIN_WIDTH + 20, 125), (MIN_WIDTH + 160, 145)      
+ * | |                |                             |
+ * | |                |         _______________     |               
+ * | |________________|        |____SENTIDO___|     |   (MIN_WIDTH + 20, 175), (MIN_WIDTH + 160, 195)
+ * |                                                |
+ * |________________________________________________|
+ * 
+*/
 
-void menuSelecion(uint8 index) // Menu de seleccion de settings
-{
+void menuSettings(uint8 index)
+{ 
+    uint8 tiempo = 1;
     lcd_clearDMA();
-    lcd_puts(19, 0, BLACK, "Configura las opciones de foto:");
+    lcd_puts(19, 0, BLACK, "Configura la foto:");
 
-    lcd_draw_box(3, 18, LCD_WIDTH - 5, 19 + 31, BLACK, 2);
-    lcd_puts(LCD_WIDTH/2 - 8, 29, BLACK, "PARA SALIR PULSE EL BOTON");
+    lcd_putMiniaturePhoto(album.pack[index].data.min, 0);
+    
+    lcd_draw_box((MIN_WIDTH + 20), 75, (MIN_WIDTH + 160), 95, BLACK, 2);
+    lcd_puts(174, 78, BLACK, "SEGUNDOS: " );
 
-    while (!flagPb)
+    lcd_draw_box((MIN_WIDTH + 20), 125, (MIN_WIDTH + 160), 145, BLACK, 2);
+    lcd_puts(174, 128, BLACK, "EFECTOS: " );
+
+    lcd_draw_box((MIN_WIDTH + 20), 175, (MIN_WIDTH + 160), 195, BLACK, 2);
+    lcd_puts(174, 178, BLACK, "SENTIDO: " );
+    
+
+    while (!flagTs);
+
+    if (flagTs)
     {
-        while (!flagTs && !flagPb);
-
-        if (flagTs)
-        {
-            ts_getpos(&xTs, &yTs);
-            flagTs = FALSE;
-            if (yTs >= 75 && yTs < 203)
-            {
-                lcd_backUp();
-                menuImagen(index + (xTs > LCD_WIDTH/2));
-                lcd_restore();
-            }
-        } 
+        ts_getpos(&xTs, &yTs);
+        flagTs = FALSE;
+        // TODO queda hacer que cuando pulses cada cosa se pueda elegir y todas esas mierdas
     }
-    flagPb = FALSE;
-
-
-    // seleccionar el effecto para la foto dada:
-    // album.pack[index].effect = efectoCobertura;
-
-    // seleccionar el tiempo para la foto dada:
-    // album.pack[index].secs = 5;
-        // si el efecto tiene sentido seleccionar este:
-}   
+}
 
 void menuImagen(uint8 index)
 {
