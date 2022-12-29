@@ -156,6 +156,7 @@ void efectoAleatorio(uint8 *photo, uint8 sense);
 // variables globales
 album_t album;
 pf_t effectArray[] = {*efectoNulo, *efectoEmpuje, *efectoBarrido, *efectoRevelado, *efectoCobertura}; // Array de puntero a funcion de ejecto
+//TODO array de bool para si tiene sentido o no.
 uint8 *photoArray[] = {ARBOL, PICACHU, PULP, HARRY}; // Array de punteros a las fotos a visualizar
 uint8 *minArray[] = {MINIARBOL, MINIPICACHU, MINIPULP, MINIHARRY}; // Array de punteros a las miniaturas de las fotos a visualizar
 uint8 bkUpBuffer[LCD_BUFFER_SIZE];
@@ -275,7 +276,7 @@ void menuPausa()
 
 /**
  *  _________________________________________________
- * |               configura la foto                |
+ * | configura la foto                              |
  * |                                                |
  * |  _________________         _______________     |
  * | |                |        |___SEGUNDOS___|     |   (MIN_WIDTH + 20, 65), (MIN_WIDTH + 160, 85)
@@ -286,7 +287,7 @@ void menuPausa()
  * | |                |         _______________     |               
  * | |________________|        |____SENTIDO___|     |   (MIN_WIDTH + 20, 165), (MIN_WIDTH + 160, 185)
  * |                                                |
- * |  modo :         use el teclado para seleccionar|                                                   
+ * |  modo :                        Use el keypad   |                                                   
  * |________________________________________________|
  * 
 */
@@ -296,6 +297,7 @@ void menuSettings(uint8 index)
     uint8 setting; // 0 = Segundos :: 1 = Efectos :: 2 = Sentido
     lcd_clearDMA();
     lcd_puts(19, 0, BLACK, "Configura la foto:");
+    lcd_puts(((LCD_WIDTH/2) + 25), (LCD_HEIGHT - 15), BLACK, "Use el keypad");
 
     lcd_putMiniaturePhoto(album.pack[index].data.min, 0);
     
@@ -314,30 +316,28 @@ void menuSettings(uint8 index)
 
         if (flagTs)
         {
-            ts_getpos(&xTs, &yTs); // TODO maybe streamline with a case ????
+            ts_getpos(&xTs, &yTs);
             flagTs = FALSE;
             if((yTs > 65) && (yTs < 85) && (xTs > 164) && (xTs < 304)) { setting = 0; }
             else if((yTs > 115) && (yTs < 135) && (xTs > 164) && (xTs < 304)) { setting = 1; }
             else if((yTs > 165) && (yTs < 185) && (xTs > 164) && (xTs < 304)) { setting = 2; }
+            
             switch (setting)
             {
             case 0: // Segundos
                 lcd_puts(10, (LCD_HEIGHT - 15), BLACK, "CAMBIANDO : SEGUNDOS");
-                lcd_puts(((LCD_WIDTH/2) + 25), (LCD_HEIGHT - 15), BLACK, "Use el keypad");
                 keypad_action();
                 album.pack[index].secs = scancode;
                 lcd_putint(270, 68, BLACK, scancode);
                 break;
             case 1: // Efecto
                 lcd_puts(10, (LCD_HEIGHT - 15), BLACK, "CAMBIANDO : EFFECTO");
-                lcd_puts(((LCD_WIDTH/2) + 25), (LCD_HEIGHT - 15), BLACK, "Use el keypad");
                 keypad_action();
                 album.pack[index].effect = effectArray[scancode];
                 lcd_putint(270, 118, BLACK, scancode);
                 break;
-            case 2: // Sentido
+            case 2: // Sentido  TODO if del effecto para ver si tiene sentido o no
                 lcd_puts(10, (LCD_HEIGHT - 15), BLACK, "CAMBIANDO : SENTIDO");
-                lcd_puts(((LCD_WIDTH/2) + 25), (LCD_HEIGHT - 15), BLACK, "Use el keypad");
                 keypad_action();
                 album.pack[index].sense = scancode;
                 lcd_putint(270, 168, BLACK, scancode);
@@ -352,15 +352,7 @@ void menuSettings(uint8 index)
 
 void keypad_action(){
     flagKeyPad = FALSE;
-    uint16 ticks;
-    ticks = 0;
-    while( ticks != 5 )
-    {
-        while( !flagKeyPad );
-        flagKeyPad = FALSE;
-        scancode = keypad_getchar();
-        ticks++;
-    }
+    scancode = keypad_getchar();
 }
 
 void menuImagen(uint8 index)
