@@ -12,6 +12,7 @@
 #include <pbs.h>
 #include <keypad.h>
 #include <ts.h>
+#include <stdlib.h>
 
 /* N�mero m�ximo de fotos distintas visualizables en el marco */
 
@@ -120,7 +121,7 @@ void photoSlider();
 void menuPrincipal();
 void menuSettings(uint8 index);
 void menuPausa();
-void menuImagen(uint8 index);
+void initPack();
 
 void lcd_shift(uint8 sense, uint16 initRow, uint16 initCol, uint16 endRow, uint16 endCol);
 void lcd_putColumn(uint16 xLcd, uint8 *photo, uint16 xPhoto, uint16 yLcdUp, uint16 yLcdDown, uint16 yPhotoUp);
@@ -140,27 +141,32 @@ void efectoEmpuje(uint8 *photo, uint8 sense);
 void efectoBarrido(uint8 *photo, uint8 sense);
 void efectoRevelado(uint8 *photo, uint8 sense);
 void efectoCobertura(uint8 *photo, uint8 sense);
+void efectoDivisionEntrante(uint8 *photo, uint8 sense);
+void efectoDivisionSaliente(uint8 *photo, uint8 sense);
+void efectoAleatorio(uint8 *photo, uint8 sense);
 
 
 // Otros posibles efectos a implementar
-void efectoDivisionEntrante(uint8 *photo, uint8 sense);
-void efectoDivisionSaliente(uint8 *photo, uint8 sense);
+
 void efectoCuadradoEntrante(uint8 *photo, uint8 sense);
 void efectoCuadradoSaliente(uint8 *photo, uint8 sense);
 void efectoBarras(uint8 *photo, uint8 sense);
 void efectoPeine(uint8 *photo, uint8 sense);
 void efectoDisolver(uint8 *photo, uint8 sense);
 void efectoFlash(uint8 *photo, uint8 sense);
-void efectoAleatorio(uint8 *photo, uint8 sense);
 
 // variables globales
 album_t album;
-pf_t effectArray[] = {*efectoNulo, *efectoEmpuje, *efectoBarrido, *efectoRevelado, *efectoCobertura}; // Array de puntero a funcion de ejecto
+pf_t effectArray[] = {*efectoAleatorio, *efectoNulo, *efectoEmpuje, *efectoBarrido, *efectoRevelado, *efectoCobertura}; // Array de puntero a funcion de ejecto
+uint8 tieneSentido[] = {0, 0, 1, 1, 1, 1};
 //TODO array de bool para si tiene sentido o no.
 uint8 *photoArray[] = {ARBOL, PICACHU, PULP, HARRY}; // Array de punteros a las fotos a visualizar
 uint8 *minArray[] = {MINIARBOL, MINIPICACHU, MINIPULP, MINIHARRY}; // Array de punteros a las miniaturas de las fotos a visualizar
 uint8 bkUpBuffer[LCD_BUFFER_SIZE];
 const uint8 numPhotos = 4; // N�mero de fotos a visualizar
+const uint8 numEffects = 6; // N�mero de efectos de transici�n entre fotos
+
+static unsigned long int next = 1;
 
 /*******************************************************************/
 
@@ -184,6 +190,8 @@ void main(void)
     flagTs = FALSE;
     flagExit = FALSE;
 
+    timer3_start();
+
     uint8 i;
     for (i = 0; i < numPhotos; i++)
     {
@@ -192,6 +200,8 @@ void main(void)
     }
     album.numPacks = numPhotos;
     album.index = 0;
+
+    next = timer3_stop();
 
     menuPrincipal();
     while (1)
@@ -243,19 +253,20 @@ void menuPrincipal()
         {
             ts_getpos(&xTs, &yTs);
             flagTs = FALSE;
-            if (yTs >= 18 && yTs <= 19 + 32) // "boton  up"
-            {
+            switch (yTs){
+            case 18 ... 19 + 32:
                 index -= (index == 0) ? 0 : 2;
-            }
-            else if (yTs >= 203 && yTs <= LCD_HEIGHT - 5) // "boton down"
-            {
+                break;
+            case 203 ... LCD_HEIGHT - 5:
                 index += 2; index %= album.numPacks;
-            }
-            else if (yTs >= 75 && yTs < 203)
-            {
+                break;
+            case 75 ... 202:
                 lcd_backUp();
                 menuSettings(index + (xTs > LCD_WIDTH/2));
                 lcd_restore();
+                break;
+            default:
+                break;
             }
         } 
     }
@@ -273,7 +284,6 @@ void menuPausa()
 
 }
 
-
 /**
  *  _________________________________________________
  * | configura la foto                              |
@@ -289,12 +299,13 @@ void menuPausa()
  * |                                                |
  * |  modo :                        Use el keypad   |                                                   
  * |________________________________________________|
- * 
 */
 
 void menuSettings(uint8 index)
 { 
     uint8 setting; // 0 = Segundos :: 1 = Efectos :: 2 = Sentido
+    uint8 indexEfecto;
+    indexEfecto = 0;
     lcd_clearDMA();
     lcd_puts(19, 0, BLACK, "Configura la foto:");
     lcd_puts(((LCD_WIDTH/2) + 25), (LCD_HEIGHT - 15), BLACK, "Use el keypad");
@@ -303,12 +314,15 @@ void menuSettings(uint8 index)
     
     lcd_draw_box((MIN_WIDTH + 20), 65, (MIN_WIDTH + 160), 85, BLACK, 2);
     lcd_puts(174, 68, BLACK, "SEGUNDOS: " );
+    lcd_putint(270, 118, BLACK, 3);
 
     lcd_draw_box((MIN_WIDTH + 20), 115, (MIN_WIDTH + 160), 135, BLACK, 2);
-    lcd_puts(174, 118, BLACK, "EFECTOS: " );
+    lcd_puts(174, 118, BLACK, "EFECTO: " );
+    lcd_puts(270, 118, BLACK, "Aleatorio");
 
     lcd_draw_box((MIN_WIDTH + 20), 165, (MIN_WIDTH + 160), 185, BLACK, 2);
     lcd_puts(174, 168, BLACK, "SENTIDO: " );
+    lcd_puts(270, 118, BLACK, "No apply");
     
     while (!flagPb)
     { 
@@ -326,21 +340,32 @@ void menuSettings(uint8 index)
             {
             case 0: // Segundos
                 lcd_puts(10, (LCD_HEIGHT - 15), BLACK, "CAMBIANDO : SEGUNDOS");
+                while(!flagKeyPad);
                 keypad_action();
                 album.pack[index].secs = scancode;
                 lcd_putint(270, 68, BLACK, scancode);
                 break;
             case 1: // Efecto
                 lcd_puts(10, (LCD_HEIGHT - 15), BLACK, "CAMBIANDO : EFFECTO");
+                while(!flagKeyPad);
                 keypad_action();
+                indexEfecto = scancode;
                 album.pack[index].effect = effectArray[scancode];
                 lcd_putint(270, 118, BLACK, scancode);
                 break;
-            case 2: // Sentido  TODO if del effecto para ver si tiene sentido o no
-                lcd_puts(10, (LCD_HEIGHT - 15), BLACK, "CAMBIANDO : SENTIDO");
-                keypad_action();
-                album.pack[index].sense = scancode;
-                lcd_putint(270, 168, BLACK, scancode);
+            case 2: // Sentido  
+                if (tieneSentido[indexEfecto])
+                {
+                    lcd_puts(10, (LCD_HEIGHT - 15), BLACK, "CAMBIANDO : SENTIDO");
+                    while(!flagKeyPad);
+                    keypad_action();
+                    album.pack[index].sense = scancode;
+                    lcd_putint(270, 168, BLACK, scancode);
+                } 
+                else
+                {
+                    lcd_puts(10, (LCD_HEIGHT - 15), BLACK, "EFECTO SIN SENTIDO");
+                }
                 break;
             default:
                 break;
@@ -355,34 +380,15 @@ void keypad_action(){
     scancode = keypad_getchar();
 }
 
-void menuImagen(uint8 index)
+void initPack()
 {
-    lcd_clearDMA();
-
-    index = 0;
-    lcd_bmp2photo(ARBOL, album.pack[index].data.photoBuffer);
-    album.pack[index].secs = 0;
-    album.pack[index].effect = efectoCobertura;
-    album.pack[index].sense = LEFT;
-    index++;
-
-    lcd_bmp2photo(PICACHU, album.pack[index].data.photoBuffer);
-    album.pack[index].secs = 1;
-    album.pack[index].effect = efectoCobertura;
-    album.pack[index].sense = RIGHT;
-    index++;
-
-    lcd_bmp2photo(PULP, album.pack[index].data.photoBuffer);
-    album.pack[index].secs = 1;
-    album.pack[index].effect = efectoCobertura;
-    album.pack[index].sense = UP;
-    index++;
-
-    lcd_bmp2photo(HARRY, album.pack[index].data.photoBuffer);
-    album.pack[index].secs = 1;
-    album.pack[index].effect = efectoCobertura;
-    album.pack[index].sense = DOWN;
-    index++;
+    uint8 i = 0;
+    for (i = 0; i < numPhotos; i++)
+    {
+        album.pack[i].effect = effectArray[0];
+        album.pack[i].secs = 3;
+        album.pack[i].sense = NO_APPLY;
+    }
 }
 
 
@@ -587,6 +593,17 @@ void zDMA_transfer(uint8 *src, uint8 *dst, uint32 size, uint8 mode)
     while (ZDCCNT0 & 0xFFFFF);                                                  // Espera a que la transferencia por DMA finalice
 }
 
+int rand(void) // RAND_MAX assumed to be 32767
+{
+    next = next * 1103515245 + 12345;
+    return (unsigned int)(next/65536) % 32768;
+}
+
+void srand(unsigned int seed)
+{
+    next = seed;
+}
+
 /*******************************************************************/
 
 /*
@@ -596,12 +613,7 @@ void zDMA_transfer(uint8 *src, uint8 *dst, uint32 size, uint8 mode)
 */
 void efectoNulo(uint8 *photo, uint8 sense)
 {
-    switch (sense)
-    {
-    default:
-        lcd_putPhoto(photo);
-        break;
-    }
+    lcd_putPhoto(photo);
 }
 
 /*
@@ -762,6 +774,96 @@ void efectoCobertura(uint8 *photo, uint8 sense)
         }
         break;
     }
+}
+
+
+/*
+** Efecto division: La nueva imagen se superpone desde los extremos de la pantalla hacia el centro
+*/
+void efectoDivisionEntrante(uint8 *photo, uint8 sense)
+{
+    uint16 i;
+    switch (sense)
+    {
+    case LEFT:
+        for (i = 0; i < LCD_COLS/2; i++)
+        {
+            lcd_putColumn(i, photo, i, 0, 239, 0);
+            lcd_putColumn((LCD_COLS - 1) - i, photo, i, 0, 239, 0);
+        }
+        break;
+    case RIGHT:
+        for (i = 0; i < LCD_COLS/2; i++)
+        {
+            lcd_putColumn(i, photo, (LCD_COLS - 1) - i, 0, 239, 0);
+            lcd_putColumn((LCD_COLS - 1) - i, photo, (LCD_COLS - 1) - i, 0, 239, 0);
+        }
+        break;
+    case UP:
+        for (i = 0; i < LCD_ROWS/2; i++)
+        {
+            lcd_putRow(i, photo, i, 0, 319, 0);
+            lcd_putRow((LCD_ROWS - 1) - i, photo, i, 0, 319, 0);
+        }
+        break;
+    case DOWN:
+        for (i = 0; i < LCD_ROWS/2; i++)
+        {
+            lcd_putRow(i, photo, (LCD_ROWS - 1) - i, 0, 319, 0);
+            lcd_putRow((LCD_ROWS - 1) - i, photo, (LCD_ROWS - 1) - i, 0, 319, 0);
+        }
+        break;
+    
+    default:
+        break;
+    }
+}
+
+/*
+** Efecto divisionSaliente: La nueva imagen se superpone desde el centro de la pantalla hacia los extremos
+*/
+void efectoDivisionSaliente(uint8 *photo, uint8 sense)
+{
+    uint16 i , j;
+    switch (sense)
+    {
+    case LEFT:
+        for (i = LCD_COLS/2, j = LCD_COLS/2 - 1; j >= 0, i < LCD_COLS; i++, j--)
+        {
+            lcd_putColumn(j, photo, j, 0, 239, 0);
+            lcd_putColumn(i, photo, j, 0, 239, 0);
+        }
+        break;
+    case RIGHT:
+        for (i = LCD_COLS/2, j = LCD_COLS/2 - 1; j >= 0, i < LCD_COLS; i++, j--)
+        {
+            lcd_putColumn(j, photo, (LCD_COLS - 1) - j, 0, 239, 0);
+            lcd_putColumn(i, photo, (LCD_COLS - 1) - j, 0, 239, 0);
+        }
+        break;
+    case UP:
+        for (i = LCD_ROWS/2, j = LCD_ROWS/2 - 1; j >= 0, i < LCD_ROWS; i++, j--)
+        {
+            lcd_putRow(j, photo, j, 0, 319, 0);
+            lcd_putRow(i, photo, j, 0, 319, 0);
+        }
+        break;
+    case DOWN:
+        for (i = LCD_ROWS/2, j = LCD_ROWS/2 - 1; j >= 0, i < LCD_ROWS; i++, j--)
+        {
+            lcd_putRow(j, photo, (LCD_ROWS - 1) - j, 0, 319, 0);
+            lcd_putRow(i, photo, (LCD_ROWS - 1) - j, 0, 319, 0);
+        }
+    break;
+    }
+}
+
+/*
+* Efecto aleatorio: Se elige un efecto aleatorio y se le pasa un sentido aleatorio
+*/
+void efectoAleatorio(uint8 *photo, uint8 sense)
+{
+    effectArray[rand() % numEffects](photo, rand() % 4);
 }
 
 void isr_pb( void )
