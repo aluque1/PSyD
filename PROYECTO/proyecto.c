@@ -293,6 +293,7 @@ void menuPausa()
 
 void menuSettings(uint8 index)
 { 
+    uint8 setting; // 0 = Segundos :: 1 = Efectos :: 2 = Sentido
     lcd_clearDMA();
     lcd_puts(19, 0, BLACK, "Configura la foto:");
 
@@ -315,29 +316,34 @@ void menuSettings(uint8 index)
         {
             ts_getpos(&xTs, &yTs); // TODO maybe streamline with a case ????
             flagTs = FALSE;
-            if((yTs > 65) && (yTs < 85) && (xTs > 164) && (xTs < 304)) // "boton de segundos"
+            if((yTs > 65) && (yTs < 85) && (xTs > 164) && (xTs < 304)) { setting = 0; }
+            else if((yTs > 115) && (yTs < 135) && (xTs > 164) && (xTs < 304)) { setting = 1; }
+            else if((yTs > 165) && (yTs < 185) && (xTs > 164) && (xTs < 304)) { setting = 2; }
+            switch (setting)
             {
+            case 0: // Segundos
                 lcd_puts(10, (LCD_HEIGHT - 15), BLACK, "CAMBIANDO : SEGUNDOS");
                 lcd_puts(((LCD_WIDTH/2) + 25), (LCD_HEIGHT - 15), BLACK, "Use el keypad");
                 keypad_action();
                 album.pack[index].secs = scancode;
                 lcd_putint(270, 68, BLACK, scancode);
-            }
-            else if((yTs > 115) && (yTs < 135) && (xTs > 164) && (xTs < 304)) // "boton de efectos"
-            {
+                break;
+            case 1: // Efecto
                 lcd_puts(10, (LCD_HEIGHT - 15), BLACK, "CAMBIANDO : EFFECTO");
                 lcd_puts(((LCD_WIDTH/2) + 25), (LCD_HEIGHT - 15), BLACK, "Use el keypad");
                 keypad_action();
                 album.pack[index].effect = effectArray[scancode];
                 lcd_putint(270, 118, BLACK, scancode);
-            }
-            else if((yTs > 165) && (yTs < 185) && (xTs > 164) && (xTs < 304)) // "boton de sentido"
-            {
+                break;
+            case 2: // Sentido
                 lcd_puts(10, (LCD_HEIGHT - 15), BLACK, "CAMBIANDO : SENTIDO");
                 lcd_puts(((LCD_WIDTH/2) + 25), (LCD_HEIGHT - 15), BLACK, "Use el keypad");
                 keypad_action();
                 album.pack[index].sense = scancode;
                 lcd_putint(270, 168, BLACK, scancode);
+                break;
+            default:
+                break;
             }
         }
     }
