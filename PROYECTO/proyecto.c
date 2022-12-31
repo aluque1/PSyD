@@ -157,14 +157,16 @@ void efectoFlash(uint8 *photo, uint8 sense);
 
 // variables globales
 album_t album;
-pf_t effectArray[] = {*efectoAleatorio, *efectoNulo, *efectoEmpuje, *efectoBarrido, *efectoRevelado, *efectoCobertura}; // Array de puntero a funcion de ejecto
-uint8 tieneSentido[] = {0, 0, 1, 1, 1, 1};
+pf_t effectArray[] = {efectoAleatorio, efectoNulo, efectoEmpuje, efectoBarrido, efectoRevelado, efectoCobertura, efectoDivisionEntrante, efectoDivisionSaliente}; // Array de puntero a funcion de ejecto
+char* effectName[] = {"Aleatorio", "Nulo", "Empuje", "Barrido", "Revelado", "Cobertura", "DivisionIn", "DivisionOut"}; // Array de nombres de efectos
+char* senseName[]  = {"LEFT", "RIGHT", "UP", "DOWN"};
+uint8 tieneSentido[] = {0, 0, 1, 1, 1, 1, 1, 1};
 //TODO array de bool para si tiene sentido o no.
 uint8 *photoArray[] = {ARBOL, PICACHU, PULP, HARRY}; // Array de punteros a las fotos a visualizar
 uint8 *minArray[] = {MINIARBOL, MINIPICACHU, MINIPULP, MINIHARRY}; // Array de punteros a las miniaturas de las fotos a visualizar
 uint8 bkUpBuffer[LCD_BUFFER_SIZE];
 const uint8 numPhotos = 4; // N�mero de fotos a visualizar
-const uint8 numEffects = 6; // N�mero de efectos de transici�n entre fotos
+const uint8 numEffects = 8; // N�mero de efectos de transici�n entre fotos
 
 static unsigned long int next = 1;
 
@@ -202,8 +204,9 @@ void main(void)
     album.index = 0;
 
     next = timer3_stop();
+    initPack();
 
-    menuPrincipal();
+    //menuPrincipal();
     while (1)
     {
         if(flagPb)
@@ -224,7 +227,7 @@ void photoSlider()
 {
     (*album.pack[album.index].effect)(album.pack[album.index].data.photoBuffer, album.pack[album.index].sense); // Ejecuta el efecto para visualizar la nueva foto
     test(album.pack[album.index].data.photoBuffer);                                   // Chequea que el resultado del efecto es el deseado
-    timer3_delay_s(album.pack[album.index].secs);         // Mantiene la foto el tiempo indicado
+    sw_delay_s(album.pack[album.index].secs);         // Mantiene la foto el tiempo indicado
     ++album.index; album.index %= album.numPacks;                                      // Avanza circularmente a la siguiente foto del album
 }
 
@@ -257,7 +260,7 @@ void menuPrincipal()
             case 18 ... 19 + 32:
                 index -= (index == 0) ? 0 : 2;
                 break;
-            case 203 ... LCD_HEIGHT - 5:
+            case 203 ... LCD_HEIGHT - 1:
                 index += 2; index %= album.numPacks;
                 break;
             case 75 ... 202:
@@ -300,29 +303,30 @@ void menuPausa()
  * |  modo :                        Use el keypad   |                                                   
  * |________________________________________________|
 */
-
 void menuSettings(uint8 index)
-{ 
-    uint8 setting; // 0 = Segundos :: 1 = Efectos :: 2 = Sentido
+{
+    uint8 secs = 3;
+    uint8 sense = 0;
     uint8 indexEfecto;
     indexEfecto = 0;
     lcd_clearDMA();
-    lcd_puts(19, 0, BLACK, "Configura la foto:");
-    lcd_puts(((LCD_WIDTH/2) + 25), (LCD_HEIGHT - 15), BLACK, "Use el keypad");
+    lcd_puts(88, 0, BLACK, "Configura la foto");
 
     lcd_putMiniaturePhoto(album.pack[index].data.min, 0);
     
     lcd_draw_box((MIN_WIDTH + 20), 65, (MIN_WIDTH + 160), 85, BLACK, 2);
     lcd_puts(174, 68, BLACK, "SEGUNDOS: " );
-    lcd_putint(270, 118, BLACK, 3);
+    lcd_putint(270, 68, BLACK, 3);
 
-    lcd_draw_box((MIN_WIDTH + 20), 115, (MIN_WIDTH + 160), 135, BLACK, 2);
-    lcd_puts(174, 118, BLACK, "EFECTO: " );
-    lcd_puts(270, 118, BLACK, "Aleatorio");
+    lcd_draw_box((MIN_WIDTH + 20), 107, (MIN_WIDTH + 160), 143, BLACK, 2);
+    lcd_puts(210, 110, BLACK, "EFECTO: " );
+    lcd_puts(174, 125, BLACK, "Aleatorio");
 
     lcd_draw_box((MIN_WIDTH + 20), 165, (MIN_WIDTH + 160), 185, BLACK, 2);
     lcd_puts(174, 168, BLACK, "SENTIDO: " );
-    lcd_puts(270, 118, BLACK, "No apply");
+    lcd_puts(240, 168, BLACK, "No apply");
+
+    lcd_puts(10, (LCD_HEIGHT - 15), BLACK, "CAMBIANDO:");
     
     while (!flagPb)
     { 
@@ -332,47 +336,59 @@ void menuSettings(uint8 index)
         {
             ts_getpos(&xTs, &yTs);
             flagTs = FALSE;
-            if((yTs > 65) && (yTs < 85) && (xTs > 164) && (xTs < 304)) { setting = 0; }
-            else if((yTs > 115) && (yTs < 135) && (xTs > 164) && (xTs < 304)) { setting = 1; }
-            else if((yTs > 165) && (yTs < 185) && (xTs > 164) && (xTs < 304)) { setting = 2; }
             
-            switch (setting)
+            switch (yTs)
             {
-            case 0: // Segundos
-                lcd_puts(10, (LCD_HEIGHT - 15), BLACK, "CAMBIANDO : SEGUNDOS");
+            case 63 ... 88: // Segundos
+                if(xTs < 160) break;
+                lcd_puts(98, (LCD_HEIGHT - 15), BLACK, "SEGUNDOS");
+                lcd_puts(LCD_WIDTH - 123, (LCD_HEIGHT - 15), BLACK, "Use el keypad");
                 while(!flagKeyPad);
                 keypad_action();
-                album.pack[index].secs = scancode;
-                lcd_putint(270, 68, BLACK, scancode);
+                secs = scancode;
+                lcd_puts(270, 68, BLACK, "  ");
+                lcd_putint(270, 68, BLACK, secs);
                 break;
-            case 1: // Efecto
-                lcd_puts(10, (LCD_HEIGHT - 15), BLACK, "CAMBIANDO : EFFECTO");
+            case 113 ... 145: // Efecto
+                if(xTs < 160) break;
+                lcd_puts(98, (LCD_HEIGHT - 15), BLACK, "EFFECTO");
+                lcd_puts(LCD_WIDTH - 123, (LCD_HEIGHT - 15), BLACK, "Use el keypad");
                 while(!flagKeyPad);
                 keypad_action();
                 indexEfecto = scancode;
-                album.pack[index].effect = effectArray[scancode];
-                lcd_putint(270, 118, BLACK, scancode);
+                lcd_puts(174, 125, BLACK, "               ");
+                lcd_puts(174, 125, BLACK, effectName[indexEfecto]);
+                if (!tieneSentido[indexEfecto])
+                lcd_puts(240, 168, BLACK, "No apply");
+                else{
+                    lcd_puts(240, 168, BLACK, "        ");
+                    lcd_puts(240, 168, BLACK, senseName[sense]);
+                }
                 break;
-            case 2: // Sentido  
+            case 160 ... 190: // Sentido  
+                if(xTs < 160) break;
                 if (tieneSentido[indexEfecto])
                 {
-                    lcd_puts(10, (LCD_HEIGHT - 15), BLACK, "CAMBIANDO : SENTIDO");
+                    lcd_puts(98, (LCD_HEIGHT - 15), BLACK, "SENTIDO");
+                    lcd_puts(LCD_WIDTH - 123, (LCD_HEIGHT - 15), BLACK, "Use el keypad");
                     while(!flagKeyPad);
                     keypad_action();
-                    album.pack[index].sense = scancode;
-                    lcd_putint(270, 168, BLACK, scancode);
-                } 
-                else
-                {
-                    lcd_puts(10, (LCD_HEIGHT - 15), BLACK, "EFECTO SIN SENTIDO");
+                    sense = scancode;
+                    lcd_puts(240, 168, BLACK, "        ");
+                    lcd_puts(240, 168, BLACK, senseName[sense]);
                 }
                 break;
             default:
                 break;
             }
+            lcd_puts(98, (LCD_HEIGHT - 15), BLACK, "         ");
+            lcd_puts(LCD_WIDTH - 123, (LCD_HEIGHT - 15), BLACK, "              ");
         }
     }
     flagPb = FALSE;
+    album.pack[index].secs = secs;
+    album.pack[index].effect = effectArray[indexEfecto];
+    album.pack[index].sense = sense;
 }
 
 void keypad_action(){
@@ -385,9 +401,9 @@ void initPack()
     uint8 i = 0;
     for (i = 0; i < numPhotos; i++)
     {
-        album.pack[i].effect = effectArray[0];
+        album.pack[i].effect = efectoCobertura;
         album.pack[i].secs = 3;
-        album.pack[i].sense = NO_APPLY;
+        album.pack[i].sense = i;
     }
 }
 
@@ -776,45 +792,45 @@ void efectoCobertura(uint8 *photo, uint8 sense)
     }
 }
 
-
 /*
 ** Efecto division: La nueva imagen se superpone desde los extremos de la pantalla hacia el centro
 */
 void efectoDivisionEntrante(uint8 *photo, uint8 sense)
 {
-    uint16 i;
+    uint16 i, j;
     switch (sense)
     {
     case LEFT:
-        for (i = 0; i < LCD_COLS/2; i++)
+        for (i = 0, j = LCD_COLS - 1; j >= LCD_COLS/2 && i < LCD_COLS/2; i++, j--)
         {
+            lcd_putColumn(j, photo, j, 0, 239, 0);
             lcd_putColumn(i, photo, i, 0, 239, 0);
-            lcd_putColumn((LCD_COLS - 1) - i, photo, i, 0, 239, 0);
+            sw_delay_ms(10);
         }
         break;
     case RIGHT:
-        for (i = 0; i < LCD_COLS/2; i++)
+        for (i = 0, j = LCD_COLS - 1; j >= LCD_COLS/2 && i < LCD_COLS/2; i++, j--)
         {
-            lcd_putColumn(i, photo, (LCD_COLS - 1) - i, 0, 239, 0);
-            lcd_putColumn((LCD_COLS - 1) - i, photo, (LCD_COLS - 1) - i, 0, 239, 0);
+            lcd_putColumn(j, photo, j, 0, 239, 0);
+            lcd_putColumn(i, photo, i, 0, 239, 0);
+            sw_delay_ms(10);
         }
         break;
     case UP:
-        for (i = 0; i < LCD_ROWS/2; i++)
+    for (i = 0, j = LCD_ROWS - 1; j >= LCD_ROWS/2 && i < LCD_ROWS/2; i++, j--)
         {
+            lcd_putRow(j, photo, j, 0, 319, 0);
             lcd_putRow(i, photo, i, 0, 319, 0);
-            lcd_putRow((LCD_ROWS - 1) - i, photo, i, 0, 319, 0);
+            sw_delay_ms(13);
         }
         break;
     case DOWN:
-        for (i = 0; i < LCD_ROWS/2; i++)
+        for (i = 0, j = LCD_ROWS - 1; j >= LCD_ROWS/2 && i < LCD_ROWS/2; i++, j--)
         {
-            lcd_putRow(i, photo, (LCD_ROWS - 1) - i, 0, 319, 0);
-            lcd_putRow((LCD_ROWS - 1) - i, photo, (LCD_ROWS - 1) - i, 0, 319, 0);
+            lcd_putRow(j, photo, j, 0, 319, 0);
+            lcd_putRow(i, photo, i, 0, 319, 0);
+            sw_delay_ms(13);
         }
-        break;
-    
-    default:
         break;
     }
 }
@@ -828,31 +844,35 @@ void efectoDivisionSaliente(uint8 *photo, uint8 sense)
     switch (sense)
     {
     case LEFT:
-        for (i = LCD_COLS/2, j = LCD_COLS/2 - 1; j >= 0, i < LCD_COLS; i++, j--)
+        for (i = LCD_COLS/2, j = LCD_COLS/2 - 1; j >= 0 && i < LCD_COLS; i++, j--)
         {
             lcd_putColumn(j, photo, j, 0, 239, 0);
-            lcd_putColumn(i, photo, j, 0, 239, 0);
+            lcd_putColumn(i, photo, i, 0, 239, 0);
+            sw_delay_ms(10);
         }
         break;
     case RIGHT:
-        for (i = LCD_COLS/2, j = LCD_COLS/2 - 1; j >= 0, i < LCD_COLS; i++, j--)
+        for (i = LCD_COLS/2, j = LCD_COLS/2 - 1; j >= 0 && i < LCD_COLS; i++, j--)
         {
-            lcd_putColumn(j, photo, (LCD_COLS - 1) - j, 0, 239, 0);
-            lcd_putColumn(i, photo, (LCD_COLS - 1) - j, 0, 239, 0);
+            lcd_putColumn(j, photo, j, 0, 239, 0);
+            lcd_putColumn(i, photo, i, 0, 239, 0);
+            sw_delay_ms(10);
         }
         break;
     case UP:
-        for (i = LCD_ROWS/2, j = LCD_ROWS/2 - 1; j >= 0, i < LCD_ROWS; i++, j--)
+        for (i = LCD_ROWS/2, j = LCD_ROWS/2 - 1; j >= 0 && i < LCD_ROWS; i++, j--)
         {
             lcd_putRow(j, photo, j, 0, 319, 0);
-            lcd_putRow(i, photo, j, 0, 319, 0);
+            lcd_putRow(i, photo, i, 0, 319, 0);
+            sw_delay_ms(13);
         }
         break;
     case DOWN:
-        for (i = LCD_ROWS/2, j = LCD_ROWS/2 - 1; j >= 0, i < LCD_ROWS; i++, j--)
+        for (i = LCD_ROWS/2, j = LCD_ROWS/2 - 1; j >= 0 && i < LCD_ROWS; i++, j--)
         {
-            lcd_putRow(j, photo, (LCD_ROWS - 1) - j, 0, 319, 0);
-            lcd_putRow(i, photo, (LCD_ROWS - 1) - j, 0, 319, 0);
+            lcd_putRow(j, photo, j, 0, 319, 0);
+            lcd_putRow(i, photo, i, 0, 319, 0);
+            sw_delay_ms(13);
         }
     break;
     }

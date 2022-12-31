@@ -28,7 +28,7 @@ void ts_init( void )
     PDATE = (1 << 4) | (1 << 5) | (0 << 6) | (1 << 7);
     sw_delay_ms( 1 );
     ts_on();
-    ts_calibrate();
+    //ts_calibrate();
     ts_off();
 }
 
