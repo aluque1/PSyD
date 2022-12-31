@@ -119,8 +119,15 @@ void lcd_draw_box( uint16 xleft, uint16 yup, uint16 xright, uint16 ydown, uint8 
 {
 	lcd_draw_hrow(xleft, xright, yup, color, width);
 	lcd_draw_vrow(yup, ydown, xleft, color, width);
-	lcd_draw_hrow(xleft, xright, ydown, color, width);
-	lcd_draw_vrow(yup, ydown, xright, color, width);
+	lcd_draw_hrow(xleft, xright + (width - 1), ydown, color, width);
+	lcd_draw_vrow(yup, ydown + (width - 1), xright, color, width);
+}
+
+void lcd_draw_filled_box( uint16 xleft, uint16 yup, uint16 xright, uint16 ydown, uint8 color )
+{
+	while(yup <= ydown){
+		lcd_draw_hrow(xleft, xright, yup++ , color, 1);
+	}
 }
 
 void lcd_putchar( uint16 x, uint16 y, uint8 color, char ch )

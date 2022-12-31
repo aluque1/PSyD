@@ -94,6 +94,11 @@ void lcd_draw_vline( uint16 yup, uint16 ydown, uint16 x, uint8 color, uint16 wid
 void lcd_draw_box( uint16 xleft, uint16 yup, uint16 xright, uint16 ydown, uint8 color, uint16 width );
 
 /*
+** Dibuja un rectángulo relleno cuya esquina superior izquierda está en el pixel (xleft,yup) y cuya esquina inferior está en el píxel (xright, ydown) del color indicado
+*/
+void lcd_draw_filled_box( uint16 xleft, uint16 yup, uint16 xright, uint16 ydown, uint8 color );
+
+/*
 ** Usando una fuente 8x16, escribe un caracter a partir del pixel (x,y) en el color indicado
 */
 void lcd_putchar( uint16 x, uint16 y, uint8 color, char ch );
