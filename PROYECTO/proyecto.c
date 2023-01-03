@@ -123,6 +123,8 @@ void initPack();
 void lcd_shift(uint8 sense, uint16 initRow, uint16 initCol, uint16 endRow, uint16 endCol);
 void lcd_putColumn(uint16 xLcd, uint16 xPhoto, uint16 yLcdUp, uint16 yLcdDown, uint16 yPhotoUp, uint8 *photo);
 void lcd_putRow(uint16 yLcd, uint16 yPhoto, uint16 xLcdLeft, uint16 xLcdRight, uint16 xPhotoLeft, uint8 *photo);
+void lcd_putSquare(uint16 xLeft, uint16 xRight, uint16 yUp, uint16 yDown, uint8 *photo);
+void lcd_putBox(uint16 xLeft, uint16 xRight, uint16 yUp, uint16 yDown, uint8 *photo);
 void lcd_putPhoto(uint8 *photo);
 void lcd_putMiniaturePhoto(uint8 *min, uint8 pos);
 void zDMA_transfer(uint8 *src, uint8 *dst, uint32 size, uint8 mode);
@@ -155,10 +157,10 @@ void efectoFlash(uint8 *photo, uint8 sense);
 
 // variables globales
 album_t album;
-pf_t effectArray[] = {efectoAleatorio, efectoNulo, efectoEmpuje, efectoBarrido, efectoRevelado, efectoCobertura, efectoDivisionEntrante, efectoDivisionSaliente, efectoDisolver}; // Array de puntero a funcion de ejecto
-char* effectName[] = {"Aleatorio", "Nulo", "Empuje", "Barrido", "Revelado", "Cobertura", "DivisionIn", "DivisionOut", "Disolver"}; // Array de nombres de efectos
+pf_t effectArray[] = {efectoAleatorio, efectoNulo, efectoEmpuje, efectoBarrido, efectoRevelado, efectoCobertura, efectoDivisionEntrante, efectoDivisionSaliente, efectoDisolver, efectoCuadradoEntrante}; // Array de puntero a funcion de ejecto
+char* effectName[] = {"Aleatorio", "Nulo", "Empuje", "Barrido", "Revelado", "Cobertura", "DivisionIn", "DivisionOut", "Disolver", "CuadradoIn"}; // Array de nombres de efectos
 char* senseName[]  = {"LEFT", "RIGHT", "UP", "DOWN"};
-uint8 tieneSentido[] = {0, 0, 1, 1, 1, 1, 1, 1}; // Array de bool para saber si el efecto correspondiente tiene sentido o no.
+uint8 tieneSentido[] = {0, 0, 1, 1, 1, 1, 1, 1, 0, 0}; // Array de bool para saber si el efecto correspondiente tiene sentido o no.
 uint8 *photoArray[] = {ARBOL, PICACHU, PULP, HARRY}; // Array de punteros a las fotos a visualizar
 uint8 *minArray[] = {MINIARBOL, MINIPICACHU, MINIPULP, MINIHARRY}; // Array de punteros a las miniaturas de las fotos a visualizar
 uint8 bkUpBuffer[LCD_BUFFER_SIZE];
@@ -170,7 +172,7 @@ boolean aleatorio; // Variable para indicar si se reproduce el album en modo ale
 uint8 volumen; // Variable para almacenar el volumen de reproducci�n
 
 const uint8 numPhotos = 4; // N�mero de fotos a visualizar
-const uint8 numEffects = 9; // N�mero de efectos de transici�n entre fotos
+const uint8 numEffects = 10; // N�mero de efectos de transici�n entre fotos
 
 static unsigned long int next = 1;
 
@@ -467,7 +469,7 @@ void initPack()
     uint8 i = 0;
     for (i = 0; i < numPhotos; i++)
     {
-        album.pack[i].effect = efectoDisolver;
+        album.pack[i].effect = efectoCuadradoEntrante;
         album.pack[i].secs = 3;
         album.pack[i].sense = i;
     }
@@ -576,7 +578,7 @@ void lcd_putColumn(uint16 xLcd, uint16 xPhoto, uint16 yLcdUp, uint16 yLcdDown, u
 */
 void lcd_putRow(uint16 yLcd, uint16 yPhoto, uint16 xLcdLeft, uint16 xLcdRight, uint16 xPhotoLeft, uint8 *photo)
 {
-    xLcdLeft = xLcdLeft/2 - xLcdLeft%2; xLcdRight = xLcdRight/2 + xLcdRight%2; xPhotoLeft = xLcdLeft;
+    xLcdLeft-= xLcdLeft%2; xLcdLeft/=2; xLcdRight += xLcdRight%2; xLcdRight/=2; xPhotoLeft = xLcdLeft;
     zDMA_transfer(photo + (yPhoto * LCD_COLS) + xLcdLeft , lcd_buffer + (yLcd * LCD_COLS) + xPhotoLeft, (xLcdRight - xLcdLeft), SRC_INCR| DES_INCR);
 }
 
@@ -590,6 +592,14 @@ void lcd_putSquare(uint16 xLeft, uint16 xRight, uint16 yUp, uint16 yDown, uint8 
         lcd_putRow(yUp, yUp, xLeft, xRight, xLeft, photo);
         yUp++;
     }
+}
+
+void lcd_putBox(uint16 xLeft, uint16 xRight, uint16 yUp, uint16 yDown, uint8 *photo)
+{
+    lcd_putRow(yUp, yUp, xLeft, xRight, xLeft, photo);
+    lcd_putRow(yDown, yDown, xLeft, xRight, xLeft, photo);
+    lcd_putColumn(xLeft, xLeft, yUp, yDown, yUp, photo);
+    lcd_putColumn(xRight, xRight, yUp, yDown, yUp, photo);
 }
 
 /*
@@ -944,6 +954,21 @@ void efectoDisolver(uint8 *photo, uint8 sense)
         lcd_putSquare((j % 8) * 40, ((j % 8) * 40 + 39), (j / 8) * 30, ((j / 8) * 30 + 29), photo);
         sw_delay_ms(13);
     }
+}
+
+void efectoCuadradoEntrante(uint8 *photo, uint8 sense)
+{
+    uint8 i, j;
+
+    for (i = 0, j = 0; i < LCD_COLS/2 && j < LCD_ROWS/2; i++, j++)
+    {
+        lcd_putRow(j, j, i, (LCD_WIDTH - 1) - i, i, photo);
+        lcd_putRow((LCD_ROWS - 1) - j, (LCD_ROWS - 1) - j, i, (LCD_WIDTH - 1) - i, i, photo);
+        lcd_putColumn(i, i, j, (LCD_ROWS - 1) - j, i, photo);
+        lcd_putColumn((LCD_WIDTH - 1) - i, (LCD_WIDTH - 1) - i, j, (LCD_ROWS - 1) - j, i, photo);
+        sw_delay_ms(15);
+    }
+
 }
 
 /*
