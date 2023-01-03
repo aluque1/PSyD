@@ -158,7 +158,7 @@ album_t album;
 pf_t effectArray[] = {efectoAleatorio, efectoNulo, efectoEmpuje, efectoBarrido, efectoRevelado, efectoCobertura, efectoDivisionEntrante, efectoDivisionSaliente, efectoDisolver}; // Array de puntero a funcion de ejecto
 char* effectName[] = {"Aleatorio", "Nulo", "Empuje", "Barrido", "Revelado", "Cobertura", "DivisionIn", "DivisionOut", "Disolver"}; // Array de nombres de efectos
 char* senseName[]  = {"LEFT", "RIGHT", "UP", "DOWN"};
-uint8 tieneSentido[] = {0, 0, 1, 1, 1, 1, 1, 1, 0}; // Array de bool para saber si el efecto correspondiente tiene sentido o no.
+uint8 tieneSentido[] = {0, 0, 1, 1, 1, 1, 1, 1}; // Array de bool para saber si el efecto correspondiente tiene sentido o no.
 uint8 *photoArray[] = {ARBOL, PICACHU, PULP, HARRY}; // Array de punteros a las fotos a visualizar
 uint8 *minArray[] = {MINIARBOL, MINIPICACHU, MINIPULP, MINIHARRY}; // Array de punteros a las miniaturas de las fotos a visualizar
 uint8 bkUpBuffer[LCD_BUFFER_SIZE];
@@ -216,6 +216,7 @@ void main(void)
     iis_play(ROSALINA, ROSALINA_SIZE, TRUE);
 
     //menuPrincipal();
+    lcd_clear();
     while (1)
     {
         if(flagPb)
@@ -575,7 +576,8 @@ void lcd_putColumn(uint16 xLcd, uint16 xPhoto, uint16 yLcdUp, uint16 yLcdDown, u
 */
 void lcd_putRow(uint16 yLcd, uint16 yPhoto, uint16 xLcdLeft, uint16 xLcdRight, uint16 xPhotoLeft, uint8 *photo)
 {
-    zDMA_transfer(photo + (yPhoto * LCD_COLS) + xLcdLeft, lcd_buffer + (yLcd * LCD_COLS) + xPhotoLeft, xLcdRight - xLcdLeft, SRC_INCR| DES_INCR);
+    xLcdLeft = xLcdLeft/2 - xLcdLeft%2; xLcdRight = xLcdRight/2 + xLcdRight%2; xPhotoLeft = xLcdLeft;
+    zDMA_transfer(photo + (yPhoto * LCD_COLS) + xLcdLeft , lcd_buffer + (yLcd * LCD_COLS) + xPhotoLeft, (xLcdRight - xLcdLeft), SRC_INCR| DES_INCR);
 }
 
 /*
@@ -583,9 +585,11 @@ void lcd_putRow(uint16 yLcd, uint16 yPhoto, uint16 xLcdLeft, uint16 xLcdRight, u
 */
 void lcd_putSquare(uint16 xLeft, uint16 xRight, uint16 yUp, uint16 yDown, uint8 *photo)
 {
-    uint16 i;
-    for (i = yUp; i <= yDown; i++)
-        lcd_putRow(i, i, xLeft, xRight, xLeft, photo);
+    while (yUp <= yDown)
+    {
+        lcd_putRow(yUp, yUp, xLeft, xRight, xLeft, photo);
+        yUp++;
+    }
 }
 
 /*
@@ -922,11 +926,11 @@ void efectoDivisionSaliente(uint8 *photo, uint8 sense)
 }
 
 /*
-** Efecto desvanecer: La nueva imagen se va mostrando con cuadrados de 40x30 pixeles
+** Efecto Disolver: La nueva imagen se va mostrando con cuadrados de 40x30 pixeles
 */
 void efectoDisolver(uint8 *photo, uint8 sense)
 {
-    uint64 cuadrados = 0;
+    uint8 cuadrados[8] = {0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0};
     uint8 i, j;
 
     for(i = 0; i < 64; i++)
@@ -934,10 +938,11 @@ void efectoDisolver(uint8 *photo, uint8 sense)
         do 
         {
             j = rand() % 64;
-        } while (cuadrados & (1 << j));
-        cuadrados |= (1 << j);
+        } while (cuadrados[j / 8] & (1 << (j % 8)));
+        cuadrados[j / 8] |= (1 << (j % 8));
 
         lcd_putSquare((j % 8) * 40, ((j % 8) * 40 + 39), (j / 8) * 30, ((j / 8) * 30 + 29), photo);
+        sw_delay_ms(13);
     }
 }
 
