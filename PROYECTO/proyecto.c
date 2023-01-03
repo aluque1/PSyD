@@ -144,12 +144,11 @@ void efectoCobertura(uint8 *photo, uint8 sense);
 void efectoDivisionEntrante(uint8 *photo, uint8 sense);
 void efectoDivisionSaliente(uint8 *photo, uint8 sense);
 void efectoDisolver(uint8 *photo, uint8 sense);
+void efectoCuadradoEntrante(uint8 *photo, uint8 sense);
 
 
 
 // Otros posibles efectos a implementar
-
-void efectoCuadradoEntrante(uint8 *photo, uint8 sense);
 void efectoCuadradoSaliente(uint8 *photo, uint8 sense);
 void efectoBarras(uint8 *photo, uint8 sense);
 void efectoPeine(uint8 *photo, uint8 sense);
