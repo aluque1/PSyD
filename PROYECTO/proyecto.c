@@ -146,13 +146,13 @@ void efectoDivisionSaliente(uint8 *photo, uint8 sense);
 void efectoDisolver(uint8 *photo, uint8 sense);
 void efectoCuadradoEntrante(uint8 *photo, uint8 sense);
 void efectoCuadradoSaliente(uint8 *photo, uint8 sense);
+void efectoFlash(uint8 *photo, uint8 sense);
 
 
 
 // Otros posibles efectos a implementar
 void efectoBarras(uint8 *photo, uint8 sense);
 void efectoPeine(uint8 *photo, uint8 sense);
-void efectoFlash(uint8 *photo, uint8 sense);
 
 // variables globales
 album_t album;
@@ -990,6 +990,9 @@ void efectoCuadradoSaliente(uint8 *photo, uint8 sense)
     }
 }
 
+/*
+** Efecto Flash:la imagen se oscurece y luego se muestra progresivamente la nueva imagen
+*/
 void efectoFlash(uint8 *photo, uint8 sense)
 {
     uint16 i, j;
@@ -1019,7 +1022,6 @@ void efectoFlash(uint8 *photo, uint8 sense)
         lcd_restore();
     }
 }
-
 
 /*
 * Efecto aleatorio: Se elige un efecto aleatorio y se le pasa un sentido aleatorio
