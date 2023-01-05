@@ -156,10 +156,10 @@ void efectoFlash(uint8 *photo, uint8 sense);
 
 // variables globales
 album_t album;
-pf_t effectArray[] = {efectoAleatorio, efectoNulo, efectoEmpuje, efectoBarrido, efectoRevelado, efectoCobertura, efectoDivisionEntrante, efectoDivisionSaliente, efectoDisolver, efectoCuadradoEntrante, efectoCuadradoSaliente}; // Array de puntero a funcion de ejecto
-char* effectName[] = {"Aleatorio", "Nulo", "Empuje", "Barrido", "Revelado", "Cobertura", "DivisionIn", "DivisionOut", "Disolver", "CuadradoIn", "CuadradoOut"}; // Array de nombres de efectos
+pf_t effectArray[] = {efectoAleatorio, efectoNulo, efectoEmpuje, efectoBarrido, efectoRevelado, efectoCobertura, efectoDivisionEntrante, efectoDivisionSaliente, efectoDisolver, efectoCuadradoEntrante, efectoCuadradoSaliente, efectoFlash}; // Array de puntero a funcion de ejecto
+char* effectName[] = {"Aleatorio", "Nulo", "Empuje", "Barrido", "Revelado", "Cobertura", "DivisionIn", "DivisionOut", "Disolver", "CuadradoIn", "CuadradoOut", "Fade"}; // Array de nombres de efectos
 char* senseName[]  = {"LEFT", "RIGHT", "UP", "DOWN"};
-uint8 tieneSentido[] = {0, 0, 1, 1, 1, 1, 1, 1, 0, 0, 0}; // Array de bool para saber si el efecto correspondiente tiene sentido o no.
+uint8 tieneSentido[] = {0, 0, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0}; // Array de bool para saber si el efecto correspondiente tiene sentido o no.
 uint8 *photoArray[] = {ARBOL, PICACHU, PULP, HARRY}; // Array de punteros a las fotos a visualizar
 uint8 *minArray[] = {MINIARBOL, MINIPICACHU, MINIPULP, MINIHARRY}; // Array de punteros a las miniaturas de las fotos a visualizar
 uint8 bkUpBuffer[LCD_BUFFER_SIZE];
@@ -171,7 +171,7 @@ boolean aleatorio; // Variable para indicar si se reproduce el album en modo ale
 uint8 volumen; // Variable para almacenar el volumen de reproducci�n
 
 const uint8 numPhotos = 4; // N�mero de fotos a visualizar
-const uint8 numEffects = 11; // N�mero de efectos de transici�n entre fotos
+const uint8 numEffects = 12; // N�mero de efectos de transici�n entre fotos
 
 static unsigned long int next = 1;
 
@@ -989,6 +989,37 @@ void efectoCuadradoSaliente(uint8 *photo, uint8 sense)
         sw_delay_ms(15);
     }
 }
+
+void efectoFlash(uint8 *photo, uint8 sense)
+{
+    uint16 i, j;
+    uint16 aux;
+    for (i = 0; i < 4; i++)
+    {
+        lcd_backUp();
+        for (j = 0; j < LCD_BUFFER_SIZE; j++)
+        {
+            aux = bkUpBuffer[j];
+            aux += ((aux & 0xF0) + 0x50 <= 0xF0) ? 0x50 : 0xF0 - (aux & 0xF0);
+            aux += ((aux & 0x0F) + 0x05 <= 0x0F) ? 0x05 : 0x0F - (aux & 0x0F);
+            bkUpBuffer[j] = aux;
+        }
+        lcd_restore();
+    }
+    for (i = 0; i < 4; i++)
+    {
+        lcd_backUp();
+        for(j = 0; j < LCD_BUFFER_SIZE; j++)
+        {
+           aux = bkUpBuffer[j];
+           aux -= ((aux & 0xF0) - 0x50 >= (photo[j] & 0xF0)) ? 0x50 : (aux & 0xF0) - (photo[j] & 0xF0);
+           aux -= ((aux & 0x0F) - 0x05 >= (photo[j] & 0x0F)) ? 0x05 : (aux & 0x0F) - (photo[j] & 0x0F);
+           bkUpBuffer[j] = aux;            
+        }
+        lcd_restore();
+    }
+}
+
 
 /*
 * Efecto aleatorio: Se elige un efecto aleatorio y se le pasa un sentido aleatorio
