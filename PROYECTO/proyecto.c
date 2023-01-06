@@ -147,19 +147,19 @@ void efectoDisolver(uint8 *photo, uint8 sense);
 void efectoCuadradoEntrante(uint8 *photo, uint8 sense);
 void efectoCuadradoSaliente(uint8 *photo, uint8 sense);
 void efectoFlash(uint8 *photo, uint8 sense);
+void efectoPeine(uint8 *photo, uint8 sense);
 
 
 
 // Otros posibles efectos a implementar
 void efectoBarras(uint8 *photo, uint8 sense);
-void efectoPeine(uint8 *photo, uint8 sense);
 
 // variables globales
 album_t album;
-pf_t effectArray[] = {efectoAleatorio, efectoNulo, efectoEmpuje, efectoBarrido, efectoRevelado, efectoCobertura, efectoDivisionEntrante, efectoDivisionSaliente, efectoDisolver, efectoCuadradoEntrante, efectoCuadradoSaliente, efectoFlash}; // Array de puntero a funcion de ejecto
-char* effectName[] = {"Aleatorio", "Nulo", "Empuje", "Barrido", "Revelado", "Cobertura", "DivisionIn", "DivisionOut", "Disolver", "CuadradoIn", "CuadradoOut", "Fade"}; // Array de nombres de efectos
+pf_t effectArray[] = {efectoAleatorio, efectoNulo, efectoEmpuje, efectoBarrido, efectoRevelado, efectoCobertura, efectoDivisionEntrante, efectoDivisionSaliente, efectoDisolver, efectoCuadradoEntrante, efectoCuadradoSaliente, efectoFlash, efectoPeine}; // Array de puntero a funcion de ejecto
+char* effectName[] = {"Aleatorio", "Nulo", "Empuje", "Barrido", "Revelado", "Cobertura", "DivisionIn", "DivisionOut", "Disolver", "CuadradoIn", "CuadradoOut", "Fade", "Peine"}; // Array de nombres de efectos
 char* senseName[]  = {"LEFT", "RIGHT", "UP", "DOWN"};
-uint8 tieneSentido[] = {0, 0, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0}; // Array de bool para saber si el efecto correspondiente tiene sentido o no.
+uint8 tieneSentido[] = {0, 0, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 1}; // Array de bool para saber si el efecto correspondiente tiene sentido o no.
 uint8 *photoArray[] = {ARBOL, PICACHU, PULP, HARRY}; // Array de punteros a las fotos a visualizar
 uint8 *minArray[] = {MINIARBOL, MINIPICACHU, MINIPULP, MINIHARRY}; // Array de punteros a las miniaturas de las fotos a visualizar
 uint8 bkUpBuffer[LCD_BUFFER_SIZE];
@@ -171,7 +171,7 @@ boolean aleatorio; // Variable para indicar si se reproduce el album en modo ale
 uint8 volumen; // Variable para almacenar el volumen de reproducci�n
 
 const uint8 numPhotos = 4; // N�mero de fotos a visualizar
-const uint8 numEffects = 12; // N�mero de efectos de transici�n entre fotos
+const uint8 numEffects = 13; // N�mero de efectos de transici�n entre fotos
 
 static unsigned long int next = 1;
 
@@ -468,9 +468,9 @@ void initPack()
     uint8 i = 0;
     for (i = 0; i < numPhotos; i++)
     {
-        album.pack[i].effect = efectoAleatorio;
+        album.pack[i].effect = efectoPeine;
         album.pack[i].secs = 3;
-        album.pack[i].sense = i;
+        album.pack[i].sense = 2;
     }
 }
 
@@ -671,10 +671,22 @@ void lcd_shift(uint8 sense, uint16 initRow, uint16 initCol, uint16 endRow, uint1
         }
         break;
     case UP:
+        if (initCol == 0 && endCol == LCD_COLS - 1)
             zDMA_transfer(lcd_buffer + (LCD_COLS * (endRow + 1)), lcd_buffer + (LCD_COLS * endRow), (initRow - endRow) * LCD_COLS, SRC_INCR | DES_INCR); // Desplaza una fila hacia arriba
+        else
+            for (y = initRow; y < endRow; y++) // Recorre la pantalla por filas de arriba hacia abajo
+            {
+                zDMA_transfer(lcd_buffer + ((y + 1) * LCD_COLS) + initCol, lcd_buffer + (y * LCD_COLS) + initCol, (endCol - initCol) + 1, SRC_INCR | DES_INCR); // Desplaza la fila una columna a la izquierda
+            }
         break;
     case DOWN:
+        if (initCol == 0 && endCol == LCD_COLS - 1)
             zDMA_transfer(lcd_buffer + (LCD_COLS * endRow) - 1, lcd_buffer + (LCD_COLS * (endRow + 1) - 1), (endRow - initRow) * LCD_COLS, SRC_DEC | DES_DEC); // Desplaza una fila hacia abajo
+        else 
+            for (y = endRow; y > initRow; y--) // Recorre la pantalla por filas de abajo hacia arriba
+            {
+                zDMA_transfer(lcd_buffer + ((y - 1) * LCD_COLS) + initCol, lcd_buffer + (y * LCD_COLS) + initCol, (endCol - initCol) + 1, SRC_INCR | DES_INCR); // Desplaza la fila una columna a la derecha
+            }
         break;
     }
 }
@@ -1022,6 +1034,108 @@ void efectoFlash(uint8 *photo, uint8 sense)
         lcd_restore();
     }
 }
+
+/*
+** Efecto Peine: la imagen se va mostrando con barras que desplazan a la imagen anterior
+*/
+void efectoPeine(uint8 *photo, uint8 sense)
+{
+    int16 col1 = 0, col2 = 0, col3 = 0, col4 = 0, col5 = 0, col6 = 0;
+    int16 row1 = 0, row2 = 0, row3 = 0, row4 = 0, row5 = 0, row6 = 0, row7 = 0, row8 = 0;
+
+    switch (sense)
+    {
+    case LEFT: case RIGHT:
+        while (col1 < LCD_COLS)
+        {
+            switch (rand() % 6)
+            {
+            case 0:
+                if (col1 > LCD_COLS - 1) break;
+                lcd_shift(RIGHT, 0, col1, 39, LCD_COLS - 1);
+                lcd_putColumn(col1, col1, 0, 39, 0, photo);
+                col1++;
+            case 1:
+                if (col2 > LCD_COLS - 1) break;
+                lcd_shift(LEFT, 40, (LCD_COLS - 1) - col2, 79, 0);
+                lcd_putColumn((LCD_COLS - 1) - col2, (LCD_COLS - 1) - col2, 40, 79, 40, photo);
+                col2++;
+            case 2:
+                if (col3 > LCD_COLS - 1) break;
+                lcd_shift(RIGHT, 80, col3, 119, LCD_COLS - 1);
+                lcd_putColumn(col3, col3, 80, 119, 80, photo);
+                col3++;
+            case 3:
+                if (col4 > LCD_COLS - 1) break;
+                lcd_shift(LEFT, 120, (LCD_COLS - 1) - col4, 159, 0);
+                lcd_putColumn((LCD_COLS - 1) - col4, (LCD_COLS - 1) - col4, 120, 159, 120, photo);
+                col4++;
+            case 4:
+                if (col5 > LCD_COLS - 1) break;
+                lcd_shift(RIGHT, 160, col5, 199, LCD_COLS - 1);
+                lcd_putColumn(col5, col5, 160, 199, 160, photo);
+                col5++;
+            case 5:
+                if (col6 > LCD_COLS - 1) break;
+                lcd_shift(LEFT, 200, (LCD_COLS - 1) - col6, 239, 0);
+                lcd_putColumn((LCD_COLS - 1) - col6, (LCD_COLS - 1) - col6, 200, 239, 200, photo);
+                col6++;
+            }
+        }
+        break;
+    
+    case UP: case DOWN:
+        while (row1 < LCD_ROWS)
+        {
+            switch (rand() % 8)
+            {
+            case 0:
+                if (row1 > LCD_ROWS - 1) break;
+                lcd_shift(DOWN, row1, 0, LCD_ROWS - 1, 19);
+                lcd_putRow(row1, row1, 0, 19, 0, photo);
+                row1++;
+            case 1:
+                if (row2 > LCD_ROWS - 1) break;
+                lcd_shift(UP, (LCD_ROWS - 1) - row2, 20, 0, 39);
+                lcd_putRow((LCD_ROWS - 1) - row2, (LCD_ROWS - 1) - row2, 20, 39, 20, photo);
+                row2++;
+            case 2:
+                if (row3 > LCD_ROWS - 1) break;
+                lcd_shift(DOWN, row3, 40, LCD_ROWS - 1, 59);
+                lcd_putRow(row3, row3, 40, 59, 40, photo);
+                row3++;
+            case 3:
+                if (row4 > LCD_ROWS - 1) break;
+                lcd_shift(UP, (LCD_ROWS - 1) - row4, 60, 0, 79);
+                lcd_putRow((LCD_ROWS - 1) - row4, (LCD_ROWS - 1) - row4, 60, 79, 60, photo);
+                row4++;
+            case 4:
+                if (row5 > LCD_ROWS - 1) break;
+                lcd_shift(DOWN, row5, 80, LCD_ROWS - 1, 99);
+                lcd_putRow(row5, row5, 80, 99, 80, photo);
+                row5++;
+            case 5:
+                if (row6 > LCD_ROWS - 1) break;
+                lcd_shift(UP, (LCD_ROWS - 1) - row6, 100, 0, 119);
+                lcd_putRow((LCD_ROWS - 1) - row6, (LCD_ROWS - 1) - row6, 100, 119, 100, photo);
+                row6++;
+            case 6:
+                if (row7 > LCD_ROWS - 1) break;
+                lcd_shift(DOWN, row7, 120, LCD_ROWS - 1, 139);
+                lcd_putRow(row7, row7, 120, 139, 120, photo);
+                row7++;
+            case 7:
+                if (row8 > LCD_ROWS - 1) break;
+                lcd_shift(UP, (LCD_ROWS - 1) - row8, 140, 0, 159);
+                lcd_putRow((LCD_ROWS - 1) - row8, (LCD_ROWS - 1) - row8, 140, 159, 140, photo);
+                row8++;
+            }
+        }
+        break;
+    }
+}
+
+
 
 /*
 * Efecto aleatorio: Se elige un efecto aleatorio y se le pasa un sentido aleatorio
