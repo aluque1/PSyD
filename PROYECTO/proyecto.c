@@ -148,18 +148,17 @@ void efectoCuadradoEntrante(uint8 *photo, uint8 sense);
 void efectoCuadradoSaliente(uint8 *photo, uint8 sense);
 void efectoFlash(uint8 *photo, uint8 sense);
 void efectoPeine(uint8 *photo, uint8 sense);
-
-
-
-// Otros posibles efectos a implementar
 void efectoBarras(uint8 *photo, uint8 sense);
+
 
 // variables globales
 album_t album;
-pf_t effectArray[] = {efectoAleatorio, efectoNulo, efectoEmpuje, efectoBarrido, efectoRevelado, efectoCobertura, efectoDivisionEntrante, efectoDivisionSaliente, efectoDisolver, efectoCuadradoEntrante, efectoCuadradoSaliente, efectoFlash, efectoPeine}; // Array de puntero a funcion de ejecto
-char* effectName[] = {"Aleatorio", "Nulo", "Empuje", "Barrido", "Revelado", "Cobertura", "DivisionIn", "DivisionOut", "Disolver", "CuadradoIn", "CuadradoOut", "Fade", "Peine"}; // Array de nombres de efectos
+pf_t effectArray[] = {efectoAleatorio, efectoNulo, efectoEmpuje, efectoBarrido, efectoRevelado, efectoCobertura, efectoDivisionEntrante,
+    efectoDivisionSaliente, efectoDisolver, efectoCuadradoEntrante, efectoCuadradoSaliente, efectoFlash, efectoPeine, efectoBarras}; // Array de puntero a funcion de ejecto
+char* effectName[] = {"Aleatorio", "Nulo", "Empuje", "Barrido", "Revelado", "Cobertura", "DivisionIn", "DivisionOut",
+    "Disolver", "CuadradoIn", "CuadradoOut", "Fade", "Peine", "Barras"}; // Array de nombres de efectos
 char* senseName[]  = {"LEFT", "RIGHT", "UP", "DOWN"};
-uint8 tieneSentido[] = {0, 0, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 1}; // Array de bool para saber si el efecto correspondiente tiene sentido o no.
+uint8 tieneSentido[] = {0, 0, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 1, 1}; // Array de bool para saber si el efecto correspondiente tiene sentido o no.
 uint8 *photoArray[] = {ARBOL, PICACHU, PULP, HARRY}; // Array de punteros a las fotos a visualizar
 uint8 *minArray[] = {MINIARBOL, MINIPICACHU, MINIPULP, MINIHARRY}; // Array de punteros a las miniaturas de las fotos a visualizar
 uint8 bkUpBuffer[LCD_BUFFER_SIZE];
@@ -171,7 +170,7 @@ boolean aleatorio; // Variable para indicar si se reproduce el album en modo ale
 uint8 volumen; // Variable para almacenar el volumen de reproducci�n
 
 const uint8 numPhotos = 4; // N�mero de fotos a visualizar
-const uint8 numEffects = 13; // N�mero de efectos de transici�n entre fotos
+const uint8 numEffects = 14; // N�mero de efectos de transici�n entre fotos
 
 static unsigned long int next = 1;
 
@@ -468,9 +467,9 @@ void initPack()
     uint8 i = 0;
     for (i = 0; i < numPhotos; i++)
     {
-        album.pack[i].effect = efectoPeine;
+        album.pack[i].effect = efectoAleatorio;
         album.pack[i].secs = 3;
-        album.pack[i].sense = 2;
+        album.pack[i].sense = i % 4;
     }
 }
 
@@ -1135,7 +1134,45 @@ void efectoPeine(uint8 *photo, uint8 sense)
     }
 }
 
+/*
+* Efecto Barras: La imagen se va mostrando a en tiras dispuestas de manera aleatoria
+*/
+void efectoBarras(uint8 *photo, uint8 sense)
+{
+    uint16 i, j;
+    uint16 columnas[10] = {0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+    uint16 filas[15] = {0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
 
+    switch (sense)
+    {
+    case LEFT: case RIGHT:
+        for (i = 0; i < LCD_COLS; i++)
+        {
+            do
+            {
+                j = rand() % 160;
+            } while (columnas[j / 16] & (1 << (j % 16)));
+            columnas[j / 16] |= (1 << (j % 16));
+
+            lcd_putColumn(j, j, 0, 239, 0, photo);
+            sw_delay_ms(6);
+        }
+        break;
+    case UP: case DOWN:
+        for (i = 0; i < LCD_ROWS; i++)
+        {
+            do
+            {
+                j = rand() % 240;
+            } while (filas[j / 16] & (1 << (j % 16)));
+            filas[j / 16] |= (1 << (j % 16));
+
+            lcd_putRow(j, j, 0, 159, 0, photo);
+            sw_delay_ms(6);
+        }
+        break;
+    }
+}
 
 /*
 * Efecto aleatorio: Se elige un efecto aleatorio y se le pasa un sentido aleatorio
