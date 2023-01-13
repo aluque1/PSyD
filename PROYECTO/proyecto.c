@@ -25,9 +25,7 @@
 #define PULP        ((uint8 *)0x0c230000)
 #define HARRY       ((uint8 *)0x0c240000)
 
-#define ROSALINA    ((int16 *)0x0c703fff)
-
-#define ROSALINA_SIZE           (1028174)
+#define ROSALINA    ((int16 *)0x0c704FB0)
 
 #define MINIARBOL   ((uint8 *)0x0c610000)
 #define MINIPICACHU ((uint8 *)0x0c612000)
@@ -213,7 +211,7 @@ void main(void)
 
     uda1341ts_setvol(VOL_MED);
     volumen = VOL_MED;
-    iis_play(ROSALINA, ROSALINA_SIZE, TRUE);
+    iis_playWawFile(ROSALINA, TRUE);
 
     //menuPrincipal();
     lcd_clear();
