@@ -213,7 +213,7 @@ void main(void)
     volumen = VOL_MED;
     iis_playWawFile(ROSALINA, TRUE);
 
-    //menuPrincipal();
+    menuPrincipal();
     lcd_clear();
     while (1)
     {
@@ -243,6 +243,7 @@ void menuPrincipal()
 {
     uint16 i;
     uint8 index = 0;
+    uint8 menu = FALSE;
     
     lcd_clearDMA();
     lcd_puts(19, 0, BLACK, "Configura las fotos a visualizar:");
@@ -253,10 +254,12 @@ void menuPrincipal()
     lcd_puts(LCD_WIDTH/2 - 16, 211, BLACK, "DOWN");
 
     while (!flagPb)
-    { 
-        for (i = 0; i < 2; i++)
-        lcd_putMiniaturePhoto(album.pack[index++].data.min, i);
-        index -= 2;
+    {
+        if(!menu){
+            for (i = 0; i < 2; i++)
+            lcd_putMiniaturePhoto(album.pack[index++].data.min, i);
+            index -= 2;
+        }
 
         while (!flagTs && !flagPb);
 
@@ -272,6 +275,7 @@ void menuPrincipal()
                 index += 2; index %= album.numPacks;
                 break;
             case 75 ... 202:
+                menu = TRUE;
                 lcd_backUp();
                 menuSettings(index + (xTs > LCD_WIDTH/2));
                 lcd_restore();
@@ -281,9 +285,8 @@ void menuPrincipal()
             }
         } 
     }
+    while(pb_pressed());
     flagPb = FALSE;
-
-    sw_delay_s(1);
 }
 
 void menuPausa()
@@ -449,6 +452,7 @@ void menuSettings(uint8 index)
             lcd_puts(LCD_WIDTH - 123, (LCD_HEIGHT - 15), BLACK, "              ");
         }
     }
+    while(pb_pressed());
     flagPb = FALSE;
     album.pack[index].secs = secs;
     album.pack[index].effect = effectArray[indexEfecto];

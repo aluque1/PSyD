@@ -5,7 +5,7 @@ restore picachu.bmp     binary 0x0c220000
 restore harry.bmp       binary 0x0c230000
 restore pulp.bmp        binary 0x0c240000
 
-restore Rosalina.wav	binary 0x0c704FB0
+echo restore Rosalina.wav	binary 0x0c704FB0\n
 
 restore miniarbol.bmp   binary 0x0c610000
 restore minipicachu.bmp binary 0x0c612000
