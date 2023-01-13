@@ -286,6 +286,7 @@ void menuPrincipal()
         } 
     }
     while(pb_pressed());
+    sw_delay_s(1);
     flagPb = FALSE;
 }
 
@@ -335,11 +336,10 @@ void menuPausa()
             }
         }
     }
-    flagPb = FALSE;
-
-
-
     lcd_restore();
+    while(pb_pressed());
+    sw_delay_s(1);
+    flagPb = FALSE;
 }
 
 inline uint8 coordToVol(uint16 x)
@@ -453,6 +453,7 @@ void menuSettings(uint8 index)
         }
     }
     while(pb_pressed());
+    sw_delay_s(1);
     flagPb = FALSE;
     album.pack[index].secs = secs;
     album.pack[index].effect = effectArray[indexEfecto];
@@ -796,14 +797,14 @@ void efectoBarrido(uint8 *photo, uint8 sense)
         }
         break;
     case UP:
-        for (y = 0; y <= LCD_ROWS - 1; y++) // Recorre la foto por filas de arriba hacia abajo
+        for (y = LCD_ROWS - 1; y >= 0; y--) // Recorre la foto por filas de abajo hacia arriba
         {
             lcd_putRow(y, y, 0, LCD_COLS - 1, 0, photo); // Visualiza la fila de la foto que corresponde en la fila de la pantalla que corresponde
             sw_delay_ms(6);        // Espera un tiempo para que se vea el efecto
         }
         break;
     case DOWN:
-        for (y = LCD_ROWS - 1; y >= 0; y--) // Recorre la foto por filas de abajo hacia arriba
+        for (y = 0; y <= LCD_ROWS - 1; y++) // Recorre la foto por filas de arriba hacia abajo
         {
             lcd_putRow(y, y, 0, LCD_COLS - 1, 0, photo); // Visualiza la fila de la foto que corresponde en la fila de la pantalla que corresponde
             sw_delay_ms(6);        // Espera un tiempo para que se vea el efecto
