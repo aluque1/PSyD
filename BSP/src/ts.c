@@ -5,7 +5,7 @@
 #include <lcd.h>
 #include <ts.h>
 
-#define PX_ERROR    (5)
+#define PX_ERROR    (7)
 
 static uint16 Vxmin = 0;
 static uint16 Vxmax = 0;

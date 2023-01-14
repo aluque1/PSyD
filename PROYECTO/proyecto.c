@@ -18,23 +18,29 @@
 
 #define MAX_PHOTOS (40)
 
-/* Direcciones en donde se encuentran cargados los BMPs tras la ejecuci�n del comando "script load_bmp.script" */
+/* Direcciones en donde se encuentran cargados los BMPs tras la ejecución del comando "script load_bmp.script" */
 
-#define ARBOL       ((uint8 *)0x0c210000)
-#define PICACHU     ((uint8 *)0x0c220000)
-#define PULP        ((uint8 *)0x0c230000)
-#define HARRY       ((uint8 *)0x0c240000)
+#define ARBOL           ((uint8 *)0x0c210000)
+#define PICACHU         ((uint8 *)0x0c220000)
+#define PULP            ((uint8 *)0x0c230000)
+#define HARRY           ((uint8 *)0x0c240000)
+#define MARRUECOS       ((uint8 *)0x0c250000)
+#define GUILLE          ((uint8 *)0x0c260000)
+#define GATITO          ((uint8 *)0x0c270000)
 
-#define ROSALINA    ((int16 *)0x0c704FB0)
+#define ROSALINA        ((int16 *)0x0c704FB0)
 
-#define MINIARBOL   ((uint8 *)0x0c610000)
-#define MINIPICACHU ((uint8 *)0x0c612000)
-#define MINIPULP    ((uint8 *)0x0c614000)
-#define MINIHARRY   ((uint8 *)0x0c616000)
+#define MINIARBOL       ((uint8 *)0x0c610000)
+#define MINIPICACHU     ((uint8 *)0x0c612000)
+#define MINIPULP        ((uint8 *)0x0c614000)
+#define MINIHARRY       ((uint8 *)0x0c616000)
+#define MINIMARRUECOS   ((uint8 *)0x0c618000)
+#define MINIGUILLE      ((uint8 *)0x0c61A000)
+#define MINIGATITO      ((uint8 *)0x0c61C000)
 
-/* Dimensiones de la pantalla para la realizaci�n de efectos */
+/* Dimensiones de la pantalla para la realización de efectos */
 
-#define LCD_COLS        (LCD_WIDTH / 2) // Para simplificar el procesamiento consideraremos una columna como la formada por 2 p�xeles adyacentes (1 byte)
+#define LCD_COLS        (LCD_WIDTH / 2) // Para simplificar el procesamiento consideraremos una columna como la formada por 2 píxeles adyacentes (1 byte)
 #define LCD_ROWS        (LCD_HEIGHT)
 #define MIN_HEIGHT      (108)
 #define MIN_WIDTH       (144)
@@ -45,7 +51,7 @@
 #define MIN_LEFT        (0)
 #define MIN_RIGHT       (1)
 
-/* Sentidos de realizaci�n del efecto */
+/* Sentidos de realización del efecto */
 
 #define LEFT        (0)
 #define RIGHT       (1)
@@ -74,7 +80,8 @@ typedef struct
 typedef struct // Estructura con toda la informaci�n (pack) relativa a la visualizaci�n de una foto, podr� ampliarse seg�n convenga
 {
     photo data;  // Foto
-    pf_t effect; // Efecto de transici�n a aplicar para visualizarla
+    pf_t effect; // Efecto de transición a aplicar para visualizarla
+    uint8 effectNum; // Número de efecto a aplicar
     uint8 sense; // Sentido del efecto a aplicar
     uint8 secs;  // Segundos que debe estar visualizada
 } pack_t;
@@ -153,12 +160,16 @@ void efectoBarras(uint8 *photo, uint8 sense);
 album_t album;
 pf_t effectArray[] = {efectoAleatorio, efectoNulo, efectoEmpuje, efectoBarrido, efectoRevelado, efectoCobertura, efectoDivisionEntrante,
     efectoDivisionSaliente, efectoDisolver, efectoCuadradoEntrante, efectoCuadradoSaliente, efectoFlash, efectoPeine, efectoBarras}; // Array de puntero a funcion de ejecto
+
 char* effectName[] = {"Aleatorio", "Nulo", "Empuje", "Barrido", "Revelado", "Cobertura", "DivisionIn", "DivisionOut",
     "Disolver", "CuadradoIn", "CuadradoOut", "Fade", "Peine", "Barras"}; // Array de nombres de efectos
+    
 char* senseName[]  = {"LEFT", "RIGHT", "UP", "DOWN"};
 uint8 tieneSentido[] = {0, 0, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 1, 1}; // Array de bool para saber si el efecto correspondiente tiene sentido o no.
-uint8 *photoArray[] = {ARBOL, PICACHU, PULP, HARRY}; // Array de punteros a las fotos a visualizar
-uint8 *minArray[] = {MINIARBOL, MINIPICACHU, MINIPULP, MINIHARRY}; // Array de punteros a las miniaturas de las fotos a visualizar
+uint8 *photoArray[] = {ARBOL, PICACHU, PULP, HARRY, MARRUECOS, GUILLE, GATITO}; // Array de punteros a las fotos a visualizar
+uint8 *minArray[] = {MINIARBOL, MINIPICACHU, MINIPULP, MINIHARRY, MINIMARRUECOS, MINIGUILLE, 
+    MINIGATITO}; // Array de punteros a las miniaturas de las fotos a visualizar
+
 uint8 bkUpBuffer[LCD_BUFFER_SIZE];
 uint8 scancode; // Variable para almacenar el c�digo de tecla pulsada
 uint8 volumen; // Variable para almacenar el volumen de reproducci�n
@@ -167,7 +178,7 @@ uint16 yTs; // Variables para almacenar las coordenadas del TS
 boolean aleatorio; // Variable para indicar si se reproduce el album en modo aleatorio
 uint8 volumen; // Variable para almacenar el volumen de reproducci�n
 
-const uint8 numPhotos = 4; // N�mero de fotos a visualizar
+const uint8 numPhotos = 7; // N�mero de fotos a visualizar
 const uint8 numEffects = 14; // N�mero de efectos de transici�n entre fotos
 
 static unsigned long int next = 1;
@@ -241,8 +252,8 @@ void photoSlider()
 
 void menuPrincipal()
 {
-    uint16 i;
-    uint8 index = 0;
+    uint16 i, j;
+    int8 index = 0;
     uint8 menu = FALSE;
     
     lcd_clearDMA();
@@ -256,11 +267,14 @@ void menuPrincipal()
     while (!flagPb)
     {
         if(!menu){
-            for (i = 0; i < 2; i++)
-            lcd_putMiniaturePhoto(album.pack[index++].data.min, i);
-            index -= 2;
+            for (i = index, j = 0; j < 2; j++)
+            {
+                lcd_putMiniaturePhoto(album.pack[i++].data.min, j);
+                i %= album.numPacks;
+            }
         }
 
+        menu = FALSE;
         while (!flagTs && !flagPb);
 
         if (flagTs)
@@ -269,7 +283,9 @@ void menuPrincipal()
             flagTs = FALSE;
             switch (yTs){
             case 18 ... 19 + 32:
-                index -= (index == 0) ? 0 : 2;
+                if (index == 1) index = album.numPacks - 1;
+                else if (index == 0) index = album.numPacks - 2;
+                else index -= 2;
                 break;
             case 203 ... LCD_HEIGHT - 1:
                 index += 2; index %= album.numPacks;
@@ -277,7 +293,7 @@ void menuPrincipal()
             case 75 ... 202:
                 menu = TRUE;
                 lcd_backUp();
-                menuSettings(index + (xTs > LCD_WIDTH/2));
+                menuSettings((index + (xTs > LCD_WIDTH/2)) % album.numPacks);
                 lcd_restore();
                 break;
             default:
@@ -383,15 +399,15 @@ void menuSettings(uint8 index)
     
     lcd_draw_box((MIN_WIDTH + 20), 65, (MIN_WIDTH + 160), 85, BLACK, 2);
     lcd_puts(174, 68, BLACK, "SEGUNDOS: " );
-    lcd_putint(270, 68, BLACK, 3);
+    lcd_putint(270, 68, BLACK, album.pack[index].secs);
 
     lcd_draw_box((MIN_WIDTH + 20), 107, (MIN_WIDTH + 160), 143, BLACK, 2);
     lcd_puts(210, 110, BLACK, "EFECTO: " );
-    lcd_puts(174, 125, BLACK, "Aleatorio");
+    lcd_puts(174, 125, BLACK, effectName[album.pack[index].effectNum]);
 
     lcd_draw_box((MIN_WIDTH + 20), 165, (MIN_WIDTH + 160), 185, BLACK, 2);
     lcd_puts(174, 168, BLACK, "SENTIDO: " );
-    lcd_puts(240, 168, BLACK, "No apply");
+    lcd_puts(240, 168, BLACK, senseName[album.pack[index].sense]);
 
     lcd_puts(10, (LCD_HEIGHT - 15), BLACK, "CAMBIANDO:");
     
@@ -471,6 +487,7 @@ void initPack()
     for (i = 0; i < numPhotos; i++)
     {
         album.pack[i].effect = efectoAleatorio;
+        album.pack[i].effectNum = 0;
         album.pack[i].secs = 3;
         album.pack[i].sense = i % 4;
     }
