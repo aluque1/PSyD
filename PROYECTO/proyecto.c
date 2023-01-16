@@ -24,9 +24,13 @@
 #define PICACHU         ((uint8 *)0x0c220000)
 #define PULP            ((uint8 *)0x0c230000)
 #define HARRY           ((uint8 *)0x0c240000)
-#define MARRUECOS       ((uint8 *)0x0c250000)
+
 #define GUILLE          ((uint8 *)0x0c260000)
 #define GATITO          ((uint8 *)0x0c270000)
+#define DANI            ((uint8 *)0x0c280000)
+#define JAVIER          ((uint8 *)0x0c290000)
+#define PABLO           ((uint8 *)0x0c2A0000)
+#define CERDO           ((uint8 *)0x0c2B0000)
 
 #define ROSALINA        ((int16 *)0x0c704FB0)
 
@@ -34,9 +38,13 @@
 #define MINIPICACHU     ((uint8 *)0x0c612000)
 #define MINIPULP        ((uint8 *)0x0c614000)
 #define MINIHARRY       ((uint8 *)0x0c616000)
-#define MINIMARRUECOS   ((uint8 *)0x0c618000)
+
 #define MINIGUILLE      ((uint8 *)0x0c61A000)
 #define MINIGATITO      ((uint8 *)0x0c61C000)
+#define MINIDANI        ((uint8 *)0x0c61E000)
+#define MINIJAVIER      ((uint8 *)0x0c620000)
+#define MINIPABLO       ((uint8 *)0x0c622000)
+#define MINICERDO       ((uint8 *)0x0c624000)
 
 /* Dimensiones de la pantalla para la realización de efectos */
 
@@ -166,9 +174,9 @@ char* effectName[] = {"Aleatorio", "Nulo", "Empuje", "Barrido", "Revelado", "Cob
     
 char* senseName[]  = {"LEFT", "RIGHT", "UP", "DOWN"};
 uint8 tieneSentido[] = {0, 0, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 1, 1}; // Array de bool para saber si el efecto correspondiente tiene sentido o no.
-uint8 *photoArray[] = {ARBOL, PICACHU, PULP, HARRY, MARRUECOS, GUILLE, GATITO}; // Array de punteros a las fotos a visualizar
-uint8 *minArray[] = {MINIARBOL, MINIPICACHU, MINIPULP, MINIHARRY, MINIMARRUECOS, MINIGUILLE, 
-    MINIGATITO}; // Array de punteros a las miniaturas de las fotos a visualizar
+uint8 *photoArray[] = {ARBOL, PICACHU, PULP, HARRY, GUILLE, GATITO, DANI, JAVIER, PABLO, CERDO}; // Array de punteros a las fotos a visualizar
+uint8 *minArray[] = {MINIARBOL, MINIPICACHU, MINIPULP, MINIHARRY, MINIGUILLE, 
+    MINIGATITO, MINIDANI, MINIJAVIER, MINIPABLO, MINICERDO}; // Array de punteros a las miniaturas de las fotos a visualizar
 
 uint8 bkUpBuffer[LCD_BUFFER_SIZE];
 uint8 scancode; // Variable para almacenar el c�digo de tecla pulsada
@@ -178,7 +186,7 @@ uint16 yTs; // Variables para almacenar las coordenadas del TS
 boolean aleatorio; // Variable para indicar si se reproduce el album en modo aleatorio
 uint8 volumen; // Variable para almacenar el volumen de reproducci�n
 
-const uint8 numPhotos = 7; // N�mero de fotos a visualizar
+const uint8 numPhotos = 10; // N�mero de fotos a visualizar
 const uint8 numEffects = 14; // N�mero de efectos de transici�n entre fotos
 
 static unsigned long int next = 1;
@@ -207,6 +215,7 @@ void main(void)
     aleatorio = FALSE;
 
     timer3_start();
+    lcd_puts(LCD_WIDTH/2 - (10 * 8), LCD_HEIGHT/2 - 8, BLACK, "Cargando imagenes...");
 
     uint8 i;
     for (i = 0; i < numPhotos; i++)
@@ -247,7 +256,7 @@ void photoSlider()
     (*album.pack[album.index].effect)(album.pack[album.index].data.photoBuffer, album.pack[album.index].sense); // Ejecuta el efecto para visualizar la nueva foto
     test(album.pack[album.index].data.photoBuffer); // Chequea que el resultado del efecto es el deseado
     sw_delay_s(album.pack[album.index].secs); // Mantiene la foto el tiempo indicado
-    album.index += aleatorio ? rand() : 1; album.index %= album.numPacks; // Avanza circularmente a la siguiente foto del album
+    album.index += aleatorio ? rand() % album.numPacks : 1; album.index %= album.numPacks; // Avanza circularmente a la siguiente foto del album
 }
 
 void menuPrincipal()
@@ -352,9 +361,9 @@ void menuPausa()
             }
         }
     }
-    lcd_restore();
     while(pb_pressed());
     sw_delay_s(1);
+    lcd_restore();
     flagPb = FALSE;
 }
 
