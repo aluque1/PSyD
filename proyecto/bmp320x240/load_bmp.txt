@@ -12,6 +12,7 @@ restore Javier.bmp          binary 0x0c290000
 restore Pablo.bmp           binary 0x0c2a0000
 restore Cerdo.bmp           binary 0x0c2b0000
 restore Luchia.bmp          binary 0x0c2c0000
+restore Lavin.bmp           binary 0x0c2d0000
 
 echo restore Rosalina.wav	    binary 0x0c704FB0\n
 
@@ -27,5 +28,6 @@ restore miniJavier.bmp      binary 0x0c620000
 restore miniPablo.bmp       binary 0x0c622000
 restore miniCerdo.bmp       binary 0x0c624000
 restore miniLuchia.bmp      binary 0x0c626000
+restore miniLavin.bmp       binary 0x0c628000
 
 echo ...carga finalizada

@@ -32,6 +32,7 @@
 #define PABLO           ((uint8 *)0x0c2A0000)
 #define CERDO           ((uint8 *)0x0c2B0000)
 #define LUCHIA          ((uint8 *)0x0c2C0000)
+#define LAVIN           ((uint8 *)0x0c2D0000)
 
 #define ROSALINA        ((int16 *)0x0c704FB0)
 
@@ -47,6 +48,7 @@
 #define MINIPABLO       ((uint8 *)0x0c622000)
 #define MINICERDO       ((uint8 *)0x0c624000)
 #define MINILUCHIA      ((uint8 *)0x0c626000)
+#define MINILAVIN       ((uint8 *)0x0c628000)
 
 /* Dimensiones de la pantalla para la realización de efectos */
 
@@ -188,7 +190,7 @@ uint16 yTs; // Variables para almacenar las coordenadas del TS
 boolean aleatorio; // Variable para indicar si se reproduce el album en modo aleatorio
 uint8 volumen; // Variable para almacenar el volumen de reproducci�n
 
-const uint8 numPhotos = 12; // N�mero de fotos a visualizar
+const uint8 numPhotos = 13; // N�mero de fotos a visualizar
 const uint8 numEffects = 14; // N�mero de efectos de transici�n entre fotos
 
 static unsigned long int next = 1;
@@ -1210,7 +1212,7 @@ void efectoBarras(uint8 *photo, uint8 sense)
 */
 void efectoAleatorio(uint8 *photo, uint8 sense)
 {
-    effectArray[rand() % numEffects](photo, rand() % 4);
+    effectArray[rand() % numEffects](photo, sense);
 }
 
 void isr_pb( void )
