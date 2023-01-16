@@ -4,13 +4,14 @@ restore arbol.bmp           binary 0x0c210000
 restore picachu.bmp         binary 0x0c220000
 restore harry.bmp           binary 0x0c230000
 restore pulp.bmp            binary 0x0c240000
-
+restore Ronaldo.bmp         binary 0x0c250000
 restore Guille.bmp          binary 0x0c260000
 restore Gatito.bmp          binary 0x0c270000
 restore Dani.bmp            binary 0x0c280000
 restore Javier.bmp          binary 0x0c290000
 restore Pablo.bmp           binary 0x0c2a0000
 restore Cerdo.bmp           binary 0x0c2b0000
+restore Luchia.bmp          binary 0x0c2c0000
 
 echo restore Rosalina.wav	    binary 0x0c704FB0\n
 
@@ -18,12 +19,13 @@ restore miniarbol.bmp       binary 0x0c610000
 restore minipicachu.bmp     binary 0x0c612000
 restore miniharry.bmp       binary 0x0c614000
 restore minipulp.bmp        binary 0x0c616000
-
+restore miniRonaldo.bmp     binary 0x0c618000
 restore miniGuille.bmp      binary 0x0c61a000
 restore miniGatito.bmp      binary 0x0c61c000
 restore miniDani.bmp        binary 0x0c61e000
 restore miniJavier.bmp      binary 0x0c620000
 restore miniPablo.bmp       binary 0x0c622000
 restore miniCerdo.bmp       binary 0x0c624000
+restore miniLuchia.bmp      binary 0x0c626000
 
 echo ...carga finalizada

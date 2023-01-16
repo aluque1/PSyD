@@ -24,13 +24,14 @@
 #define PICACHU         ((uint8 *)0x0c220000)
 #define PULP            ((uint8 *)0x0c230000)
 #define HARRY           ((uint8 *)0x0c240000)
-
+#define RONALDO         ((uint8 *)0x0c250000)
 #define GUILLE          ((uint8 *)0x0c260000)
 #define GATITO          ((uint8 *)0x0c270000)
 #define DANI            ((uint8 *)0x0c280000)
 #define JAVIER          ((uint8 *)0x0c290000)
 #define PABLO           ((uint8 *)0x0c2A0000)
 #define CERDO           ((uint8 *)0x0c2B0000)
+#define LUCHIA          ((uint8 *)0x0c2C0000)
 
 #define ROSALINA        ((int16 *)0x0c704FB0)
 
@@ -38,13 +39,14 @@
 #define MINIPICACHU     ((uint8 *)0x0c612000)
 #define MINIPULP        ((uint8 *)0x0c614000)
 #define MINIHARRY       ((uint8 *)0x0c616000)
-
+#define MINIRONALDO     ((uint8 *)0x0c618000)
 #define MINIGUILLE      ((uint8 *)0x0c61A000)
 #define MINIGATITO      ((uint8 *)0x0c61C000)
 #define MINIDANI        ((uint8 *)0x0c61E000)
 #define MINIJAVIER      ((uint8 *)0x0c620000)
 #define MINIPABLO       ((uint8 *)0x0c622000)
 #define MINICERDO       ((uint8 *)0x0c624000)
+#define MINILUCHIA      ((uint8 *)0x0c626000)
 
 /* Dimensiones de la pantalla para la realización de efectos */
 
@@ -174,9 +176,9 @@ char* effectName[] = {"Aleatorio", "Nulo", "Empuje", "Barrido", "Revelado", "Cob
     
 char* senseName[]  = {"LEFT", "RIGHT", "UP", "DOWN"};
 uint8 tieneSentido[] = {0, 0, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 1, 1}; // Array de bool para saber si el efecto correspondiente tiene sentido o no.
-uint8 *photoArray[] = {ARBOL, PICACHU, PULP, HARRY, GUILLE, GATITO, DANI, JAVIER, PABLO, CERDO}; // Array de punteros a las fotos a visualizar
-uint8 *minArray[] = {MINIARBOL, MINIPICACHU, MINIPULP, MINIHARRY, MINIGUILLE, 
-    MINIGATITO, MINIDANI, MINIJAVIER, MINIPABLO, MINICERDO}; // Array de punteros a las miniaturas de las fotos a visualizar
+uint8 *photoArray[] = {ARBOL, PICACHU, PULP, HARRY, RONALDO, GUILLE, GATITO, DANI, JAVIER, PABLO, CERDO, LUCHIA}; // Array de punteros a las fotos a visualizar
+uint8 *minArray[] = {MINIARBOL, MINIPICACHU, MINIPULP, MINIHARRY, MINIRONALDO, MINIGUILLE, 
+    MINIGATITO, MINIDANI, MINIJAVIER, MINIPABLO, MINICERDO, MINILUCHIA}; // Array de punteros a las miniaturas de las fotos a visualizar
 
 uint8 bkUpBuffer[LCD_BUFFER_SIZE];
 uint8 scancode; // Variable para almacenar el c�digo de tecla pulsada
@@ -186,7 +188,7 @@ uint16 yTs; // Variables para almacenar las coordenadas del TS
 boolean aleatorio; // Variable para indicar si se reproduce el album en modo aleatorio
 uint8 volumen; // Variable para almacenar el volumen de reproducci�n
 
-const uint8 numPhotos = 10; // N�mero de fotos a visualizar
+const uint8 numPhotos = 12; // N�mero de fotos a visualizar
 const uint8 numEffects = 14; // N�mero de efectos de transici�n entre fotos
 
 static unsigned long int next = 1;
@@ -689,7 +691,7 @@ void lcd_shift(uint8 sense, uint16 initRow, uint16 initCol, uint16 endRow, uint1
     case LEFT:                         // Al ser un desplazamiento a izquierda, tener en cuenta que columnas consecutivas son contiguas en memoria pero los segmentos de fila no (excepto que sean filas completas y consecutivas)
         for (y = initRow; y <= endRow; y++) // Recorre la pantalla por filas de arriba hacia abajo
         {
-            zDMA_transfer(lcd_buffer + (y * LCD_COLS) + endCol + 1, lcd_buffer + (y * LCD_COLS) + endCol, initCol - endCol, SRC_INCR | DES_INCR); // Desplaza la fila una columna a la izquierda
+            zDMA_transfer(lcd_buffer + (y * LCD_COLS) + initCol + 1, lcd_buffer + (y * LCD_COLS) + initCol, endCol - initCol, SRC_INCR | DES_INCR); // Desplaza la fila una columna a la izquierda
         }
         break;
     case RIGHT:
@@ -771,7 +773,7 @@ void efectoEmpuje(uint8 *photo, uint8 sense)
     case LEFT:
         for (x = 0; x <= LCD_COLS - 1; x++) // Recorre la foto por columnas de izquierda a derecha
         {
-            lcd_shift(LEFT, 0, LCD_COLS - 1, LCD_ROWS - 1, 0);                       // Desplaza toda la pantalla una columna a la izquierda
+            lcd_shift(LEFT, 0, 0, LCD_ROWS - 1, LCD_COLS - 1);                       // Desplaza toda la pantalla una columna a la izquierda
             lcd_putColumn(LCD_COLS - 1, x, 0, 239, 0, photo); // Visualiza la columna de la foto que corresponde en la ultima columna de la pantalla
         }
         break;
@@ -809,14 +811,14 @@ void efectoBarrido(uint8 *photo, uint8 sense)
     switch (sense)
     {
     case LEFT:
-        for (x = 0; x <= LCD_COLS - 1; x++) // Recorre la foto por columnas de izquierda a derecha
+        for (x = LCD_COLS - 1; x >= 0; x--) // Recorre la foto por columnas de derecha a izquierda
         {
             lcd_putColumn(x, x, 0, 239, 0, photo); // Visualiza la columna de la foto que corresponde en la columna de la pantalla que corresponde
             sw_delay_ms(5);            // Espera un tiempo para que se vea el efecto
         }
         break;
     case RIGHT:
-        for (x = LCD_COLS - 1; x >= 0; x--) // Recorre la foto por columnas de derecha a izquierda
+        for (x = 0; x <= LCD_COLS - 1; x++) // Recorre la foto por columnas de izquierda a derecha
         {
             lcd_putColumn(x, x, 0, 239, 0, photo); // Visualiza la columna de la foto que corresponde en la columna de la pantalla que corresponde
             sw_delay_ms(5);            // Espera un tiempo para que se vea el efecto
@@ -851,7 +853,7 @@ void efectoRevelado(uint8 *photo, uint8 sense)
     case LEFT:
         for (x = LCD_COLS - 1; x >= 0; x--)  // Recorre la foto por columnas de izquierda a derecha
         {
-            lcd_shift(LEFT, 0, x, LCD_ROWS - 1, 0);      // Desplaza toda la pantalla una columna a la izquierda
+            lcd_shift(LEFT, 0, 0, LCD_ROWS - 1, x);      // Desplaza toda la pantalla una columna a la izquierda
             lcd_putColumn(x, x, 0, 239, 0, photo); // Visualiza la columna de la foto que corresponde en la ultima columna de la pantalla
         }
         break;
@@ -891,7 +893,7 @@ void efectoCobertura(uint8 *photo, uint8 sense)
     case LEFT:
         for (x = LCD_COLS - 1; x >= 0; x--) // Recorre la foto por columnas de derecha a izquierda
         {
-            lcd_shift(LEFT, 0, LCD_COLS - 1, LCD_ROWS - 1, x);      // Desplaza toda la pantalla una columna a la izquierda
+            lcd_shift(LEFT, 0, x, LCD_ROWS - 1, LCD_COLS - 1);      // Desplaza toda la pantalla una columna a la izquierda
             lcd_putColumn(LCD_COLS - 1, (LCD_COLS - 1) - x, 0, 239, 0, photo); // Visualiza la columna de la foto que corresponde en la ultima columna de la pantalla
         }
         break;
@@ -1085,7 +1087,7 @@ void efectoPeine(uint8 *photo, uint8 sense)
                 col1++;
             case 1:
                 if (col2 > LCD_COLS - 1) break;
-                lcd_shift(LEFT, 40, (LCD_COLS - 1) - col2, 79, 0);
+                lcd_shift(LEFT, 40, 0, 79, (LCD_COLS - 1) - col2);
                 lcd_putColumn((LCD_COLS - 1) - col2, (LCD_COLS - 1) - col2, 40, 79, 40, photo);
                 col2++;
             case 2:
@@ -1095,7 +1097,7 @@ void efectoPeine(uint8 *photo, uint8 sense)
                 col3++;
             case 3:
                 if (col4 > LCD_COLS - 1) break;
-                lcd_shift(LEFT, 120, (LCD_COLS - 1) - col4, 159, 0);
+                lcd_shift(LEFT, 120, 0, 159, (LCD_COLS - 1) - col4);
                 lcd_putColumn((LCD_COLS - 1) - col4, (LCD_COLS - 1) - col4, 120, 159, 120, photo);
                 col4++;
             case 4:
@@ -1105,7 +1107,7 @@ void efectoPeine(uint8 *photo, uint8 sense)
                 col5++;
             case 5:
                 if (col6 > LCD_COLS - 1) break;
-                lcd_shift(LEFT, 200, (LCD_COLS - 1) - col6, 239, 0);
+                lcd_shift(LEFT, 200, 0, 239, (LCD_COLS - 1) - col6);
                 lcd_putColumn((LCD_COLS - 1) - col6, (LCD_COLS - 1) - col6, 200, 239, 200, photo);
                 col6++;
             }
@@ -1124,7 +1126,7 @@ void efectoPeine(uint8 *photo, uint8 sense)
                 row1++;
             case 1:
                 if (row2 > LCD_ROWS - 1) break;
-                lcd_shift(UP, (LCD_ROWS - 1) - row2, 20, 0, 39);
+                lcd_shift(UP, 0, 20, (LCD_ROWS - 1) - row2, 39);
                 lcd_putRow((LCD_ROWS - 1) - row2, (LCD_ROWS - 1) - row2, 20, 39, 20, photo);
                 row2++;
             case 2:
@@ -1134,7 +1136,7 @@ void efectoPeine(uint8 *photo, uint8 sense)
                 row3++;
             case 3:
                 if (row4 > LCD_ROWS - 1) break;
-                lcd_shift(UP, (LCD_ROWS - 1) - row4, 60, 0, 79);
+                lcd_shift(UP, 0, 60, (LCD_ROWS - 1) - row4, 79);
                 lcd_putRow((LCD_ROWS - 1) - row4, (LCD_ROWS - 1) - row4, 60, 79, 60, photo);
                 row4++;
             case 4:
@@ -1144,7 +1146,7 @@ void efectoPeine(uint8 *photo, uint8 sense)
                 row5++;
             case 5:
                 if (row6 > LCD_ROWS - 1) break;
-                lcd_shift(UP, (LCD_ROWS - 1) - row6, 100, 0, 119);
+                lcd_shift(UP, 0, 100, (LCD_ROWS - 1) - row6, 119);
                 lcd_putRow((LCD_ROWS - 1) - row6, (LCD_ROWS - 1) - row6, 100, 119, 100, photo);
                 row6++;
             case 6:
@@ -1154,7 +1156,7 @@ void efectoPeine(uint8 *photo, uint8 sense)
                 row7++;
             case 7:
                 if (row8 > LCD_ROWS - 1) break;
-                lcd_shift(UP, (LCD_ROWS - 1) - row8, 140, 0, 159);
+                lcd_shift(UP, 0, 140, (LCD_ROWS - 1) - row8, 159);
                 lcd_putRow((LCD_ROWS - 1) - row8, (LCD_ROWS - 1) - row8, 140, 159, 140, photo);
                 row8++;
             }
