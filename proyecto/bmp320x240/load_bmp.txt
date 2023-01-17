@@ -12,8 +12,8 @@ restore Javier.bmp          binary 0x0c290000
 restore Pablo.bmp           binary 0x0c2a0000
 restore Cerdo.bmp           binary 0x0c2b0000
 restore Luchia.bmp          binary 0x0c2c0000
-restore Lavin.bmp           binary 0x0c2d0000
-restore Tecno.bmp           binary 0x0c2e0000
+restore Lavin.bmp           binary 0x0c300000
+restore Tecno.bmp           binary 0x0c310000
 
 echo restore Rosalina.wav	    binary 0x0c704FB0\n
 

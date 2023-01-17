@@ -32,8 +32,8 @@
 #define PABLO           ((uint8 *)0x0c2A0000)
 #define CERDO           ((uint8 *)0x0c2B0000)
 #define LUCHIA          ((uint8 *)0x0c2C0000)
-#define LAVIN           ((uint8 *)0x0c2D0000)
-#define TECNO           ((uint8 *)0x0c2E0000)
+#define LAVIN           ((uint8 *)0x0c300000)
+#define TECNO           ((uint8 *)0x0c310000)
 
 #define ROSALINA        ((int16 *)0x0c704FB0)
 
