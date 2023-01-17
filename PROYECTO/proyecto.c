@@ -708,7 +708,7 @@ void lcd_shift(uint8 sense, uint16 initRow, uint16 initCol, uint16 endRow, uint1
         break;
     case UP:
         if (initCol == 0 && endCol == LCD_COLS - 1)
-            zDMA_transfer(lcd_buffer + (LCD_COLS * (endRow + 1)), lcd_buffer + (LCD_COLS * endRow), (initRow - endRow) * LCD_COLS, SRC_INCR | DES_INCR); // Desplaza una fila hacia arriba
+            zDMA_transfer(lcd_buffer + (LCD_COLS * (initRow + 1)), lcd_buffer + (LCD_COLS * initRow), (endRow - initRow) * LCD_COLS, SRC_INCR | DES_INCR); // Desplaza una fila hacia arriba
         else
             for (y = initRow; y < endRow; y++) // Recorre la pantalla por filas de arriba hacia abajo
             {
@@ -793,7 +793,7 @@ void efectoEmpuje(uint8 *photo, uint8 sense)
     case UP:
         for (x = 0; x <= LCD_ROWS - 1; x++) // Recorre la foto por filas de arriba hacia abajo
         {
-            lcd_shift(UP, LCD_ROWS - 1, 0, 0, LCD_COLS - 1);                         // Desplaza toda la pantalla una fila hacia arriba
+            lcd_shift(UP, 0, 0, LCD_ROWS - 1, LCD_COLS - 1);                         // Desplaza toda la pantalla una fila hacia arriba
             lcd_putRow(LCD_ROWS - 1, x, 0, LCD_COLS - 1, 0, photo);    // Visualiza la fila de la foto que corresponde en la ultima fila de la pantalla
         }
         break;
@@ -873,7 +873,7 @@ void efectoRevelado(uint8 *photo, uint8 sense)
     case UP:
         for (y = LCD_ROWS - 1; y >= 0; y--) // Recorre la foto por filas de arriba hacia abajo
         {
-            lcd_shift(UP, y, 0, 0, LCD_COLS - 1);         // Desplaza toda la pantalla una fila hacia arriba
+            lcd_shift(UP, 0, 0, y, LCD_COLS - 1);         // Desplaza toda la pantalla una fila hacia arriba
             lcd_putRow(y, y, 0, LCD_COLS - 1, 0, photo); // Visualiza la fila de la foto que corresponde en la ultima fila de la pantalla
         }
         break;
@@ -913,7 +913,7 @@ void efectoCobertura(uint8 *photo, uint8 sense)
     case UP:
         for (y = LCD_ROWS - 1; y >= 0; y--) // Recorre la foto por filas de abajo hacia arriba
         {
-            lcd_shift(UP, LCD_ROWS - 1, 0, y, LCD_COLS - 1);         // Desplaza toda la pantalla una fila hacia arriba
+            lcd_shift(UP, y, 0, LCD_ROWS - 1, LCD_COLS - 1);         // Desplaza toda la pantalla una fila hacia arriba
             lcd_putRow(LCD_ROWS - 1, (LCD_ROWS - 1) - y, 0, LCD_COLS - 1, 0, photo); // Visualiza la fila de la foto que corresponde en la ultima fila de la pantalla
         }
         break;
