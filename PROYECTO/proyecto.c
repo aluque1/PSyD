@@ -184,6 +184,7 @@ uint8 *minArray[] = {MINIARBOL, MINIPICACHU, MINIPULP, MINIHARRY, MINIRONALDO, M
 
 uint8 bkUpBuffer[LCD_BUFFER_SIZE];
 uint8 scancode; // Variable para almacenar el c�digo de tecla pulsada
+uint8 scancodeAux; // Variable para almacenar temporalmente el c�digo de tecla pulsada
 uint8 volumen; // Variable para almacenar el volumen de reproducci�n
 uint16 xTs; // Variables para almacenar las coordenadas del TS
 uint16 yTs; // Variables para almacenar las coordenadas del TS
@@ -451,7 +452,7 @@ void menuSettings(uint8 index)
                 lcd_puts(LCD_WIDTH - 123, (LCD_HEIGHT - 15), BLACK, "Use el keypad");
                 while(!flagKeyPad);
                 keypad_action();
-                indexEfecto = scancode;
+                indexEfecto = scancode > numEffects ? indexEfecto : scancode;
                 lcd_puts(174, 125, BLACK, "               ");
                 lcd_puts(174, 125, BLACK, effectName[indexEfecto]);
                 if (!tieneSentido[indexEfecto])
@@ -469,7 +470,7 @@ void menuSettings(uint8 index)
                     lcd_puts(LCD_WIDTH - 123, (LCD_HEIGHT - 15), BLACK, "Use el keypad");
                     while(!flagKeyPad);
                     keypad_action();
-                    sense = scancode;
+                    sense = scancode > 4 ? sense : scancode;
                     lcd_puts(240, 168, BLACK, "        ");
                     lcd_puts(240, 168, BLACK, senseName[sense]);
                 }
@@ -491,7 +492,8 @@ void menuSettings(uint8 index)
 
 void keypad_action(){
     flagKeyPad = FALSE;
-    scancode = keypad_getchar();
+    scancodeAux = keypad_getchar();
+    scancode = (scancodeAux == KEYPAD_FAILURE) ? scancode : scancodeAux;
 }
 
 void initPack()

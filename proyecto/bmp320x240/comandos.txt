@@ -1,0 +1,2 @@
+cd C:\Users\nacho\Google Drive UCM\UCM\Universidad\3o\1er Cuatrimestre\PSyD\Workspace\labs\proyecto\bmp320x240
+source load_bmp.txt
