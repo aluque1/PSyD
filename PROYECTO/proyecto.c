@@ -33,6 +33,7 @@
 #define CERDO           ((uint8 *)0x0c2B0000)
 #define LUCHIA          ((uint8 *)0x0c2C0000)
 #define LAVIN           ((uint8 *)0x0c2D0000)
+#define TECNO           ((uint8 *)0x0c2E0000)
 
 #define ROSALINA        ((int16 *)0x0c704FB0)
 
@@ -49,6 +50,7 @@
 #define MINICERDO       ((uint8 *)0x0c624000)
 #define MINILUCHIA      ((uint8 *)0x0c626000)
 #define MINILAVIN       ((uint8 *)0x0c628000)
+#define MINITECNO       ((uint8 *)0x0c62A000)
 
 /* Dimensiones de la pantalla para la realización de efectos */
 
@@ -178,9 +180,9 @@ char* effectName[] = {"Aleatorio", "Nulo", "Empuje", "Barrido", "Revelado", "Cob
     
 char* senseName[]  = {"LEFT", "RIGHT", "UP", "DOWN"};
 uint8 tieneSentido[] = {0, 0, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 1, 1}; // Array de bool para saber si el efecto correspondiente tiene sentido o no.
-uint8 *photoArray[] = {ARBOL, PICACHU, PULP, HARRY, RONALDO, GUILLE, GATITO, DANI, JAVIER, PABLO, CERDO, LUCHIA}; // Array de punteros a las fotos a visualizar
+uint8 *photoArray[] = {ARBOL, PICACHU, PULP, HARRY, RONALDO, GUILLE, GATITO, DANI, JAVIER, PABLO, CERDO, LUCHIA, LAVIN, TECNO}; // Array de punteros a las fotos a visualizar
 uint8 *minArray[] = {MINIARBOL, MINIPICACHU, MINIPULP, MINIHARRY, MINIRONALDO, MINIGUILLE, 
-    MINIGATITO, MINIDANI, MINIJAVIER, MINIPABLO, MINICERDO, MINILUCHIA}; // Array de punteros a las miniaturas de las fotos a visualizar
+    MINIGATITO, MINIDANI, MINIJAVIER, MINIPABLO, MINICERDO, MINILUCHIA, MINILAVIN, MINITECNO}; // Array de punteros a las miniaturas de las fotos a visualizar
 
 uint8 bkUpBuffer[LCD_BUFFER_SIZE];
 uint8 scancode; // Variable para almacenar el c�digo de tecla pulsada
@@ -191,7 +193,7 @@ uint16 yTs; // Variables para almacenar las coordenadas del TS
 boolean aleatorio; // Variable para indicar si se reproduce el album en modo aleatorio
 uint8 volumen; // Variable para almacenar el volumen de reproducci�n
 
-const uint8 numPhotos = 13; // N�mero de fotos a visualizar
+const uint8 numPhotos = 14; // N�mero de fotos a visualizar
 const uint8 numEffects = 14; // N�mero de efectos de transici�n entre fotos
 
 static unsigned long int next = 1;
@@ -452,7 +454,7 @@ void menuSettings(uint8 index)
                 lcd_puts(LCD_WIDTH - 123, (LCD_HEIGHT - 15), BLACK, "Use el keypad");
                 while(!flagKeyPad);
                 keypad_action();
-                indexEfecto = scancode > numEffects ? indexEfecto : scancode;
+                indexEfecto = scancode > numEffects - 1 ? indexEfecto : scancode;
                 lcd_puts(174, 125, BLACK, "               ");
                 lcd_puts(174, 125, BLACK, effectName[indexEfecto]);
                 if (!tieneSentido[indexEfecto])
