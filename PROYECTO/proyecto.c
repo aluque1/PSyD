@@ -470,7 +470,7 @@ void menuSettings(uint8 index)
                     lcd_puts(LCD_WIDTH - 123, (LCD_HEIGHT - 15), BLACK, "Use el keypad");
                     while(!flagKeyPad);
                     keypad_action();
-                    sense = scancode > 4 ? sense : scancode;
+                    sense = scancode > 3 ? sense : scancode;
                     lcd_puts(240, 168, BLACK, "        ");
                     lcd_puts(240, 168, BLACK, senseName[sense]);
                 }
