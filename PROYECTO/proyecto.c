@@ -130,7 +130,6 @@ void lcd_dumpBmp(uint8 *bmp, uint8 *buffer, uint16 x, uint16 y, uint16 xsize, ui
 void lcd_putBmp(uint8 *bmp, uint16 x, uint16 y, uint16 xsize, uint16 ysize);
 void lcd_bmp2photo(uint8 *bmp, uint8 *photo);
 void lcd_bmp2min(uint8 *bmp, uint8 *min);
-void test(uint8 *photo); // Incluida para uso exclusivo en depuraci�n, deber� eliminarse del proyecto final
 void photoSlider();
 void menuPrincipal();
 void menuSettings(uint8 index);
@@ -261,7 +260,6 @@ void main(void)
 void photoSlider()
 {
     (*album.pack[album.index].effect)(album.pack[album.index].data.photoBuffer, album.pack[album.index].sense); // Ejecuta el efecto para visualizar la nueva foto
-    test(album.pack[album.index].data.photoBuffer); // Chequea que el resultado del efecto es el deseado
     sw_delay_s(album.pack[album.index].secs); // Mantiene la foto el tiempo indicado
     album.index += aleatorio ? rand() % album.numPacks : 1; album.index %= album.numPacks; // Avanza circularmente a la siguiente foto del album
 }
@@ -423,7 +421,11 @@ void menuSettings(uint8 index)
 
     lcd_draw_box((MIN_WIDTH + 20), 165, (MIN_WIDTH + 160), 185, BLACK, 2);
     lcd_puts(174, 168, BLACK, "SENTIDO: " );
+    if (!tieneSentido[album.pack[index].effectNum])
+        lcd_puts(240, 168, BLACK, "No apply");
+    else
     lcd_puts(240, 168, BLACK, senseName[album.pack[index].sense]);
+    
 
     lcd_puts(10, (LCD_HEIGHT - 15), BLACK, "CAMBIANDO:");
     
@@ -464,7 +466,7 @@ void menuSettings(uint8 index)
                     lcd_puts(240, 168, BLACK, senseName[sense]);
                 }
                 break;
-            case 160 ... 190: // Sentido  
+            case 155 ... 195: // Sentido  
                 if(xTs < 160) break;
                 if (tieneSentido[indexEfecto])
                 {
@@ -489,6 +491,7 @@ void menuSettings(uint8 index)
     flagPb = FALSE;
     album.pack[index].secs = secs;
     album.pack[index].effect = effectArray[indexEfecto];
+    album.pack[index].effectNum = indexEfecto;
     album.pack[index].sense = sense;
 }
 
@@ -575,26 +578,6 @@ void lcd_bmp2min(uint8 *bmp, uint8 *min)
         for (xSrc = 0; xSrc < MIN_WIDTH / 2; xSrc++)
             min[offsetDst + xSrc] = ~bmp[offsetSrc + xSrc];
     }
-}
-
-/*
-** Chequea que se est� visualizando la foto indicada comparando pixel a pixel el buffer de v�deo y la foto
-** Incluida para uso exclusivo en depuraci�n, deber� eliminarse del proyecto final
-**
-** NO puede hacerse por DMA porque requiere la comparaci�n de pixeles.
-*/
-void test(uint8 *photo)
-{
-    int16 x, y;
-
-    for (x = 0; x < LCD_COLS; x++)
-        for (y = 0; y < LCD_ROWS; y++)
-            if (lcd_buffer[y * LCD_COLS + x] != photo[y * LCD_COLS + x])
-            {
-                segs_putchar(0xE);
-                while (1)
-                    ;
-            }
 }
 
 /*

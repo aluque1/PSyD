@@ -15,7 +15,7 @@ restore Luchia.bmp          binary 0x0c2c0000
 restore Lavin.bmp           binary 0x0c300000
 restore Tecno.bmp           binary 0x0c310000
 
-echo restore Rosalina.wav	    binary 0x0c704FB0\n
+restore Rosalina.wav	    binary 0x0c704FB0
 
 restore miniarbol.bmp       binary 0x0c610000
 restore minipicachu.bmp     binary 0x0c612000
